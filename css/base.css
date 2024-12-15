@@ -1,0 +1,68 @@
+:root {
+     /* Earthen Luxe: #0A0908, #22333B, #EAE0D5, #C6AC8E, #5E503F  */
+    --light1-color: #EAE0D5;
+    --light2-color: #C6AC8E;
+    --dark1-color: #5E503F;
+    --dark2-color: #22333B;
+    --dark3-color: #0A0908;
+
+    /* https://samanthadigital.com/luxury-color-palettes/ 
+    Classic Elegance: #2E4053, #BFC9CA, #AAB7B8, #D5D8DC, #F1C40F 
+    Rustic Radiance:#7E102C, #E1D4C1, #D7A9A8, #58423F, #E1D3CC 
+    Azure Allure: #1A5276, #2980B9, #85C1E9, #F7DC6F, #D4AC0D 
+    Violet Velvet: #4A235A, #6C3483, #A569BD, #E8DAEF, #F4ECF7 
+    Emerald Essence: #0D2B1D, #345635, #6B8F71, #AEC3B0, #E3EFD3 
+    Sunset Sophistication: #3E2723, #D4A373, #8D6E63, #FFE0B2, #FFF3E0 
+    Neutral Nudes: #6E6658, #B2B0A1, #F5ECE6, #A9A7A0, #E6DDD7  
+    Earthen Luxe: #0A0908, #22333B, #EAE0D5, #C6AC8E, #5E503F 
+    Noir Chic: #1E1E1E, #595959, #A6A6A6, #D0D0D0, #F1EFEF 
+    Mocha Medley:#332820, #5A4D40, #D5AA9F, #D0C6BD, #EFEDEA */
+
+    --breakpoint-phone-vertical: 480px;
+    --breakpoint-phone-horizontal: 600px;
+    --breakpoint-tablet-vertical: 768px;
+    --breakpoint-tablet-horizontal: 1024px;
+    --breakpoint-desktop: 1440px;
+    
+    --viewport-height: 100vh; /* Fallback for browsers without JS */
+}
+
+/*  */
+* {
+    box-sizing: inherit;
+    font-size: inherit;
+}
+
+html {
+    line-height: 1.6em;
+    font-family: "Roboto", sans-serif;
+    box-sizing: border-box;
+    width:100vw;
+    height: var(--viewport-height);
+    color: var(--dark3-color);
+}
+
+body {
+    height: var(--viewport-height);
+    background-color: var(--light1-color);
+    /* for Notches and Safe Areas for Iphone */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+}
+
+html, body {
+    margin:0;
+    padding:0; 
+    overscroll-behavior: none; /* Prevent pull-to-refresh on the entire page */
+    position: relative;
+}
+
+.hidden {
+    display:none;
+}
+
+:not(:defined) {
+    visibility: hidden;
+}
