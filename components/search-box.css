@@ -1,0 +1,19 @@
+.container {
+    position: relative;
+    width:100%;
+    height:100%;
+}
+.searchTop {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    gap:5px;
+}
+
+.searchTop sl-button {
+    flex: 1;
+}
+
+.searchTop sl-input {
+    flex: 7;
+}

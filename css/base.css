@@ -39,12 +39,10 @@ html {
     box-sizing: border-box;
     width:100vw;
     height: var(--viewport-height);
-    color: var(--dark3-color);
 }
 
 body {
     height: var(--viewport-height);
-    background-color: var(--light1-color);
     /* for Notches and Safe Areas for Iphone */
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
@@ -65,4 +63,75 @@ html, body {
 
 :not(:defined) {
     visibility: hidden;
+}
+
+
+/* Thin Scroll Style */
+.thinScrollBar_container {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* smooth scroll on mobile */
+  scrollbar-width: thin; /* Firefox thin scrollbar */
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent; /* Firefox thumb + track */
+}
+
+/* Chrome, Edge, Safari (WebKit Browsers) */
+.thinScrollBar_container::-webkit-scrollbar {
+  width: 2px;
+  background: transparent; /* hidden track */
+}
+
+.thinScrollBar_container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* scrollBar hidden */
+.scrollBar_hidden {
+  overflow: auto;            /* Enables scrolling */
+  scrollbar-width: none;     /* Firefox */
+  -ms-overflow-style: none;  /* IE 10+ */
+}
+
+/* Chrome, Safari, Edge (WebKit) */
+.scrollBar_hidden::-webkit-scrollbar {
+  display: none;
+}
+
+
+/* No Scrollable Style */
+.noScroll_container {
+  overflow: hidden;     /* Core scroll prevention */
+  overscroll-behavior: contain; /* Prevent scroll chaining */
+  max-height: 100%;     /* Prevent height overflow */
+  height: 100%;         /* Ensure full containment */
+  width: 100%;
+  -webkit-overflow-scrolling: touch; /* iOS safari quirk */
+  scrollbar-width: none;   /* Firefox: hide scrollbar */
+}
+
+/* Hide scrollbar for WebKit-based browsers (Chrome, Safari) */
+.noScroll_container::-webkit-scrollbar {
+  display: none;
+}
+
+
+/* Animated Scroll Prompt (Subtle Bounce or Wiggle)
+Trigger a CSS animation (or JS-based motion) on an item inside the container to gently suggest movement. */
+@keyframes wiggle_horizon {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(-20px); }
+  100% { transform: translateX(0); }
+}
+.scroll-prompt_horizon {
+  animation: wiggle_horizon 5s ease-in-out infinite;
+}
+
+
+@keyframes wiggle_vertical {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+  100% { transform: translateY(0); }
+}
+
+.scroll-prompt_vertical {
+  animation: wiggle_vertical 5s ease-in-out infinite;
 }

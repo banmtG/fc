@@ -1,0 +1,14 @@
+:root {     
+
+     /* hover, focus of button */
+    --sl-focus-ring-color: var(--sl-color-primary-200);
+    --sl-focus-ring-style: solid;
+    --sl-focus-ring-width: 2px;
+    --sl-focus-ring-offset: 1px;
+    --sl-focus-ring: var(--sl-focus-ring-style) var(--sl-color-primary-200) var(--sl-focus-ring-width);
+
+    /* border width, color of button */
+    --sl-input-border-width: 2px;
+    --sl-input-border-color: var(--sl-color-neutral-300);
+}
+

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css"
+    />
+    <script
+      type="module"
+      src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace.js"
+    ></script>
+    <title>Image Picker Test</title>
+    <link href="./../css/base.css" rel="stylesheet" />
+    <link href="./../css/index.css" rel="stylesheet" />
+    <link href="./../css/shoelace_customized.css" rel="stylesheet"> 
+    <script
+      type="text/javascript"
+      src="./../components/smart-button-group.js"
+    ></script>  
+    
+    <style>
+      smart-button-group {
+        margin: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <smart-button-group id="fruit">
+      <sl-button-group label="history">
+        <sl-tooltip content="Undo">
+          <sl-button cb="Undo"
+            ><sl-icon name="arrow-counterclockwise"></sl-icon
+          ></sl-button>
+        </sl-tooltip>
+        <sl-tooltip content="Redo">
+          <sl-button cb="Redo"
+            ><sl-icon name="arrow-clockwise"></sl-icon
+          ></sl-button>
+        </sl-tooltip>
+      </sl-button-group>
+
+      <sl-button-group label="Formatting">
+        <sl-tooltip content="Bold">
+          <sl-button cb="Bold"
+            ><sl-icon name="type-bold" label="Bold"></sl-icon
+          ></sl-button>
+        </sl-tooltip>
+        <sl-tooltip content="Italic">
+          <sl-button cb="Italic"
+            ><sl-icon name="type-italic" label="Italic"></sl-icon
+          ></sl-button>
+        </sl-tooltip>
+        <sl-tooltip content="Underline">
+          <sl-button cb="Underline"
+            ><sl-icon name="type-underline" label="Underline"></sl-icon
+          ></sl-button>
+        </sl-tooltip>
+      </sl-button-group>
+    </smart-button-group>
+
+    <input />
+    <button>A button</button>
+
+    <script>
+      const group = document.querySelector("smart-button-group");
+
+      group.dispatchEvent(new CustomEvent("group-ready")); // to tell the compoenent when all slots are loaded
+
+      group.callbacks = {
+        Undo: (val) => console.log("handle_Undo is", val),
+        Redo: (val) => console.log("handle_Redo fucntion is", val),
+      };
+
+      group.addEventListener("smart-button-group-change", (e) => {
+        console.log("Group :", e.detail.group_id);
+        console.log("Group change:", e.detail.name, "=", e.detail.value);
+        console.log("Group state:", e.detail.state);
+      });
+    </script>
+  </body>
+</html>

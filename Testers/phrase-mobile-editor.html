@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css" />
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace.js"></script>
+    <title>Phrase Mobile Editor</title>
+
+    <link href="./../css/base.css" rel="stylesheet">
+    <link href="./../css/index.css" rel="stylesheet">
+    <link href="./../css/shoelace_customized.css" rel="stylesheet">  <!-- for customized shoelace default value-->      
+ 
+    <script type="module" src="./../js/utils/deviceUtils.js"></script>    
+    <script type="text/javascript" src="./../js/utils/viewport.js"></script>
+
+    <script type="text/javascript" src="./../components/loading-icon.js"></script>
+    </script><script type="text/javascript" src="./../components/smart-toggle.js"></script>
+    <script type="text/javascript" src="./../components/smart-button-group.js"></script>
+    <link href="./../components/dragdrop-box.css" rel="stylesheet">
+    <script type="text/javascript" src="./../components/dragdrop-box.js"></script>
+
+    <script type="text/javascript" src="./../components/phrase-mobile-editor.js"></script>
+
+</head>
+<body>   
+    <h2>Phrases mobile editor</h2>
+    <phrase-mobile-editor></phrase-mobile-editor>
+  
+<script>
+    const editor = document.querySelector("phrase-mobile-editor");    
+    const sampleData = [
+      {
+        "order": 75,
+        "phrase": "abscond",
+        "dictIndex": 115,
+        "ukipa": "æbˈskɒnd",
+        "usipa": "æbˈskɑːnd",
+        "uks": "u/uka/ukabr/ukabrea012.mp3",
+        "uss": "a/abs/absco/abscond.mp3",
+        "defi": "[{\"pos\":\"verb\",\"info\":\"\",\"definition\":\"to go away suddenly and secretly in order to escape from somewhere\",\"example\":\"abscond from She absconded from boarding school and hitchhiked to the city.\\nTwo prisoners absconded last night.\"},{\"pos\":\"verb\",\"info\":\"\",\"definition\":\"to go away suddenly and secretly because you have stolen something, usually money\",\"example\":\"abscond with They think they know who absconded with the funds from the bake sale.\\nabscond with humorous Someone absconded with my pen.\"},{\"pos\":\"verb\",\"info\":\"\",\"definition\":\"to escape and hide somewhere, esp. because you have stolen something\",\"example\":\"They absconded with $100,000 of the company’s money.\"}]",
+        "imgUrl": "p:tse1_OIP.WMeUq-ksp4bl7ONfFBPmFAHaHa,p:tse4_OIP.vS5a-x73PUqUIKLe-fUipQHaEK,p:tse1_OIP._4YDcaUWd5-ELBRg79vH2wHaD4,p:tse1_OIP.lJ1YpHpTQVgKF_7l74cL3gHaEK,p:tse2_OIP.cWnyDVNJFa5vGu-35XWm8gHaDe,p:tse3_OIP.w8hs53P5yE1E7049izltxAHaD4,p:tse4_OIP.qQFjQlUXeCnOGyRp81YTSAHaEj,p:tse1_OIP.RLa61dD-2DIiVnq8bt7JUAHaEK,p:tse1_OIP.LJQvMgI-1cZR0Fg8rbmHTAHaH5,p:tse4_OIP.73TX3hVIbbiArDfhVbhynwHaDt",
+        "lang-vi": "bỏ trốn"
+      },
+      {
+        "order": 86,
+        "phrase": "abstain",
+        "dictIndex": 142,
+        "ukipa": "æbˈsteɪn",
+        "usipa": "æbˈsteɪn",
+        "uks": "u/uka/ukabs/ukabsor002.mp3",
+        "uss": "a/abs/absta/abstain.mp3",
+        "defi": "[{\"pos\":\"verb\",\"info\":\"\",\"definition\":\"to not do something, especially something enjoyable that you think might be bad\",\"example\":\"abstain from He took a vow to abstain from alcohol/smoking/sex.\"},{\"pos\":\"verb\",\"info\":\"\",\"definition\":\"to decide not to use your vote\",\"example\":\"63 members voted in favour, 39 opposed, and 15 abstained.\"},{\"pos\":\"verb\",\"info\":\"Indian English\",\"definition\":\"to stay away from work\",\"example\":\"During a recent general strike, employees of all major trade unions abstained.\"},{\"pos\":\"verb\",\"info\":\"\",\"definition\":\"to not do something you could do, esp. something that is unhealthy or gives you pleasure\",\"example\":\"Some families abstain from eating fried food.\"},{\"pos\":\"verb\",\"info\":\"\",\"definition\":\"If you abstain from voting, you do not vote although you are permitted to vote.\",\"example\":\"\"}]",
+        "imgUrl": "p:tse1_OIP.bTL_QzVa3M9JGCN0cEuYMQHaH_,p:tse3_OIP.RxEIu9iSJH5pfyxb_Q3hEgHaE3,p:tse1_OIP.E9Gcw-rjHvan7kfToYY8GgHaE8",
+        "lang-vi": "kiêng cử"
+      },
+      {
+        "order": 78,
+        "phrase": "acquit",
+        "dictIndex": 334,
+        "ukipa": "əˈkwɪt",
+        "usipa": "əˈkwɪt",
+        "uks": "u/uka/ukacq/ukacqua012.mp3",
+        "uss": "a/acq/acqui/acquit.mp3",
+        "defi": "[{\"pos\":\"verb\",\"info\":\"[T often passive]\",\"definition\":\"to decide officially in a law court that someone is not guilty of a particular crime\",\"example\":\"acquit someone of something She was acquitted of all the charges against her.\\nacquit someone on something Five months ago he was acquitted on a shoplifting charge.\"},{\"pos\":\"verb\",\"info\":\"\",\"definition\":\"to do better than expected in a difficult situation\",\"example\":\"I thought that he acquitted himself admirably in today's meeting.\\nIf Holmes acquits herself well in today's race, she may earn a place in the national team.\\nThe three starting forwards acquitted themselves quite well in last night's game.\"},{\"pos\":\"verb\",\"info\":\"\",\"definition\":\"to decide officially in a court of law that someone is not guilty of a particular crime\",\"example\":\"She was acquitted.\\nThe jury acquitted him.\"},{\"pos\":\"verb\",\"info\":\"fml\",\"definition\":\"to cause yourself to perform or behave in the stated way\",\"example\":\"She acquitted herself well, finishing second.\"}]",
+        "imgUrl": "p:tse4_OIP.HKlhOa4WRLlQ_1nOgK6tYQHaF6,p:tse1_OIP.kRSGQmdcNBjMBgwafviuegHaF7,p:tse4_OIP.KwOjNnFe3ZGcBahTGJd_iwHaEi,p:tse1_OIP.X8vnEakIjPAfiEFBfOcrKQHaD4,p:tse4_OIP.nCBCD_wN7XliBYMeSbkdZgHaD4,p:tse3_OIP.dJ2bzaQzoyIzmcRDKq9lVQHaD4,p:tse1_OIP.Yk2uIipFgPsaogeO0eHo7AHaE8,p:tse4_OIP.ZVEybTBAFXArT18gh6uGDgEsDh,p:tse1_OIP.XTdJOPWFKty3CM-pCw4_wwHaEK,p:tse3_OIP.YLqZAffD5q0Xl5MS8D9RsQHaD4",
+        "lang-vi": "tha bổng"
+      },
+      {
+        "order": 35,
+        "phrase": "amnesia",
+        "dictIndex": 1132,
+        "ukipa": "æmˈniː.zi.ə",
+        "usipa": "æmˈniː.ʒə",
+        "uks": "u/uka/ukami/ukamiab016.mp3",
+        "uss": "c/cdo/cdo03/cdo0319usamne0048.mp3",
+        "defi": "[{\"pos\":\"noun\",\"info\":\"\",\"definition\":\"a medical condition that makes you unable to remember things\",\"example\":\"After the accident he suffered periods of amnesia.\"},{\"pos\":\"noun\",\"info\":\"\",\"definition\":\"loss of the ability to remember\",\"example\":\"\"}]",
+        "imgUrl": "p:tse2_OIP.rLsxoJqLlBgijLyW6MU4NQHaEK,p:tse1_OIP.6UxQLSKbj-NJcdik4g2k5AHaE6,p:tse4_OIP.ZR89uwVIAQTrq5-iaI3LzQHaFJ,p:tse4_OIP.snsaxpjpOobxjc1AVPkmUQHaEK,p:tse1_OIP.UiSNu1Vrz-zwzk9DwkEnPgHaJ4,p:tse2_OIP.tgnCmCsmd_Pj0slZyGPNMgHaEK,p:tse3_OIP.a0lBF0WUYYx8T1zNn_f_iQHaHa,p:tse2_OIP.k-kn9QxRVHVyyXHUWHOmSQHaDG,p:tse3_OIP.WRoqxOUipf_sPkqmI6H3iAHaEK,p:tse2_OIP.qyt1kTg70nA1Z7Q6jm41gwHaEK",
+        "lang-vi": "mất trí nhớ"
+      },
+      {
+        "order": 70,
+        "phrase": "ampersand",
+        "dictIndex": 1156,
+        "ukipa": "ˈæm.pə.sænd",
+        "usipa": "ˈæm.pɚ.sænd",
+        "uks": "u/uka/ukamo/ukamort009.mp3",
+        "uss": "u/usa/usami/usamiab020.mp3",
+        "defi": "[{\"pos\":\"noun\",\"info\":\"\",\"definition\":\"the sign &, used for \\\"and\\\"\",\"example\":\"\"}]",
+        "imgUrl": "p:tse2_OIP.qfGJWuqLxB7YKgwepe5S4QHaHa,p:tse1_OIP.PYn-LxjVYlzRgkI0fP_d6AHaHa,p:tse4_OIP.IkmwREwrRIbymG8_sPvF4AHaHa,p:tse1_OIP.HuSrV-8PFwf1Cf6r7vHnVgHaKp,p:tse1_OIP.lxavs5y8IRmKBRF06-inJAHaHa,p:tse3_OIP.i3To3dWPRw03LMklmt-JIwHaK5,p:tse1_OIP.3x0wz3etd4gHIO7BKYLFRgHaEo,p:tse2_OIP.PfLCkJ3alf27XkHxOWOR_QAAAA,p:tse4_OIP.DhHhuv4TqpNpW-AeYrmvsQHaH0,p:tse4_OIP.q9KCv7imlCUMbZpISCXnagHaJS,p:tse2_OIP.YNYqInCjGqONvXkVIKmdCAHaGY,p:tse4_OIP.wsgaMnPxYRpPbTdZUK_GLAHaD5,p:tse3_OIP.7iAQ_Z3TUIoA1eJvmMyFlQHaHa,p:tse1_OIP.aa3R8lWkwVUn-NpKljjs1gHaIB",
+        "lang-vi": "dấu &"
+      },
+      {
+        "order": 0,
+        "phrase": "anal",
+        "dictIndex": 1202,
+        "ukipa": "ˈeɪ.nəl",
+        "usipa": "ˈeɪ.nəl",
+        "uks": "u/uka/ukamu/ukamusi017.mp3",
+        "uss": "a/ana/anal_/anal.mp3",
+        "defi": "[{\"pos\":\"adjective\",\"info\":\"\",\"definition\":\"relating to the anus (= the opening at end of the intestines through which solid waste leaves the body)\",\"example\":\"the anal passage/sphincter\\nanal sex\"},{\"pos\":\"adjective\",\"info\":\"informal\",\"definition\":\"→ anally retentive informal \",\"example\":\"his anal fondness for filing\"}]",
+        "imgUrl": "",
+        "lang-vi": "hậu môn"
+      },
+      {
+        "phrase": "mini getaway",
+        "type": "phrase",
+        "error": "Definition not found",
+        "imgUrl": [
+          "p:tse4_OIP.BfAdkfQKnRPRBraauwuhMQHaEd",
+          "p:tse4_OIP.Q0upzVuXpqOiWzAs-2wgIQHaEK",
+          "p:tse4_OIP.ZtOs61GWKmz5p7ilQTc8aAHaFP",
+          "p:tse3_OIP.oRR6_-JA_--26pVuF69n4QHaED",
+          "p:tse2_OIP.IMaZa7JrdA3NGCPy_JxWygHaE7",
+          "p:tse3_OIP.YZUXp7ZIIV5cr25WJYgOzwHaEK",
+          "p:tse2_OIP.TKb-piDaD63SSbgp0Wo3VAHaEK",
+          "p:tse4_OIP.BWat3oRAB7u9i9ATb0xmyQHaDv"
+        ],
+        "lang-vi": "chuyến đi ngắn ngày"
+      },{
+  "order": 2,
+  "phrase": "what you see is what you get",
+  "type": "phrase",
+  "ukIPA": "",
+  "usIPA": "",
+  "ukSoundUrl": "c/cbe/cbedu/cbeduk10286.mp3",
+  "usSoundUrl": "c/cbe/cbedu/cbedus10286.mp3",
+  "definition": [
+    {
+      "pos": "noun",
+      "info": "",
+      "definition": "→ WYSIWYG",
+      "example": ""
+    }
+  ],
+  "imgUrl": [
+    "p:tse4_OIP.BEZg_SrGPLE5f3B05URVwAHaEK",
+    "p:tse3_OIP.JH_G1UMW3b00pQiEmk7mlQHaEK",
+    "p:tse4_OIP.0Aop0Q8yNRugaLChSFZKmQHaEK",
+    "p:tse2_OIP.baaN4Ia7VXXigZOVSJL_GwHaEK",
+    "p:tse3_OIP.uGfqXSA-egKawwXXXE-FnQHaEK",
+    "p:tse3_OIP.Zrf6_RY-Ngvah90D0dKzBQHaHY",
+    "p:tse4_OIP.pnwSQebxlS1lyX4q9-K3wQHaEK"
+  ],
+  "lang-vi": "Những gì bạn thấy là những gì bạn nhận được"
+},
+{
+  "order": 0,
+  "phrase": "something disagree",
+  "type": "phrase",
+  "ukIPA": "",
+  "usIPA": "",
+  "ukSoundUrl": "",
+  "usSoundUrl": "",
+  "definition": [
+    {
+      "pos": "collocation",
+      "info": "",
+      "definition": "to not have the same opinion, idea, etc. as someone about something:",
+      "example": "I admire his courage, even if we disagree on many things.\nExperts disagree on how to solve the problem.\nI disagree with her on several points."
+    }
+  ],
+  "imgUrl": [
+    "p:tse2_OIP.NK5yG5aLulCMcVuEBK9DbQHaHa",
+    "p:tse1_OIP.GwZVuPLqabqD-zqg1F4YVwHaJq",
+    "p:tse3_OIP.2Kz89yNF2UMS5spHCXcu0QHaNK",
+    "p:tse4_OIP.gpHAnxPq7XOVFd_flbN3RAHaE7",
+    "p:tse3_OIP.JuTROL5dP4oFP08mnXon1QHaHa",
+    "p:tse4_OIP.tl2NjT6jGBtBrOwh3jfp-AHaEK",
+    "p:tse4_OIP.HpOPGdJQhlxguhfPuRETlwHaE7",
+    "p:tse3_OIP.mkJltiP2DO0sxGBm57QLZwHaEK",
+    "p:tse4_OIP.RCy32lxL1WHTp5TszskuJAHaHa",
+    "p:tse3_OIP.Ao9WwRsAuP01Dq6DHl1ZGAHaD4"
+  ],
+  "lang-vi": "Có điều gì đó không đồng tình"
+}
+
+    ];
+    editor.setData = sampleData;
+
+</script>
+</body>
+</html>

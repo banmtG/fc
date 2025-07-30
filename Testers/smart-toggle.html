@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <!-- <link rel="preload" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.17.1/cdn/themes/light.css" />
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.17.1/cdn/shoelace.js"></script>   -->
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css" />
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace.js"></script>
+    <title>Image Picker Test</title>
+    <link href="./../css/base.css" rel="stylesheet">
+    <link href="./../css/index.css" rel="stylesheet">
+      
+    </script><script type="text/javascript" src="./../components/smart-toggle.js"></script>
+    <style>
+        /* smart-toggle::part(icon) {
+            font-size:2rem;
+            color:blue;
+        } */
+    </style>
+</head>
+<body>
+      <input>
+      <button>A button</button>
+     <smart-toggle
+        id="tog1"
+        values='[true,false]' 
+        icons='["toggle-on","toggle-off"]'
+        colors='["#009999","#999999"]'
+        fontSize='5rem' btnBorder> 
+    </smart-toggle>
+      <smart-toggle
+      id="tog2"
+        values='["On","Off"]'
+        icons='["toggle-on","toggle-off"]'
+        colors='["#FF9999","#999999"]'
+        fontSize='5rem'>
+    </smart-toggle>
+          <smart-toggle
+          id="tog3"
+        values='["On","Off"]'
+        icons='["toggle-on","toggle-off"]'
+        colors='["red","#999999"]'
+        fontSize='2.5rem'>
+    </smart-toggle>
+    
+    <script>
+    const toggle = document.querySelectorAll("smart-toggle");   
+
+    toggle.forEach((eachtog) => { 
+        eachtog.callbacks ={
+            0: () => console.log(`${eachtog.id} Toggle value ${eachtog.value} `),
+            1: () => console.log(`${eachtog.id} Toggle value ${eachtog.value} `),       
+        }    
+    });   
+        
+    document.addEventListener("smart-toggle-change", e => {
+        console.log(`${e.detail.id} changed to:`, e.detail.value);
+    });
+
+    </script>
+</body>
+</html>
