@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css" />
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace.js"></script>
+    <title>Phrase Mobile Editor</title>
+
+    <link href="./../css/base.css" rel="stylesheet">
+    <link href="./../css/index.css" rel="stylesheet">
+    <link href="./../css/shoelace_customized.css" rel="stylesheet">  <!-- for customized shoelace default value-->      
+ 
+    <script type="module" src="./../js/utils/deviceUtils.js"></script>    
+    <script type="text/javascript" src="./../js/utils/viewport.js"></script>
+    <script type="text/javascript" src="./../components/smart-nav.js"></script>
+    <script type="text/javascript" src="./../components/smart-vertical-nav.js"></script>
+
+</head>
+<body>   
+    <h2>Smart Nav</h2>
+  <smart-nav id="my-nav" variant="success"></smart-nav>
+ <phrase-nav-bar id="nav" layout="vertical"></phrase-nav-bar>
+
+ 
+<script>
+  const menuData = [
+    { key: 'overview', phrase: 'Overview' },
+    { key: 'analytics', phrase: 'Analytics' },
+    { key: 'sales', phrase: 'Sales' },
+    { key: 'marketing', phrase: 'Marketing' },
+    { key: 'development', phrase: 'Development' },
+    { key: 'support', phrase: 'Support' },
+    { key: 'hr', phrase: 'Human Resources' },
+    { key: 'legal', phrase: 'Legal' },
+    { key: 'compliance', phrase: 'Compliance' },
+    { key: 'strategy', phrase: 'Strategy' },
+    { key: 'operations', phrase: 'Operations' },
+    { key: 'finance', phrase: 'Finance' },
+    { key: 'innovation', phrase: 'Innovation' },
+    { key: 'growth', phrase: 'Growth' },
+    { key: 'customer', phrase: 'Customer Success' }
+  ];
+
+  const mynav = document.getElementById('my-nav');
+  mynav.items = menuData;
+
+  // Example of listening to click events from SmartNav
+  mynav.addEventListener('smart-nav-btn-click', (e) => {
+    console.log('Host received nav click:', e.detail.key);
+    // Insert navigation logic here
+  });
+
+  const nav = document.getElementById('nav');
+  nav.setData([
+    {
+      key: 'dashboard',
+      phrase: '📊 Dashboard',
+      callback: () => Promise.resolve('view-dashboard'),
+      autoOpen: false,
+      children: [
+        { key: 'overview', phrase: 'Overview' },
+        { key: 'stats', phrase: 'Stats' }
+      ]
+    },
+    {
+      key: 'settings',
+      phrase: '⚙️ Settings',
+      callback: () => new Promise(res => setTimeout(() => res('done'), 500))
+    }
+  ]);
+
+  nav.addEventListener('select-success', e => console.log('✅ Selected:', e.detail));
+  nav.addEventListener('select-fail', e => console.warn('❌ Failed:', e.detail));
+</script>
+
+
+
+  
+</body>
+</html>

@@ -13,13 +13,14 @@
  
     <script type="module" src="./../js/utils/deviceUtils.js"></script>    
     <script type="text/javascript" src="./../js/utils/viewport.js"></script>
-
+    <script type="text/javascript" src="./../js/utils/dictionary.js"></script>
     <script type="text/javascript" src="./../components/loading-icon.js"></script>
     </script><script type="text/javascript" src="./../components/smart-toggle.js"></script>
     <script type="text/javascript" src="./../components/smart-button-group.js"></script>
     <link href="./../components/dragdrop-box.css" rel="stylesheet">
     <script type="text/javascript" src="./../components/dragdrop-box.js"></script>
-
+    <script type="text/javascript" src="./../components/pos-badge-group.js"></script>
+    <script type="text/javascript" src="./../components/fit-text-block.js"></script>
     <script type="text/javascript" src="./../components/phrase-mobile-editor.js"></script>
 
 </head>
@@ -30,152 +31,230 @@
 <script>
     const editor = document.querySelector("phrase-mobile-editor");    
     const sampleData = [
-      {
-        "order": 75,
-        "phrase": "abscond",
-        "dictIndex": 115,
-        "ukipa": "æbˈskɒnd",
-        "usipa": "æbˈskɑːnd",
-        "uks": "u/uka/ukabr/ukabrea012.mp3",
-        "uss": "a/abs/absco/abscond.mp3",
-        "defi": "[{\"pos\":\"verb\",\"info\":\"\",\"definition\":\"to go away suddenly and secretly in order to escape from somewhere\",\"example\":\"abscond from She absconded from boarding school and hitchhiked to the city.\\nTwo prisoners absconded last night.\"},{\"pos\":\"verb\",\"info\":\"\",\"definition\":\"to go away suddenly and secretly because you have stolen something, usually money\",\"example\":\"abscond with They think they know who absconded with the funds from the bake sale.\\nabscond with humorous Someone absconded with my pen.\"},{\"pos\":\"verb\",\"info\":\"\",\"definition\":\"to escape and hide somewhere, esp. because you have stolen something\",\"example\":\"They absconded with $100,000 of the company’s money.\"}]",
-        "imgUrl": "p:tse1_OIP.WMeUq-ksp4bl7ONfFBPmFAHaHa,p:tse4_OIP.vS5a-x73PUqUIKLe-fUipQHaEK,p:tse1_OIP._4YDcaUWd5-ELBRg79vH2wHaD4,p:tse1_OIP.lJ1YpHpTQVgKF_7l74cL3gHaEK,p:tse2_OIP.cWnyDVNJFa5vGu-35XWm8gHaDe,p:tse3_OIP.w8hs53P5yE1E7049izltxAHaD4,p:tse4_OIP.qQFjQlUXeCnOGyRp81YTSAHaEj,p:tse1_OIP.RLa61dD-2DIiVnq8bt7JUAHaEK,p:tse1_OIP.LJQvMgI-1cZR0Fg8rbmHTAHaH5,p:tse4_OIP.73TX3hVIbbiArDfhVbhynwHaDt",
-        "lang-vi": "bỏ trốn"
-      },
-      {
-        "order": 86,
-        "phrase": "abstain",
-        "dictIndex": 142,
-        "ukipa": "æbˈsteɪn",
-        "usipa": "æbˈsteɪn",
-        "uks": "u/uka/ukabs/ukabsor002.mp3",
-        "uss": "a/abs/absta/abstain.mp3",
-        "defi": "[{\"pos\":\"verb\",\"info\":\"\",\"definition\":\"to not do something, especially something enjoyable that you think might be bad\",\"example\":\"abstain from He took a vow to abstain from alcohol/smoking/sex.\"},{\"pos\":\"verb\",\"info\":\"\",\"definition\":\"to decide not to use your vote\",\"example\":\"63 members voted in favour, 39 opposed, and 15 abstained.\"},{\"pos\":\"verb\",\"info\":\"Indian English\",\"definition\":\"to stay away from work\",\"example\":\"During a recent general strike, employees of all major trade unions abstained.\"},{\"pos\":\"verb\",\"info\":\"\",\"definition\":\"to not do something you could do, esp. something that is unhealthy or gives you pleasure\",\"example\":\"Some families abstain from eating fried food.\"},{\"pos\":\"verb\",\"info\":\"\",\"definition\":\"If you abstain from voting, you do not vote although you are permitted to vote.\",\"example\":\"\"}]",
-        "imgUrl": "p:tse1_OIP.bTL_QzVa3M9JGCN0cEuYMQHaH_,p:tse3_OIP.RxEIu9iSJH5pfyxb_Q3hEgHaE3,p:tse1_OIP.E9Gcw-rjHvan7kfToYY8GgHaE8",
-        "lang-vi": "kiêng cử"
-      },
-      {
-        "order": 78,
-        "phrase": "acquit",
-        "dictIndex": 334,
-        "ukipa": "əˈkwɪt",
-        "usipa": "əˈkwɪt",
-        "uks": "u/uka/ukacq/ukacqua012.mp3",
-        "uss": "a/acq/acqui/acquit.mp3",
-        "defi": "[{\"pos\":\"verb\",\"info\":\"[T often passive]\",\"definition\":\"to decide officially in a law court that someone is not guilty of a particular crime\",\"example\":\"acquit someone of something She was acquitted of all the charges against her.\\nacquit someone on something Five months ago he was acquitted on a shoplifting charge.\"},{\"pos\":\"verb\",\"info\":\"\",\"definition\":\"to do better than expected in a difficult situation\",\"example\":\"I thought that he acquitted himself admirably in today's meeting.\\nIf Holmes acquits herself well in today's race, she may earn a place in the national team.\\nThe three starting forwards acquitted themselves quite well in last night's game.\"},{\"pos\":\"verb\",\"info\":\"\",\"definition\":\"to decide officially in a court of law that someone is not guilty of a particular crime\",\"example\":\"She was acquitted.\\nThe jury acquitted him.\"},{\"pos\":\"verb\",\"info\":\"fml\",\"definition\":\"to cause yourself to perform or behave in the stated way\",\"example\":\"She acquitted herself well, finishing second.\"}]",
-        "imgUrl": "p:tse4_OIP.HKlhOa4WRLlQ_1nOgK6tYQHaF6,p:tse1_OIP.kRSGQmdcNBjMBgwafviuegHaF7,p:tse4_OIP.KwOjNnFe3ZGcBahTGJd_iwHaEi,p:tse1_OIP.X8vnEakIjPAfiEFBfOcrKQHaD4,p:tse4_OIP.nCBCD_wN7XliBYMeSbkdZgHaD4,p:tse3_OIP.dJ2bzaQzoyIzmcRDKq9lVQHaD4,p:tse1_OIP.Yk2uIipFgPsaogeO0eHo7AHaE8,p:tse4_OIP.ZVEybTBAFXArT18gh6uGDgEsDh,p:tse1_OIP.XTdJOPWFKty3CM-pCw4_wwHaEK,p:tse3_OIP.YLqZAffD5q0Xl5MS8D9RsQHaD4",
-        "lang-vi": "tha bổng"
-      },
-      {
-        "order": 35,
-        "phrase": "amnesia",
-        "dictIndex": 1132,
-        "ukipa": "æmˈniː.zi.ə",
-        "usipa": "æmˈniː.ʒə",
-        "uks": "u/uka/ukami/ukamiab016.mp3",
-        "uss": "c/cdo/cdo03/cdo0319usamne0048.mp3",
-        "defi": "[{\"pos\":\"noun\",\"info\":\"\",\"definition\":\"a medical condition that makes you unable to remember things\",\"example\":\"After the accident he suffered periods of amnesia.\"},{\"pos\":\"noun\",\"info\":\"\",\"definition\":\"loss of the ability to remember\",\"example\":\"\"}]",
-        "imgUrl": "p:tse2_OIP.rLsxoJqLlBgijLyW6MU4NQHaEK,p:tse1_OIP.6UxQLSKbj-NJcdik4g2k5AHaE6,p:tse4_OIP.ZR89uwVIAQTrq5-iaI3LzQHaFJ,p:tse4_OIP.snsaxpjpOobxjc1AVPkmUQHaEK,p:tse1_OIP.UiSNu1Vrz-zwzk9DwkEnPgHaJ4,p:tse2_OIP.tgnCmCsmd_Pj0slZyGPNMgHaEK,p:tse3_OIP.a0lBF0WUYYx8T1zNn_f_iQHaHa,p:tse2_OIP.k-kn9QxRVHVyyXHUWHOmSQHaDG,p:tse3_OIP.WRoqxOUipf_sPkqmI6H3iAHaEK,p:tse2_OIP.qyt1kTg70nA1Z7Q6jm41gwHaEK",
-        "lang-vi": "mất trí nhớ"
-      },
-      {
-        "order": 70,
-        "phrase": "ampersand",
-        "dictIndex": 1156,
-        "ukipa": "ˈæm.pə.sænd",
-        "usipa": "ˈæm.pɚ.sænd",
-        "uks": "u/uka/ukamo/ukamort009.mp3",
-        "uss": "u/usa/usami/usamiab020.mp3",
-        "defi": "[{\"pos\":\"noun\",\"info\":\"\",\"definition\":\"the sign &, used for \\\"and\\\"\",\"example\":\"\"}]",
-        "imgUrl": "p:tse2_OIP.qfGJWuqLxB7YKgwepe5S4QHaHa,p:tse1_OIP.PYn-LxjVYlzRgkI0fP_d6AHaHa,p:tse4_OIP.IkmwREwrRIbymG8_sPvF4AHaHa,p:tse1_OIP.HuSrV-8PFwf1Cf6r7vHnVgHaKp,p:tse1_OIP.lxavs5y8IRmKBRF06-inJAHaHa,p:tse3_OIP.i3To3dWPRw03LMklmt-JIwHaK5,p:tse1_OIP.3x0wz3etd4gHIO7BKYLFRgHaEo,p:tse2_OIP.PfLCkJ3alf27XkHxOWOR_QAAAA,p:tse4_OIP.DhHhuv4TqpNpW-AeYrmvsQHaH0,p:tse4_OIP.q9KCv7imlCUMbZpISCXnagHaJS,p:tse2_OIP.YNYqInCjGqONvXkVIKmdCAHaGY,p:tse4_OIP.wsgaMnPxYRpPbTdZUK_GLAHaD5,p:tse3_OIP.7iAQ_Z3TUIoA1eJvmMyFlQHaHa,p:tse1_OIP.aa3R8lWkwVUn-NpKljjs1gHaIB",
-        "lang-vi": "dấu &"
-      },
-      {
-        "order": 0,
-        "phrase": "anal",
-        "dictIndex": 1202,
-        "ukipa": "ˈeɪ.nəl",
-        "usipa": "ˈeɪ.nəl",
-        "uks": "u/uka/ukamu/ukamusi017.mp3",
-        "uss": "a/ana/anal_/anal.mp3",
-        "defi": "[{\"pos\":\"adjective\",\"info\":\"\",\"definition\":\"relating to the anus (= the opening at end of the intestines through which solid waste leaves the body)\",\"example\":\"the anal passage/sphincter\\nanal sex\"},{\"pos\":\"adjective\",\"info\":\"informal\",\"definition\":\"→ anally retentive informal \",\"example\":\"his anal fondness for filing\"}]",
-        "imgUrl": "",
-        "lang-vi": "hậu môn"
-      },
-      {
-        "phrase": "mini getaway",
-        "type": "phrase",
-        "error": "Definition not found",
-        "imgUrl": [
-          "p:tse4_OIP.BfAdkfQKnRPRBraauwuhMQHaEd",
-          "p:tse4_OIP.Q0upzVuXpqOiWzAs-2wgIQHaEK",
-          "p:tse4_OIP.ZtOs61GWKmz5p7ilQTc8aAHaFP",
-          "p:tse3_OIP.oRR6_-JA_--26pVuF69n4QHaED",
-          "p:tse2_OIP.IMaZa7JrdA3NGCPy_JxWygHaE7",
-          "p:tse3_OIP.YZUXp7ZIIV5cr25WJYgOzwHaEK",
-          "p:tse2_OIP.TKb-piDaD63SSbgp0Wo3VAHaEK",
-          "p:tse4_OIP.BWat3oRAB7u9i9ATb0xmyQHaDv"
-        ],
-        "lang-vi": "chuyến đi ngắn ngày"
-      },{
-  "order": 2,
-  "phrase": "what you see is what you get",
-  "type": "phrase",
-  "ukIPA": "",
-  "usIPA": "",
-  "ukSoundUrl": "c/cbe/cbedu/cbeduk10286.mp3",
-  "usSoundUrl": "c/cbe/cbedu/cbedus10286.mp3",
-  "definition": [
-    {
-      "pos": "noun",
-      "info": "",
-      "definition": "→ WYSIWYG",
-      "example": ""
-    }
-  ],
-  "imgUrl": [
-    "p:tse4_OIP.BEZg_SrGPLE5f3B05URVwAHaEK",
-    "p:tse3_OIP.JH_G1UMW3b00pQiEmk7mlQHaEK",
-    "p:tse4_OIP.0Aop0Q8yNRugaLChSFZKmQHaEK",
-    "p:tse2_OIP.baaN4Ia7VXXigZOVSJL_GwHaEK",
-    "p:tse3_OIP.uGfqXSA-egKawwXXXE-FnQHaEK",
-    "p:tse3_OIP.Zrf6_RY-Ngvah90D0dKzBQHaHY",
-    "p:tse4_OIP.pnwSQebxlS1lyX4q9-K3wQHaEK"
-  ],
-  "lang-vi": "Những gì bạn thấy là những gì bạn nhận được"
-},
-{
+  {
+    "order": 7,
+    "phrase": "abscond abscond abscondabscond abscond abscond abscond abscond abscond ",
+    "dictIndex": 115,
+    "ukipa": "æbˈskɒnd",
+    "usipa": "æbˈskɑːnd",
+    "uks": "u/uka/ukabr/ukabrea012.mp3",
+    "uss": "a/abs/absco/abscond.mp3",
+    "defi": "[{\"pos\":\"verb\",\"info\":\"\",\"definition\":\"to go away suddenly and secretly in order to escape from somewhere\",\"example\":\"abscond from She absconded from boarding school and hitchhiked to the city.\\nTwo prisoners absconded last night.\"},{\"pos\":\"verb\",\"info\":\"\",\"definition\":\"to go away suddenly and secretly because you have stolen something, usually money\",\"example\":\"abscond with They think they know who absconded with the funds from the bake sale.\\nabscond with humorous Someone absconded with my pen.\"},{\"pos\":\"verb\",\"info\":\"\",\"definition\":\"to escape and hide somewhere, esp. because you have stolen something\",\"example\":\"They absconded with $100,000 of the company’s money.\"}]",
+    "imgUrl": "p:tse1_OIP.WMeUq-ksp4bl7ONfFBPmFAHaHa,p:tse4_OIP.vS5a-x73PUqUIKLe-fUipQHaEK,p:tse1_OIP._4YDcaUWd5-ELBRg79vH2wHaD4,p:tse1_OIP.lJ1YpHpTQVgKF_7l74cL3gHaEK,p:tse2_OIP.cWnyDVNJFa5vGu-35XWm8gHaDe,p:tse3_OIP.w8hs53P5yE1E7049izltxAHaD4,p:tse4_OIP.qQFjQlUXeCnOGyRp81YTSAHaEj,p:tse1_OIP.RLa61dD-2DIiVnq8bt7JUAHaEK,p:tse1_OIP.LJQvMgI-1cZR0Fg8rbmHTAHaH5,p:tse4_OIP.73TX3hVIbbiArDfhVbhynwHaDt",
+    "lang-vi": "bỏ trốn"
+  },{
   "order": 0,
-  "phrase": "something disagree",
-  "type": "phrase",
-  "ukIPA": "",
-  "usIPA": "",
-  "ukSoundUrl": "",
-  "usSoundUrl": "",
-  "definition": [
-    {
-      "pos": "collocation",
-      "info": "",
-      "definition": "to not have the same opinion, idea, etc. as someone about something:",
-      "example": "I admire his courage, even if we disagree on many things.\nExperts disagree on how to solve the problem.\nI disagree with her on several points."
-    }
-  ],
-  "imgUrl": [
-    "p:tse2_OIP.NK5yG5aLulCMcVuEBK9DbQHaHa",
-    "p:tse1_OIP.GwZVuPLqabqD-zqg1F4YVwHaJq",
-    "p:tse3_OIP.2Kz89yNF2UMS5spHCXcu0QHaNK",
-    "p:tse4_OIP.gpHAnxPq7XOVFd_flbN3RAHaE7",
-    "p:tse3_OIP.JuTROL5dP4oFP08mnXon1QHaHa",
-    "p:tse4_OIP.tl2NjT6jGBtBrOwh3jfp-AHaEK",
-    "p:tse4_OIP.HpOPGdJQhlxguhfPuRETlwHaE7",
-    "p:tse3_OIP.mkJltiP2DO0sxGBm57QLZwHaEK",
-    "p:tse4_OIP.RCy32lxL1WHTp5TszskuJAHaHa",
-    "p:tse3_OIP.Ao9WwRsAuP01Dq6DHl1ZGAHaD4"
-  ],
-  "lang-vi": "Có điều gì đó không đồng tình"
-}
-
-    ];
+  "phrase": "fast",
+  "dictIndex": 12989,
+  "ukipa": "fɑːst",
+  "usipa": "fæst",
+  "uks": "u/ukf/ukfar/ukfarth015.mp3",
+  "uss": "f/fas/fast_/fast.mp3",
+  "defi": "[{\"pos\":\"adjective\",\"info\":\"A1\",\"definition\":\"moving or happening quickly, or able to move or happen quickly\",\"example\":\"fast cars\\na fast swimmer\\nComputers are getting faster all the time.\\nUK The fast train (= one that stops at fewer stations and travels quickly) to London takes less than an hour.\"},{\"pos\":\"adjective\",\"info\":\"\",\"definition\":\"If your watch or clock is fast, it shows a time that is later than the correct time.\",\"example\":\"\"},{\"pos\":\"adjective\",\"info\":\"art specialized\",\"definition\":\"used to refer to photographic film that allows you to take pictures when there is not much light or when things are moving quickly\",\"example\":\"\"},{\"pos\":\"adjective\",\"info\":\"\",\"definition\":\"used to describe something that is full of speed and excitement\",\"example\":\"It's not a relaxing movie - it's pretty fast and furious.\"},{\"pos\":\"adjective\",\"info\":\"old-fashioned disapproving\",\"definition\":\"without moral principles\",\"example\":\"a fast crowd\\na fast woman\"},{\"pos\":\"adjective\",\"info\":\"\",\"definition\":\"If the colour of a piece of clothing is fast, the colour does not come out of the cloth when it is washed.\",\"example\":\"\"},{\"pos\":\"adverb\",\"info\":\"A2\",\"definition\":\"quickly\",\"example\":\"The accident was caused by people driving too fast in bad conditions.\\nYou'll have to act fast.\\nChildren's publishing is a fast-growing business.\"},{\"pos\":\"adverbadjective\",\"info\":\"C2\",\"definition\":\"firmly fixed\",\"example\":\"stick fast The glue had set and my hand was stuck fast.\\nHe tried to get away, but she held him fast.\"},{\"pos\":\"noun\",\"info\":\"\",\"definition\":\"a period of time when you eat no food\",\"example\":\"Hundreds of prisoners began a fast in protest about prison conditions.\"},{\"pos\":\"verb\",\"info\":\"\",\"definition\":\"to eat no food for a period of time\",\"example\":\"One day a week he fasts for health reasons.\"},{\"pos\":\"adjective\",\"info\":\"\",\"definition\":\"moving or happening quickly or able to move or happen quickly\",\"example\":\"a fast car\\nThe fastest way to get there is by plane.\"},{\"pos\":\"adjective\",\"info\":\"\",\"definition\":\"If your watch or clock is fast, it shows a time later than the real time.\",\"example\":\"\"},{\"pos\":\"adjectiveadverb\",\"info\":\"\",\"definition\":\"connected or attached in a way that is not easily unfastened\",\"example\":\"Tie the boat fast to the pier.\"},{\"pos\":\"verbnoun\",\"info\":\"\",\"definition\":\"to have a period of time when you eat no food\",\"example\":\"We will be fasting until sundown tomorrow.\"},{\"pos\":\"verbnoun\",\"info\":\"\",\"definition\":\"\",\"example\":\"They organized a fast to draw attention to the issue of hunger.\"},{\"pos\":\"adverb\",\"info\":\"\",\"definition\":\"quickly\",\"example\":\"The accident was caused by people driving too fast in bad conditions.\\nThis type of wilderness area is disappearing fast.\"}]",
+  "imgUrl": "p:tse4_OIP.yG9qZrDhOy8AQw3L5OhT0AHaEF,p:tse4_OIP.bx_sHGAJA2CU2KJomBv2mgHaE7,p:tse1_OIP.ubCNLjfjtj9HBfDFhLXGigHaHa,p:tse4_OIP.SLOqZOQA6KPYkziNKaaXjgHaEK,p:tse1_OIP.4FCFAIrWVu3dEMCRTTG4uwHaHa,p:tse4_OIP.xRqYY7Mf0DkEGkp0jmyk7wHaEK,p:tse3_OIP.lmwRkt03nqPyV6rl9MR9OwHaEK,p:tse3_OIP.w_tPdC85F40KvYOUq__2EAHaEc,p:tse1_OIP.okDE_L1NlNg_17Je2zWjOwHaEK,p:tse4_OIP.pc268tOqj4JJOtUYhhGENAHaJQ,p:tse1_OIP.SEJElY8R6ovpGIegytbK-wHaEs",
+  "lang-vi": "nhanh"
+},
+  {
+    "order": 0,
+    "phrase": "dog",
+    "dictIndex": 10473,
+    "ukipa": "dɒɡ",
+    "usipa": "dɑːɡ",
+    "uks": "u/ukd/ukdoc/ukdocud022.mp3",
+    "uss": "d/dog/dog__/dog.mp3",
+    "defi": "[{\"pos\":\"noun\",\"info\":\"A1\",\"definition\":\"a common animal with four legs, especially kept by people as a pet or to hunt or guard things\",\"example\":\"my pet dog\\nwild dogs\\ndog food\\nWe could hear dogs barking in the distance.\"},{\"pos\":\"noun\",\"info\":\"slang\",\"definition\":\"a man who is unpleasant or not to be trusted\",\"example\":\"dirty dog He tried to steal my money, the dirty dog.\"},{\"pos\":\"noun\",\"info\":\"offensive\",\"definition\":\"an offensive word for an ugly person, especially a woman\",\"example\":\"\"},{\"pos\":\"verb\",\"info\":\"\",\"definition\":\"to follow someone closely and continuously\",\"example\":\"Reporters dogged him for answers.\"},{\"pos\":\"verb\",\"info\":\"\",\"definition\":\"to cause difficulties\",\"example\":\"Technical problems dogged our trip from the outset.\"},{\"pos\":\"noun\",\"info\":\"\",\"definition\":\"an animal with four legs, commonly kept as a pet, and sometimes used to guard things\",\"example\":\"\"},{\"pos\":\"noun\",\"info\":\"slang\",\"definition\":\"a person of a stated type\",\"example\":\"You won $1000? You lucky dog!\"},{\"pos\":\"verb\",\"info\":\"\",\"definition\":\"to follow someone closely and continually\",\"example\":\"The scandal seems likely to dog him for months to come.\"},{\"pos\":\"noun\",\"info\":\"informal\",\"definition\":\"an investment, company, or product that will probably fail\",\"example\":\"\"},{\"pos\":\"noun\",\"info\":\"MARKETING\",\"definition\":\"a product that has a small share of a market that has a low rate of growth\",\"example\":\"\"},{\"pos\":\"noun\",\"info\":\"\",\"definition\":\"a situation in which competitors are willing to harm each other in order to be successful\",\"example\":\"It is dog eat dog on Las Vegas's world-famous Strip as huge casino complexes compete for attention.\\nThe fast-growing telecom industry was a dog-eat-dog world where firms were either looking to expand or ripe for takeover.\"},{\"pos\":\"noun\",\"info\":\"\",\"definition\":\"if a company eats its own dog food, it uses the products that it makes in its own business activities, rather than using products made by other companies\",\"example\":\"The company, which makes high-tech equipment, could not have grown as fast as it has without eating lots of its own dog food.\"},{\"pos\":\"noun\",\"info\":\"\",\"definition\":\"to get into a very bad situation\",\"example\":\"The economy seems to be going to the dogs.\\nSigns of a global recession inevitably conjure up thoughts of the last time we went to hell in a handbasket: the Great Depression of the 1930s.\"},{\"pos\":\"noun\",\"info\":\"\",\"definition\":\"used to say that a plan will fail\",\"example\":\"\"}]",
+    "imgUrl": "p:tse1_OIP.Kw3NhFDl1n-6gwu17PL7ZgHaHa,p:tse1_OIP.IdeXvsDNzQnpRGsruMak6AHaEK,p:tse2_OIP.3QpnXFoPw_ViUQVn5I9A9wHaFz,p:tse3_OIP.BujvIcrsiKOeCr8etuTc8wHaH6,p:tse1_OIP.yR7M3VdyioMMqdgVCeVXPQHaE8,p:tse4_OIP.TMneXoND0Ad6zA4Mk8w6oAHaFj,p:tse1_OIP.7Zsf5WutkzMYOuBvD8reTAAAAA,p:tse2_OIP.QUZMJvBRY7Zsxqv2xAXTkAHaEK,p:tse1_OIP.6LDzp2nmyAaoQtSE7VBQcAHaHa,p:tse3_OIP.bgJPdsDfFbNNOwuELsgQywHaEq,p:tse2_OIP.1RIqa_PYKOX0ZFpejjc9BwHaHz,p:tse4_OIP.4JCB7obg4c3Y8fKgCxK8twHaEK",
+    "lang-vi": "chó"
+  },
+  {
+    "order": 1,
+    "phrase": "happy",
+    "dictIndex": 15978,
+    "ukipa": "ˈhæp.i",
+    "usipa": "ˈhæp.i",
+    "uks": "u/ukh/ukhap/ukhapha010.mp3",
+    "uss": "h/hap/happy/happy.mp3",
+    "defi": "[{\"pos\":\"adjective\",\"info\":\"A1\",\"definition\":\"feeling, showing, or causing pleasure or satisfaction\",\"example\":\"a happy marriage/childhood\\nShe looks so happy.\\nSchool days are said to be the happiest days of your life.\\nNicky seems a lot happier since she met Steve.\\nhappy to You'll be happy to know that Jean is coming with us.\\nI'm perfectly happy to (= I will willingly) help out.\\nhappy (that) I'm so happy (that) everything is working out for you.\\nBarry seems happy enough working for himself.\\nhappy about/with Are you happy about/with (= satisfied with) your new working arrangements?\\nYour mother's not going to be very happy when she sees the mess you've made!\\nformal The manager will be happy (= is willing) to see you this afternoon.\"},{\"pos\":\"adjective\",\"info\":\"A1 [before noun]\",\"definition\":\"(used in greetings for special occasions) full of enjoyment and pleasure\",\"example\":\"Happy Birthday!\\nHappy Anniversary!\\nHappy New Year!\"},{\"pos\":\"adjective\",\"info\":\"[before noun]\",\"definition\":\"(of a condition or situation) lucky\",\"example\":\"happy coincidence We hadn't planned to be in France at the same time as Ann and Charles - it was just a happy coincidence.\"},{\"pos\":\"adjective\",\"info\":\"literary\",\"definition\":\"(of words or behaviour) suitable\",\"example\":\"It wasn't a happy choice of phrase given the circumstances.\"},{\"pos\":\"adjective\",\"info\":\"\",\"definition\":\"feeling, showing, or causing pleasure or satisfaction\",\"example\":\"To tell the truth, I’ve never been happier in my whole life.\\nPeople want movies to have happy endings.\\n[+ (that) clause] I’m happy (that) everything is working out for you.\\nI’ve been very happy with (= satisfied with) the education that my boys have gotten through scouting.\"},{\"pos\":\"adjective\",\"info\":\"\",\"definition\":\"Happy is used as a polite way to express your willingness to do something\",\"example\":\"[+ to infinitive] I’m driving that way and I’d be happy to drop you off at your home.\\n[+ to infinitive] It was no trouble at all – I was happy to be of help.\"},{\"pos\":\"adjective\",\"info\":\"\",\"definition\":\"Happy is also used in greetings for special occasions, expressing good wishes\",\"example\":\"Happy birthday!\\nHappy New Year\"},{\"pos\":\"adjective\",\"info\":\"\",\"definition\":\"lucky\",\"example\":\"By a happy coincidence, we found ourselves on the same flight.\"}]",
+    "imgUrl": "p:tse1_OIP.xqkAWdRhjWygdZVQOTmuUQHaJ4,p:tse1_OIP.1bPdPBKepE_7N1f_AyE9bwHaHb,p:tse4_OIP.RO4zpqwBievFS7Xkur6etQHaHa,p:tse2_OIP.cVGnaXLgfA47xoeXTEd8FQHaEK,p:tse4_OIP.S-KU5Rc6ZDeoqw1d5Cb6wQHaHa,p:tse4_OIP.3QWZtO77tdOW-UiFUHdUQAHaHa,p:tse2_OIP.XqTZy0a341t-BuciXL0IfgHaHa,p:tse1_OIP.0e365QXKL-NORBeVdozttgHaHe,p:tse3_OIP.0bKek2geliK1y30Vi9GSMgHaHa,p:tse4_OIP.V60HrTVCcMxBTiLJJI5TugHaJ4,p:tse1_OIP.ywwiNhJFkBtUiEpyevGCZgHaE7,p:tse3_OIP.C5pVblHMAoo43TrEej2n0QHaHa,p:tse4_OIP.F81-3rypBWFyrkkNMOBvHAHaHa",
+    "lang-vi": "vui mừng"
+  },
+  {
+    "order": 4,
+    "phrase": "he",
+    "dictIndex": 16117,
+    "ukipa": "hiː",
+    "usipa": "hi",
+    "uks": "u/ukh/ukhav/ukhave_030.mp3",
+    "uss": "h/he_/he___/he.mp3",
+    "defi": "[{\"pos\":\"pronoun\",\"info\":\"A1\",\"definition\":\"used as the subject of a verb to refer to a man, boy, or male animal that has already been mentioned\",\"example\":\"Don't ask Andrew, he won't know.\\nThere's no need to be frightened - he's a very friendly dog.\"},{\"pos\":\"pronoun\",\"info\":\"old-fashioned\",\"definition\":\"used to refer to a person whose gender is not known or not important in that situation\",\"example\":\"The modern traveller can go where he likes.\\nAs soon as the baby is born, he'll start to take an interest in the world around him.\"},{\"pos\":\"noun\",\"info\":\"\",\"definition\":\"a male\",\"example\":\"How can you tell whether the fish is a he or a she?\"},{\"pos\":\"pronounnoun\",\"info\":\"\",\"definition\":\"the male being spoken about, who has already been mentioned\",\"example\":\"Don’t ask Andrew, he won’t know.\"},{\"pos\":\"pronounnoun\",\"info\":\"\",\"definition\":\"He is also used to refer to a person whose sex is not known\",\"example\":\"Today a person can travel anywhere he likes.\"},{\"pos\":\"pronounnoun\",\"info\":\"male\",\"definition\":\"\",\"example\":\"Is your turtle a he or a she?\"}]",
+    "imgUrl": "p:tse2_OIP.g9980kxL95QAw9Q0JsQ8AQAAAA,p:tse4_OIP.WSd7vFDF04SRlStYE-1ntwHaKe,p:tse1_OIP.cB2KWsqPOGCckrlwpGPFCAHaE8,p:tse4_OIP.dV-XAWc0GTd9SOvEG7of7wHaHF,p:tse1_OIP.fV-oyn8rBLys0CGXmk8idwHaKi,p:tse3_OIP.CbetuK2AKdOktf7kGIrPdwHaDz,p:tse4_OIP.W06Ywm5aSpIjUn4nIq5jdwHaHa,p:tse3_OIP.2GxhD8F1LDcuJCWdr5OdMgHaEL,p:tse2_OIP.tUcRt4XZUf4InSqZBHdC1AHaHa,p:tse3_OIP.8QIh52T4KZqRKTmH3H_EaAHaE8,p:tse3_OIP.oF9bUY9-HhkgHkmZJ3r5uQHaHq,p:tse2_OIP.4ZcdJDzCzr8B0g8126TB2AHaE8",
+    "lang-vi": "Anh ta"
+  },
+  {
+    "order": 5,
+    "phrase": "ouch",
+    "dictIndex": 25121,
+    "ukipa": "aʊtʃ",
+    "usipa": "aʊtʃ",
+    "uks": "u/uko/ukosc/ukoscil030.mp3",
+    "uss": "e/eus/eus75/eus75325.mp3",
+    "defi": "[{\"pos\":\"exclamation\",\"info\":\"\",\"definition\":\"used to express sudden physical pain\",\"example\":\"Ouch, you're hurting me!\"},{\"pos\":\"exclamation\",\"info\":\"humorous\",\"definition\":\"used in answer to something unkind that someone says\",\"example\":\"\\\"I really think you're much too fat, Dorothy.\\\" \\\"Ouch, that was mean.\\\"\"},{\"pos\":\"exclamation\",\"info\":\"\",\"definition\":\"used to express sudden pain\",\"example\":\"Ouch, you’re hurting me!\"}]",
+    "imgUrl": "p:tse2_OIP.pCbrORIGeDxedHD8kjdqeAHaGw,p:tse3_OIP.5VHLpnWjTilhB8gSmqWZvQHaFj,p:tse1_OIP.F1rvSzl3qKxyXzdjDcbLoAHaFX,p:tse1_OIP.lSu5zGva495mbEdr1eeT1gHaHa,p:tse2_OIP.fQfxTVghK3BfkcuY0fkEFwHaE6,p:tse1_OIP.axe3yQNAxGKfwVAhGzwLLAHaEK,p:tse4_OIP.W6BG4J2R0-4WXyffc9CPogHaEK,p:tse4_OIP.RxN3UtYYqvT9fFT9nJZ8-AHaHa,p:tse1_OIP.kOu-gm4xjgHQBSlWsmlpeQHaHa,p:tse4_OIP.7BGDa05x1sG3MpXbN3ykNwHaHa,p:tse1_OIP.X9b8vpNUvHc_1K-WwLteTwHaFj,p:tse2_OIP.FUdw6zJcnrDOXmo1nTLACQHaEu",
+    "lang-vi": "đau quá"
+  },
+  {
+    "order": 2,
+    "phrase": "quickly",
+    "dictIndex": 28998,
+    "ukipa": "ˈkwɪk.li",
+    "usipa": "ˈkwɪk.li",
+    "uks": "u/ukq/ukqui/ukquibb008.mp3",
+    "uss": "q/qui/quick/quickly.mp3",
+    "defi": "[{\"pos\":\"adverb\",\"info\":\"A2\",\"definition\":\"at a fast speed\",\"example\":\"We'll have to walk quickly to get there on time.\\nQuickly now, you two, daddy's waiting in the car!\"},{\"pos\":\"adverb\",\"info\":\"A2\",\"definition\":\"after only a very short time\",\"example\":\"He replied very quickly.\\nHe quickly realized that she wasn't telling the truth.\"}]",
+    "imgUrl": "p:tse2_OIP.HQWHN14PsgGQ2w-tJqZqfAHaH6,p:tse3_OIP.I1gnN_UTVdvuZxGv5gpFDgHaG8,p:tse4_OIP.2ftjcTiCWTD2k_cAjoeARAHaDN,p:tse2_OIP.JGAYa4pKZeB1jzn6TpvAbAHaGt,p:tse4_OIP.JiKDPHcRswt6R2c5UQyhawHaH6,p:tse2_OIP.v1fiArgUOwEHU2ntcxjMjwHaDD,p:tse3_OIP.20mD-_DYYDPMeULNyboP0QHaGQ,p:tse3_OIP.Ixxj5k1sBAPyb3uOTiQgHQHaGD,p:tse2_OIP.Z-u5gPNE12wKEVBUSTp-1AHaDt,p:tse3_OIP.CRySYke8M7bSXcKRbhPuXAHaEK,p:tse4_OIP.voMbg_KaOOWxM922X8CpRwHaE8",
+    "lang-vi": "nhanh"
+  },
+  {
+    "order": 3,
+    "phrase": "break a leg",
+    "type": "phrase",
+    "defi": "[{\"pos\":\"idiom\",\"info\":\"\",\"definition\":\"This idiom is a way of wishing someone good luck.\",\"example\":\"Break a leg at your performance\\nThey told her to break a leg\"}]",
+    "imgUrl": "p:tse4_OIP.0fYnJ0k6BtC4LKJblhG8VQHaEK,p:tse1_OIP.UrIQESoDvBYgpR2Xs_o4CAHaGa,p:tse1_OIP.6N7Nijz-ZPMyHC_g8VMTlAHaHa,p:tse4_OIP.saU3iQ2_pPjeU6lwvyysXQHaEK,p:tse4_OIP.jAkuu3GkEVJ1RR3kABvszQHaM1,p:tse2_OIP.JlhzM4aTtOJxyS1Pt86HngHaE8,p:tse4_OIP.qbm7KwDJKtzLPM-1ShkgmAHaEK,p:tse3_OIP.xUyUp2GQP-3OrLoCXRnXKQAAAA,p:tse2_OIP.mchCninZUQoS6lnjPYOoZgHaH0",
+    "lang-vi": "Lời chúc cho ai đó thành công, đặc biệt trong nghệ thuật - Chúc may mắn."
+  },
+  {
+    "order": 8,
+    "phrase": "ampersand",
+    "dictIndex": 1156,
+    "ukipa": "ˈæm.pə.sænd",
+    "usipa": "ˈæm.pɚ.sænd",
+    "uks": "u/uka/ukamo/ukamort009.mp3",
+    "uss": "u/usa/usami/usamiab020.mp3",
+    "defi": "[{\"pos\":\"noun\",\"info\":\"\",\"definition\":\"the sign &, used for \\\"and\\\"\",\"example\":\"\"}]",
+    "imgUrl": "p:tse2_OIP.qfGJWuqLxB7YKgwepe5S4QHaHa,p:tse1_OIP.PYn-LxjVYlzRgkI0fP_d6AHaHa,p:tse4_OIP.IkmwREwrRIbymG8_sPvF4AHaHa,p:tse1_OIP.HuSrV-8PFwf1Cf6r7vHnVgHaKp,p:tse1_OIP.lxavs5y8IRmKBRF06-inJAHaHa,p:tse3_OIP.i3To3dWPRw03LMklmt-JIwHaK5,p:tse1_OIP.3x0wz3etd4gHIO7BKYLFRgHaEo,p:tse2_OIP.PfLCkJ3alf27XkHxOWOR_QAAAA,p:tse4_OIP.DhHhuv4TqpNpW-AeYrmvsQHaH0,p:tse4_OIP.q9KCv7imlCUMbZpISCXnagHaJS,p:tse2_OIP.YNYqInCjGqONvXkVIKmdCAHaGY,p:tse4_OIP.wsgaMnPxYRpPbTdZUK_GLAHaD5,p:tse3_OIP.7iAQ_Z3TUIoA1eJvmMyFlQHaHa,p:tse1_OIP.aa3R8lWkwVUn-NpKljjs1gHaIB",
+    "lang-vi": "dấu &"
+  },{
+  "order": 0,
+  "phrase": "and",
+  "dictIndex": 1254,
+  "ukipa": "ænd",
+  "usipa": "ənd",
+  "uks": "u/uka/ukana/ukanarc018.mp3",
+  "uss": "a/and/and__/and.mp3",
+  "defi": "[{\"pos\":\"conjunction\",\"info\":\"A1\",\"definition\":\"used to join two words, phrases, parts of sentences, or related statements together\",\"example\":\"Ann and Jim\\nboys and girls\\nknives and forks\\nWe were wet and tired.\\nWe kissed and hugged each other.\\nTidy up your room. And don't forget to make your bed!\"},{\"pos\":\"conjunction\",\"info\":\"\",\"definition\":\"together with other similar things\",\"example\":\"schools, colleges, and so on\"},{\"pos\":\"conjunction\",\"info\":\"\",\"definition\":\"and everything else\",\"example\":\"She bought the whole lot - house, farm, horses, and all.\"},{\"pos\":\"conjunction\",\"info\":\"UK slang\",\"definition\":\"too\",\"example\":\"I'd like some and all.\"},{\"pos\":\"conjunction\",\"info\":\"\",\"definition\":\"and everything related to the subject mentioned\",\"example\":\"She likes grammar and all that.\"},{\"pos\":\"conjunction\",\"info\":\"\",\"definition\":\"used to mean that either one of two things or both of them is possible\",\"example\":\"Many pupils have extra classes in the evenings and/or at weekends.\"},{\"pos\":\"conjunction\",\"info\":\"A1\",\"definition\":\"used to join two parts of a sentence, one part happening after the other part\",\"example\":\"I got dressed and had my breakfast.\"},{\"pos\":\"conjunction\",\"info\":\"\",\"definition\":\"as a result\",\"example\":\"Bring the flowers into a warm room and they'll soon open.\\nStand over there and you'll be able to see it better.\"},{\"pos\":\"conjunction\",\"info\":\"A2\",\"definition\":\"With certain verbs, \\\"and\\\" can mean \\\"in order to\\\"\",\"example\":\"I asked him to go and find my glasses.\\nCome and see me tomorrow.\\nWait and see (= wait in order to see) what happens.\\ninformal Try and get (= try to get) some tickets for tonight's performance.\"},{\"pos\":\"conjunction\",\"info\":\"B1\",\"definition\":\"If \\\"and\\\" is used to join two words that are the same, it makes their meaning stronger\",\"example\":\"She spends hours and hours (= a very long time) on the phone.\\nThe sound grew louder and louder (= very loud).\\nWe laughed and laughed (= laughed a lot).\"},{\"pos\":\"conjunction\",\"info\":\"\",\"definition\":\"used to express surprise\",\"example\":\"You're a vegetarian and you eat fish?\"},{\"pos\":\"conjunction\",\"info\":\"\",\"definition\":\"(used to join two words, phrases, or parts of sentences) in addition to; also\",\"example\":\"boys and girls\\nWe were tired and hungry.\"},{\"pos\":\"conjunction\",\"info\":\"\",\"definition\":\"And can be used when you add numbers\",\"example\":\"Three and two are five.\"},{\"pos\":\"conjunction\",\"info\":\"\",\"definition\":\"(used to join two parts of a sentence, one part happening after or because of the other part) after that; then\",\"example\":\"I met Jonathan, and we went out for a cup of coffee.\"},{\"pos\":\"conjunction\",\"info\":\"infml\",\"definition\":\"(used after some verbs) to, or in order to\",\"example\":\"Let’s try and get tickets for the hockey game tonight.\"},{\"pos\":\"conjunction\",\"info\":\"\",\"definition\":\"(used to join two words, esp. two that are the same, to make their meaning stronger)\",\"example\":\"The sound grew louder and louder.\"}]",
+  "imgUrl": "p:tse3_OIF.NICQesDJOss2KxEYnN6HXA,q:tse1_OIF.37zIPUU%2fl7sRlCcaHlh7ww,q:tse1_OIF.%2b%2freNu%2bMVehytnx14Hrr0Q,p:tse2_OIP.uS3JYQyNEEnoGL8RbLL46AHaD-,p:tse2_OIP.VZkmSGtt8v1WM7_VDrFMQQHaEK,q:tse3_OIF.gKoE0eI1%2fQyTKZeveKQHfA,p:tse2_OIF.QJE4istInC3aBfyr0nBK4Q,p:tse2_OIF.isitG2tTBrgl8f8WBL93FQ,p:tse1_OIP.mYA0OWioFT9TRocFCk5CVwHaJP,q:tse1_OIF.TCFeFA9BqWRod%2fekUhQwnw,q:tse4_OIF.XEL6sObvlQV5%2b50%2bMkqrOQ,p:tse4_OIF.lREzsHNkg5OnxXTOyhUDIw,q:tse4_OIF.vLR8y%2fITnF65DuXdtigS6w,q:tse2_OIF.%2fGU8HPGtBHjgvWArQ61lgg",
+  "lang-vi": "Và"
+},{
+  "order": 0,
+  "phrase": "at",
+  "dictIndex": 2229,
+  "ukipa": "æt",
+  "usipa": "ət",
+  "uks": "u/uka/ukasu/ukasund007.mp3",
+  "uss": "a/at_/at___/at.mp3",
+  "defi": "[{\"pos\":\"preposition\",\"info\":\"A1\",\"definition\":\"used to show an exact position or particular place\",\"example\":\"We'll meet you at the entrance.\\nThat bit at the beginning of the film was brilliant.\\nShe's sitting at the table in the corner.\\nShe was standing at the top of the stairs.\\nThe dog came and lay down at (= next to) my feet.\\nThere's someone at the door (= someone is outside and wants to come in).\\nWe spent the afternoon at a football match.\\nI enjoyed my three years at university.\\nI called her but she was at lunch (= away, eating her lunch).\"},{\"pos\":\"preposition\",\"info\":\"A1\",\"definition\":\"used to show an exact or a particular time\",\"example\":\"There's a meeting at 2.30 this afternoon.\\nAre you free at lunchtime?\\nIn theory, women can still have children at the age of 50.\\nThe bells ring at regular intervals through the day.\\nAt no time/point did the company do anything illegal.\\nI'm busy at the moment (= now) - can you call back later?\\nIt's a shame I wasn't here to meet you - I was overseas at the time (= then).\"},{\"pos\":\"preposition\",\"info\":\"A1\",\"definition\":\"in the direction of\",\"example\":\"She smiled at me.\\nThey waved at us as we drove by.\\nShe aimed at the target.\\n\\\"Look at me! Look at me!\\\" called the little girl.\\nHe's always shouting at the children.\"},{\"pos\":\"preposition\",\"info\":\"A2\",\"definition\":\"used to show the cause of something, especially a feeling\",\"example\":\"We were surprised at the news.\\nI was quite excited at the prospect.\\nWhy does no one ever laugh at my jokes?\"},{\"pos\":\"preposition\",\"info\":\"B1\",\"definition\":\"used to show the activity in which someone's ability is being judged\",\"example\":\"I was never very good at sports.\\nHe's very good at getting on with people.\\nShe's hopeless at organizing things.\"},{\"pos\":\"preposition\",\"info\":\"A1\",\"definition\":\"the @ symbol that joins the name of a person or a department in an organization to a domain name to make an email address\",\"example\":\"\\\"What's your email address?\\\" \\\"It's dictionary at cambridge dot org.\\\"\"},{\"pos\":\"preposition\",\"info\":\"B2\",\"definition\":\"used to show a price, temperature, rate, speed, etc.\",\"example\":\"I'm not going to buy those shoes at $150!\\nInflation is running at 5 percent.\\nHe was driving at 120 mph when the police spotted him.\"},{\"pos\":\"preposition\",\"info\":\"(usually @)\",\"definition\":\"used in financial records to show the price, rate, etc. of a particular thing or of each of a number of things on a list\",\"example\":\"50 units @ £4.75\"},{\"pos\":\"preposition\",\"info\":\"\",\"definition\":\"used to show a state, condition, or continuous activity\",\"example\":\"a country at war\\nchildren at play\"},{\"pos\":\"preposition\",\"info\":\"\",\"definition\":\"used to show a particular place or a particular time\",\"example\":\"I’ll meet you at the theater at 7:45 tonight.\\nCall me at work.\\nThere’s someone at the door (= outside the door).\\nI wasn’t here to meet you because I was in Detroit at the time (= then).\"},{\"pos\":\"preposition\",\"info\":\"\",\"definition\":\"in the direction of\",\"example\":\"They waved at us as we drove by.\\nShe aimed at the target, but missed.\"},{\"pos\":\"preposition\",\"info\":\"\",\"definition\":\"used to show the cause of something, esp. a feeling\",\"example\":\"I was so happy at the news.\"},{\"pos\":\"preposition\",\"info\":\"\",\"definition\":\"used to show a state, condition, or continuous activity\",\"example\":\"The country was at peace/war.\\nI love watching the children at play.\\nShe was hard at work (= working hard).\"},{\"pos\":\"preposition\",\"info\":\"\",\"definition\":\"used to show a price, temperature, rate, speed, etc.\",\"example\":\"They’re selling these coats at 30% off this week.\"},{\"pos\":\"preposition\",\"info\":\"\",\"definition\":\"used to show the activity in which someone’s ability is being judged\",\"example\":\"I’m really not very good at math.\\nSheila is really terrible at getting to places on time.\"},{\"pos\":\"preposition\",\"info\":\"\",\"definition\":\"used before a superlative\",\"example\":\"I’m afraid we can only pay you $12 an hour at (the) most.\\nAt best you’ll get to speak to some assistant – you’ll never reach anyone important.\"}]",
+  "imgUrl": "p:tse2_OIP.RZQX3S6vtAurbriu7SXXwgHaHa,p:tse1_OIP.FxjgqOS9uYi7aEO3CxC7hwHaEK,p:tse1_OIP.lDW0cnniih1a4jg8If9hrgAAAA,p:tse4_OIP.B88-c5PyUQTT98Su4K2GqAHaEt,p:tse1_OIP.S3XmRZqLsBY0gZRZDznfEgHaFn,p:tse1_OIP.U4DhshIdxbp5Mg5C0RGRUQHaEK,p:tse4_OIP.zw7yltStYT4uQztEAoyBgQAAAA,p:tse4_OIP.scaeu-PTYgvGIj74gZO8OQHaHa,p:tse2_OIP.rHiTltQJp1ZS1nxYZBg4SAHaDQ,p:tse1_OIP.XsV9LoXXQZhCF02YCsih-QHaEU,p:tse3_OIP.wLU7Blf6dRnSGA1Vz0oriQHaEr",
+  "lang-vi": "Tại"
+},
+  {
+    "order": 9,
+    "phrase": "anal",
+    "dictIndex": 1202,
+    "ukipa": "ˈeɪ.nəl",
+    "usipa": "ˈeɪ.nəl",
+    "uks": "u/uka/ukamu/ukamusi017.mp3",
+    "uss": "a/ana/anal_/anal.mp3",
+    "defi": "[{\"pos\":\"adjective\",\"info\":\"\",\"definition\":\"relating to the anus (= the opening at end of the intestines through which solid waste leaves the body)\",\"example\":\"the anal passage/sphincter\\nanal sex\"},{\"pos\":\"adjective\",\"info\":\"informal\",\"definition\":\"→ anally retentive informal \",\"example\":\"his anal fondness for filing\"}]",
+    "imgUrl": "",
+    "lang-vi": "hậu môn"
+  },
+  {
+    "order": 4,
+    "phrase": "apple",
+    "dictIndex": 1715,
+    "ukipa": "ˈæp.əl",
+    "usipa": "ˈæp.əl",
+    "uks": "u/uka/ukapp/ukappen014.mp3",
+    "uss": "a/app/apple/apple.mp3",
+    "defi": "[{\"pos\":\"noun\",\"info\":\"A1\",\"definition\":\"a round fruit with firm, white flesh and a green, red, or yellow skin\",\"example\":\"to peel an apple\\napple pie/sauce\\nan apple tree\"},{\"pos\":\"noun\",\"info\":\"\",\"definition\":\"a round, edible fruit having a red, green, or yellow skin, or the tree on which it grows\",\"example\":\"\"}]",
+    "imgUrl": "p:tse3_OIP.9d7jVfTyC98GnJW3eH8VJQHaHa,p:tse1_OIP.3qsMnUTHk9Zs8dA5meZsSwHaEK,p:tse4_OIP.gxVIhxEKV2L4dkBjwptXjwHaHa,p:tse3_OIP.3it2aYi15bnxjE3n1pakWAAAAA",
+    "lang-vi": "quả táo"
+  },
+  {
+    "order": 6,
+    "phrase": "get",
+    "dictIndex": 14898,
+    "ukipa": "ɡet",
+    "usipa": "ɡet",
+    "uks": "u/ukg/ukger/ukgerma022.mp3",
+    "uss": "g/get/get__/get.mp3",
+    "defi": "[{\"pos\":\"verb\",\"info\":\"A1 [T]\",\"definition\":\"to obtain, buy, or earn something\",\"example\":\"He went to the shop to get some milk.\\nUK I think she gets about £40,000 a year.\\nWe stopped on the way to get some breakfast.\\nget something for something I managed to get all three suitcases for under $200.\\nHow much did he get for his car? (= How much money did he sell it for?)\\nget something from something Where did you get your shoes from?\"},{\"pos\":\"verb\",\"info\":\"A1 [T]\",\"definition\":\"to receive or be given something\",\"example\":\"UK I got quite a surprise when I saw her with short hair.\\nWhen did you get the news about Sam?\\nget something from someone I got a phone call from Phil last night.\\nWhat grade did he get for the exam?\\nI got the impression that they'd rather be alone.\\nget something for something What did you get for your birthday?\\nWe don't get much snow (= it does not often snow) here.\\nI managed to get a glimpse of him (= see him for a moment) through the crowds.\\nIf you get a moment (= have time available), could you help me fill in that form?\\nget something from something She gets such pleasure from her garden.\\nget something off If you can get some time off work, we could finish the decorating.\\nget someone to yourself I can never get her to myself (= be alone with her) because she's always surrounded by people.\"},{\"pos\":\"verb\",\"info\":\"A2 [T]\",\"definition\":\"to go somewhere and bring back someone or something\",\"example\":\"Let me go get my glasses.\\n[+ two objects] Can I get you a drink?\"},{\"pos\":\"verb\",\"info\":\"[T]\",\"definition\":\"to take someone or something into your possession by force\",\"example\":\"Have the police got the man who did it yet?\\nYour cat got a bird this morning!\"},{\"pos\":\"verb\",\"info\":\"A1 [I usually + adv/prep, T]\",\"definition\":\"to reach or arrive at a particular place\",\"example\":\"We hadn't even got as far as London when the car broke down.\\nWhat time does he normally get home (from work)?\\nget to If you get to the restaurant before us, just wait at the bar.\"},{\"pos\":\"verb\",\"info\":\"[I usually + adv/prep]\",\"definition\":\"to reach a particular stage, condition, or time\",\"example\":\"get to You earn loads of money if you get to the top in that profession.\\nIt got to Thursday and she still hadn't heard any news.\\ninformal I'm getting to the stage now where I just want to give up.\"},{\"pos\":\"verb\",\"info\":\"\",\"definition\":\"to make progress or to improve\",\"example\":\"She's taking flute lessons, but she really doesn't seem to be getting anywhere with it.\"},{\"pos\":\"verb\",\"info\":\"B1 [T]\",\"definition\":\"to become ill with a disease, virus, etc.\",\"example\":\"I got food poisoning at that cheap little seafood restaurant.\\nKids get all kinds of bugs at school.\"},{\"pos\":\"verb\",\"info\":\"B1 [L]\",\"definition\":\"to become or start to be\",\"example\":\"He gets really upset if you mention his baldness.\\nIs your cold getting any better?\\nYour coffee's getting cold.\\nAfter a while you get used to all the noise.\\nYou're getting to be such a big boy, aren't you!\\n[+ to infinitive] How did you get to be a belly dancer?\"},{\"pos\":\"verb\",\"info\":\"\",\"definition\":\"to start to go or move\",\"example\":\"We'd better get moving or we'll be late.\"},{\"pos\":\"verb\",\"info\":\"B1 [T]\",\"definition\":\"to cause something to happen, or cause someone or something to do something\",\"example\":\"[+ adj] She had to get the kids ready for school.\\n[+ past participle] I'm trying to get this article finished by Thursday.\\nWe get our groceries delivered.\\n[+ -ing verb] Were you able to get the copy machine working?\\n[+ to infinitive] I can't get my computer to work!\"},{\"pos\":\"verb\",\"info\":\"B2 [T + obj + to infinitive]\",\"definition\":\"to persuade someone to do something\",\"example\":\"get someone to do something Why don't you get Nicole to come to the party?\"},{\"pos\":\"verb\",\"info\":\"[T + past participle]\",\"definition\":\"to do something to something or someone without intending to or by accident\",\"example\":\"He got his bag caught in the train doors as they were closing.\\nI always get the two youngest sisters' names confused.\"},{\"pos\":\"verb\",\"info\":\"B1 [L + past participle]\",\"definition\":\"sometimes used instead of \\\"be\\\" to form the passive\",\"example\":\"I got shouted at by some idiot for walking past his house.\\nThey're getting married later this year.\\nThis window got broken.\"},{\"pos\":\"verb\",\"info\":\"B1 [I usually + adv/prep]\",\"definition\":\"to move to a different place or into a different position\",\"example\":\"get into I hit my head as I was getting into the car.\\nget out of Get out of here now or I'll call the police.\\nThe bed is too wide - we'll never get it through the door.\\nget up Getting up the ladder was easy enough - it was coming down that was the problem.\\nget down He got down on his knees and asked me to marry him!\"},{\"pos\":\"verb\",\"info\":\"A1 [T]\",\"definition\":\"to travel somewhere in a train, bus, or other vehicle\",\"example\":\"Shall we get a taxi to the station?\"},{\"pos\":\"verb\",\"info\":\"B1 [T]\",\"definition\":\"to deal with or answer a ringing phone, knock on the door, etc.\",\"example\":\"Hey, Ty, someone's at the door - would you get it, please?\"},{\"pos\":\"verb\",\"info\":\"B2 [I + to infinitive]\",\"definition\":\"to have the chance to do something\",\"example\":\"I never get to see her now that she works somewhere else.\"},{\"pos\":\"verb\",\"info\":\"B2 [T]\",\"definition\":\"to understand or hear something\",\"example\":\"I didn't get what he said because the music was so loud.\\nI told that joke to Sophia, but she didn't get it.\"},{\"pos\":\"verb\",\"info\":\"[T]\",\"definition\":\"to prepare a meal\",\"example\":\"I'll put the kids to bed while you're getting dinner ready.\"},{\"pos\":\"verb\",\"info\":\"[I or T]\",\"definition\":\"to pay for something\",\"example\":\"Put your money away - I'll get these drinks.\"},{\"pos\":\"verb\",\"info\":\"[T] informal\",\"definition\":\"to confuse someone and make them completely unable to understand or explain\",\"example\":\"Give him a technical question - that'll really get him!\"},{\"pos\":\"verb\",\"info\":\"\",\"definition\":\"something that you say when you do not know the answer to a question\",\"example\":\"\\\"How many ounces in a kilo?\\\" \\\"You've got me there.\\\"\"},{\"pos\":\"verb\",\"info\":\"[T] informal\",\"definition\":\"to annoy someone\",\"example\":\"It really gets to me the way we're expected to actually laugh at his pathetic jokes!\"},{\"pos\":\"verb\",\"info\":\"[T] informal\",\"definition\":\"to make someone feel strongly emotional and often cry\",\"example\":\"That part in the film when he finds out that his daughter is alive - that always gets me!\"},{\"pos\":\"verb\",\"info\":\"[T]\",\"definition\":\"to hit someone, especially with a bullet or something thrown\",\"example\":\"The bullet got her in the leg.\"},{\"pos\":\"verb\",\"info\":\"[T]\",\"definition\":\"to take something into your possession, or have something happen that you accept or receive\",\"example\":\"He climbed over the fence to get his ball back.\\nMonique raised her hand to get the teacher’s attention.\\nCan I get you a drink?\\nDad keeps telling me to get a job.\\nWhat did you get on the test (= What mark did you receive)?\\nI think she gets (= earns) about $10 an hour.\\nWe don’t get much snow in this part of the country (= It does not often snow).\"},{\"pos\":\"verb\",\"info\":\"[T]\",\"definition\":\"To get something often means to buy or pay for it\",\"example\":\"He went to the store to get milk.\"},{\"pos\":\"verb\",\"info\":\"[L]\",\"definition\":\"to become or start to be\",\"example\":\"Your coffee is getting cold.\\nHe’s gotten so big, I hardly recognized him.\\nThey’re getting married later this year.\\nTom got lost in the woods.\\nWhat time do you get off work?\\nWe’d better get going/moving or we’ll be late.\"},{\"pos\":\"verb\",\"info\":\"[T]\",\"definition\":\"to become ill with a disease\",\"example\":\"Everyone seems to be getting the flu.\"},{\"pos\":\"verb\",\"info\":\"[T]\",\"definition\":\"to cause something to be done or persuade someone to do something\",\"example\":\"The bed is too wide – we’ll never get it through the door.\\nI can’t get this printer to work!\"},{\"pos\":\"verb\",\"info\":\"[T]\",\"definition\":\"to prepare a meal\",\"example\":\"Why don’t you get supper ready?\"},{\"pos\":\"verb\",\"info\":\"[always + adv/prep]\",\"definition\":\"to move in a particular direction\",\"example\":\"[I] Get away from that wet paint!\\n[I] He got down on his hands and knees to look for his contact lens.\\n[T] Her throat was so sore that she had trouble getting the medicine down (= swallowing it).\\n[I] I hit my head as I was getting into the car.\\n[M] Momma said we have to get these wet clothes off (= remove them).\\n[T] Get your feet off the couch (= move them off it).\"},{\"pos\":\"verb\",\"info\":\"[always + adv/prep]\",\"definition\":\"To get off a road when you are driving means to turn onto another road\",\"example\":\"[I] Get off the expressway at exit 43.\"},{\"pos\":\"verb\",\"info\":\"[always + adv/prep]\",\"definition\":\"To get off a train, bus, or aircraft is to leave it\",\"example\":\"[I] Get off at Union Station.\"},{\"pos\":\"verb\",\"info\":\"[T]\",\"definition\":\"to go into a vehicle or aircraft for traveling\",\"example\":\"We could call for a taxi or get the bus.\"},{\"pos\":\"verb\",\"info\":\"[I always + adv/prep]\",\"definition\":\"to arrive at a place or reach a stage in a process\",\"example\":\"We only got as far as Denver when the car broke down.\\nWhat time does he normally get home from work?\\nWe’re not getting very far (= not advancing) with this computer program, are we?\"},{\"pos\":\"verb\",\"info\":\"[T]\",\"definition\":\"to understand\",\"example\":\"I think I got the general idea of the chapter.\\nThe music was loud and I didn’t get what he said.\\nI never said he was mean – you’ve got it all wrong (= you are confused about this matter).\"},{\"pos\":\"verb\",\"info\":\"[T]\",\"definition\":\"to calculate the answer to a mathematical problem\",\"example\":\"What do you get if you divide 20 by 4?\"},{\"pos\":\"verb\",\"info\":\"[T]\",\"definition\":\"to answer a ringing telephone, a knock at the door, etc.\",\"example\":\"Hey, Juan, someone’s at the door – would you get it, please?\"},{\"pos\":\"verb\",\"info\":\"[T]\",\"definition\":\"to hit someone, esp. with something thrown or a bullet\",\"example\":\"My first throw missed, but the second got him in the leg.\"},{\"pos\":\"verb\",\"info\":\"[T] infml\",\"definition\":\"to cause someone to feel slightly angry\",\"example\":\"It gets me when I have to both cook dinner and clean the dishes.\"},{\"pos\":\"verb\",\"info\":\"[T] infml\",\"definition\":\"to have an emotional effect on someone\",\"example\":\"That scene in the movie, when the father and daughter are reunited, always gets me.\"},{\"pos\":\"verb\",\"info\":\"[T]\",\"definition\":\"to obtain, buy, or earn something\",\"example\":\"I think she gets about $40,000 a year.\\nget sth for sth How much did he get for his business when he sold it?\"},{\"pos\":\"verb\",\"info\":\"[T]\",\"definition\":\"to receive or be given something\",\"example\":\"get sth from sb/sth The results we got from our market research team indicate that potential customers seem to like the new ad campaign.\"},{\"pos\":\"verb\",\"info\":\"[I, usually + adv/prep]\",\"definition\":\"to reach a particular stage, condition, or time\",\"example\":\"get to sth Your earnings increase hugely if you get to the top in the legal profession.\"},{\"pos\":\"verb\",\"info\":\"[T] informal\",\"definition\":\"to pay for something\",\"example\":\"I'll get the bill.\"}]",
+    "imgUrl": "p:tse4_OIF.Uq6HSndZFmFjuGNHvA2zaQ,p:tse1_OIF.kfHW2OF3uxX255KBNMIEdw,q:tse3_OIF.ntAK4aHYdX5RDeywxm%2bl%2bg,q:tse1_OIF.BwTSYf2MTpl%2bOg9pvItw%2fA,p:tse1_OIF.rtbp6QnJQNNmndVwHlkTvw,p:tse2_OIF.uGo1csdcDXcgDJTIuqblZA,p:tse4_OIF.1Na79v1qXiDzmzg36U7KCQ,p:tse1_OIF.SbfDGqOTKzHZf6oSvMUucQ,q:tse4_OIF.QtDxlNr%2bAK6gMaM72xfk6Q,q:tse2_OIF.tHDuy9%2bLyuKsWDajShtV9Q,q:tse1_OIF.i3%2fg4Mtu3hV7rFRwBa3%2fEw,q:tse1_OIF.8w%2bqNwPAaa6CBr4znEGebQ,q:tse2_OIF.NT5G3lKGU%2bSdw3XJQwRNXQ,p:tse4_OIF.9O3xakn8FG7bc2G1oIwAtg,q:tse4_OIF.8njmGoV5T6LXT8b%2faeU1%2bw",
+    "lang-vi": "lấy"
+  },
+  {
+    "order": 5,
+    "phrase": "a ok",
+    "type": "phrase",
+    "defi": "[{\"pos\":\"idiom\",\"info\":\"\",\"definition\":\"If things are A OK, they are absolutely fine.\",\"example\":\"Everything is A OK with the project.\\nThe plan is A OK with no issues.\"}]",
+    "imgUrl": "p:tse3_OIP.lSBx81g8z6rqeE0T5d85xAHaEK,p:tse3_OIP.eN5HjjQ4JuBir5Lz2aPqSwHaJQ,p:tse3_OIP.jyW8xzDcWgvhAALwXm0nxgAAAA,p:tse2_OIP.YhONeGE9YjTyVSTT4wP7tQHaEK,p:tse4_OIP.i6T9Ci2GWb3h09N3aMvahQAAAA,p:tse3_OIP.wxlIr9FCxblWj4sD49j4ygHaD4,p:tse4_OIP.9n57LZwSN34QzkfoA8Bw2AHaFj,p:tse1_OIP.0ueQo_DlVMZRf6q-7HtSqAAAAA,p:tse1_OIP.87xBxOOC7m4PHDy-UEBc7QHaEo",
+    "lang-vi": "Mọi thứ tốt đẹp, không có vấn đề gì - Hoàn toàn ổn."
+  },
+  {
+    "order": 3,
+    "phrase": "touché",
+    "type": "word",
+    "ukipa": "tuːˈʃeɪ",
+    "usipa": "tuːˈʃeɪ",
+    "uks": "u/ukt/uktor/uktortu024.mp3",
+    "uss": "u/ust/ustor/ustorme029.mp3",
+    "defi": "[{\"pos\":\"exclamation\",\"info\":\"\",\"definition\":\"used to admit that someone has made a good point against you in an argument or discussion:\",\"example\":\"\\\"You say we should support British industries, but you always drink French wines.\\\" \\\"Touché.\\\"\"},{\"pos\":\"exclamation\",\"info\":\"\",\"definition\":\"used in fencing (= the sport of fighting with long, thin swords) to admit a hit by your opponent\",\"example\":\"\"}]",
+    "imgUrl": "p:tse4_OIP.HQIElPJrSnYFwD3FF9nq7wHaJQ,p:tse2_OIP.P44WUFlFPPi_A6Xez-o8CwHaFP,p:tse1_OIP.bRfb4_JE84kyBP1Lr54ulwHaF7,p:tse4_OIP.VKZmKh9A0G7vBxgwEFoqRAHaHa,p:tse3_OIP.LaxWBIFbU4FxkDKYmhqdSQHaFP,p:tse2_OIP.juL_9JmVZN-Pivf8b4enZQHaGc,p:tse3_OIP.KBCkOM2ONhFV0kQ9TqvOtgHaE8,p:tse1_OIP._vYxtjy3-wqvYGFVTgAt6wHaLG,p:tse4_OIP.aZWbi2BElJUKn7imYzDy2gHaLH,p:tse3_OIP.u9oJ2d1EpSO9GQ06OcYoPQHaLH",
+    "lang-vi": "chạm vào"
+  },
+  {
+    "order": 0,
+    "phrase": "alveolar ridge",
+    "type": "phrase",
+    "ukipa": "ˌæl.vi.əʊ.lə ˈrɪdʒ",
+    "usipa": "ælˌviː.ə.lɚ ˈrɪdʒ",
+    "uks": "c/cal/cald4/cald4uk0043.mp3",
+    "uss": "c/cal/cald4/cald4us0057.mp3",
+    "defi": "[{\"pos\":\"noun\",\"info\":\"specialized\",\"definition\":\"the hard area behind your top front teeth\",\"example\":\"\"}]",
+    "imgUrl": "p:tse2_OIP.CFm-F8PyMsZa8qORWLvmrwHaIs,p:tse1_OIP.guIa8FUK6YRD5CWD-f4HwgHaGk,p:tse2_OIP.ioS61GxMWb-32H_KZh9yRwHaFr,p:tse1_OIP.0kPV1EE37A1z-f-ashte7AHaDt,p:tse2_OIP.fC3MRdVjmbdcBiLI-ZDzaAHaFB,p:tse3_OIP.6bQREauyV8f4zSaOf16FmgHaFz,p:tse4_OIP.cz6dXRzH-oAxdqX14JLvwQHaFj",
+    "lang-vi": "rặng xương ổ răng"
+  },
+  {
+    "order": 1,
+    "phrase": "something disagree",
+    "type": "phrase",
+    "ukipa": "",
+    "usipa": "",
+    "uks": "",
+    "uss": "",
+    "defi": "[{\"pos\":\"collocation\",\"info\":\"\",\"definition\":\"to not have the same opinion, idea, etc. as someone about something:\",\"example\":\"I admire his courage, even if we disagree on many things.\\nExperts disagree on how to solve the problem.\\nI disagree with her on several points.\"}]",
+    "imgUrl": "p:tse2_OIP.NK5yG5aLulCMcVuEBK9DbQHaHa,p:tse1_OIP.GwZVuPLqabqD-zqg1F4YVwHaJq,p:tse3_OIP.2Kz89yNF2UMS5spHCXcu0QHaNK,p:tse4_OIP.gpHAnxPq7XOVFd_flbN3RAHaE7,p:tse3_OIP.JuTROL5dP4oFP08mnXon1QHaHa,p:tse4_OIP.tl2NjT6jGBtBrOwh3jfp-AHaEK,p:tse4_OIP.HpOPGdJQhlxguhfPuRETlwHaE7,p:tse3_OIP.mkJltiP2DO0sxGBm57QLZwHaEK,p:tse4_OIP.RCy32lxL1WHTp5TszskuJAHaHa,p:tse3_OIP.Ao9WwRsAuP01Dq6DHl1ZGAHaD4",
+    "lang-vi": "có gì đó không đồng ý"
+  },
+  {
+    "order": 2,
+    "phrase": "with (all) due respect",
+    "type": "phrase",
+    "ukipa": "",
+    "usipa": "",
+    "uks": "",
+    "uss": "",
+    "defi": "[{\"pos\":\"idiom\",\"info\":\"\",\"definition\":\"used to express polite disagreement in a formal situation:\",\"example\":\"With all due respect, Sir, I cannot agree with your last statement.\"},{\"pos\":\"idiom\",\"info\":\"\",\"definition\":\"used for expressing polite disagreement:\",\"example\":\"I’ve been thinking about what you said and, with all due respect, I think you’re mistaken.\"}]",
+    "imgUrl": "p:tse3_OIP.iwh5mOVFpBMjfvk8S4accwHaE8,p:tse1_OIP.CBOjFYkJr5kGgKdAAgIrEQHaKU,p:tse2_OIP.t3d2zb9pdfEh6ZcvtLn0yQHaD4,p:tse4_OIP.eHMg0p5YQ_v1MS4ceEOzzwHaKR,p:tse3_OIP.9HPNUS68ldpSE-gol3t2oAHaF0,p:tse3_OIP.BL17lzfUvtczyZBIVaQ7YAHaKS,p:tse4_OIP.eXYXM51v0DmDOPAhVh0MZgHaDD,p:tse3_OIP.sttRu2zwObW25-dX0l0LRwHaKR,p:tse3_OIP.LocdXFBWVbabHZw4e0T8fQHaEK",
+    "lang-vi": "với (tất cả) sự tôn trọng"
+  },{
+    "phrase": "anhdung",
+    "type": "word",
+    "error": "Definition not found",
+    "imgUrl": "p:tse3_OIP.xtEJguJ8aho8iKLaVL1hPwHaLE,p:tse4_OIP.dyRwR3Uc_nc_st6yOdEdoAHaLH,p:tse2_OIP.-fgNk_PFfk15foSM94lWkgHaIy,p:tse3_OIP.p1s6TbhZ3qwn0f__Hbd8lgHaLG,p:tse2_OIP.my6vylZcrGWMfqsvdeo97wHaLH,p:tse2_OIP.uoFhMdXGvi2h7E3I3urRhQHaJ4,p:tse4_OIP.QEzPTsr6d4NjEjPl54fPHQHaEK,p:tse4_OIP._Sk4iW-8liCOa1cPpE1Y5AHaLW,p:tse2_OIP.Z3JjJiHHZPnIICDNkuHA7wHaD4",
+    "lang-vi": "anhdung"
+  }
+  ];
     editor.setData = sampleData;
 
 </script>

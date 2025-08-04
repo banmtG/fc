@@ -55,6 +55,7 @@ html, body {
     padding:0; 
     overscroll-behavior: none; /* Prevent pull-to-refresh on the entire page */
     position: relative;
+    text-size-adjust: none; /* Prevent font-size auto correct to support screen reading */
 }
 
 .hidden {
@@ -98,7 +99,7 @@ html, body {
 
 
 /* No Scrollable Style */
-.noScroll_container {
+.noScrollable_container {
   overflow: hidden;     /* Core scroll prevention */
   overscroll-behavior: contain; /* Prevent scroll chaining */
   max-height: 100%;     /* Prevent height overflow */
@@ -109,7 +110,7 @@ html, body {
 }
 
 /* Hide scrollbar for WebKit-based browsers (Chrome, Safari) */
-.noScroll_container::-webkit-scrollbar {
+.noScrollable_container::-webkit-scrollbar {
   display: none;
 }
 

@@ -44,12 +44,14 @@ class SearchBox extends HTMLElement {
 
     normalizePhrases(rawInput) {
     return rawInput
-        .split(",") // Split into phrases by comma
+        .split(",")
         .map(p =>
-        p.replace(/^[^a-zA-Z]+|[^a-zA-Z]+$/g, "") // Remove non-letters at start/end
-        ).map(p => p.trim()) // Remove whitespace
-        .filter(Boolean); // Remove empty strings
-}
+            p.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "") // Keep all Unicode letters, strip rest
+        )
+        .map(p => p.trim())
+        .filter(Boolean);
+    }
+
 
      
 }

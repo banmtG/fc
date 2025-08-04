@@ -1,4 +1,4 @@
-const GAS_Link = "https://script.google.com/macros/s/AKfycbwntowZyQF2AgbeNLDkyQrqqZS5AP3J2-9AoSAVXRC-ki2mvilP_08dq9bWSINTwdrHEg/exec";
+const GAS_Link = "https://script.google.com/macros/s/AKfycbyZ6JHUbgqcr2RPL2r1WZv2yjJfSGHZHon6x68Ba1ODMK9OTkdgiBGrdU1BJhbzE_VRYw/exec";
 
 //https://script.google.com/home/projects/1_EB72AQ8PokpJ7Qct9wiCZpDIk5Jtcg8MfMd6Mdg86e2o7oH4C7i36qH/edit
 
@@ -15,7 +15,7 @@ async function loadDatafromServerPost(url, myPostDataObj) {
     } catch (e) {
         console.log(`Error fetching data from server ${e}`);
     } finally {
-        LoadingOverlay.hide();
+        LoadingOverlay.hideWithDuration();
     }
 
 }
