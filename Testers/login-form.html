@@ -19,12 +19,25 @@
   dialog-title="Welcome to FlashCardX"
   auto-close
 ></login-form>
+<div id="user-info"></div>
+
 
 <script>
   document.querySelector('login-form').addEventListener('login-success', e => {
     console.log('✅ Login success:', e.detail);
     // Handle token exchange or session setup here
   });
+
+  document.querySelector('login-form').addEventListener('login-success', (e) => {
+  const { provider, email, userId } = e.detail;
+  console.log('✅ Logged in via:', provider);
+  console.log('📧 Email:', email);
+  console.log('🆔 User ID:', userId);
+
+  // Example: update UI
+  document.getElementById('user-info').textContent = `Welcome, ${email}`;
+});
+
 </script>
 </body>
 </html>
