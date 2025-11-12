@@ -43,15 +43,17 @@ sl-card::part(body) {
 h2 {
     /* line-height: 1rem; */
     /* font-size: 2rem; */
-    margin: 5px 0 5px 0;
-    padding: 10px 0;  
-    font-size: clamp(1.3rem, 8vw, 2rem);
-    line-height: clamp(1.0, 1.1, 1.1);
+    margin: 0px 0 0px 0;
+    padding: 5px 0;  
+    font-size: 2.5rem;
+    line-height: 1;
     overflow-wrap: break-word;
-    max-height:2rem;
+    max-height: 65px !important;
     overflow-y: scroll;   
     scrollbar-width: none;     /* Firefox */
     -ms-overflow-style: none;  /* IE 10+ */
+    transition: font-size 0.6s ease-in-out;
+    max-width: 70vw;
 }
 
 h2 ::-webkit-scrollbar {
@@ -59,15 +61,16 @@ h2 ::-webkit-scrollbar {
 }
 
 sl-details {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
 }
 
 sl-button::part(label) {
-  font-size:1.2rem;
+  font-size:1.1rem;
+  font-weight: bold;
 }
 
 sl-divider {
-  margin: 10px;
+  margin: 5px 0px;
 }
 
 sl-details::part(header) {
@@ -77,12 +80,20 @@ sl-details::part(header) {
 
 sl-details::part(content) {
   padding: 5px 5px 5px 5px;
+  /* margin-left: 25px; */
   line-height: 1.3rem;
-  max-height: 4rem;
+  max-height: 3rem;
   overflow-y: scroll;    
   overflow: auto;            /* Enables scrolling */
   scrollbar-width: none;     /* Firefox */
   -ms-overflow-style: none;  /* IE 10+ */
+}
+
+sl-details[disabled] {
+  opacity: 1;
+  color: black;
+  pointer-events: none;
+  background-color: #ffffff;
 }
 
 sl-details::part(content)::-webkit-scrollbar {

@@ -77,8 +77,17 @@ class DragdropBox extends HTMLElement {
     }
   }
 
+  disconnectedCallback() {     
+      this.shadowRoot.replaceChildren();
+      this.shadowRoot.innerHTML =``;
+      this.remove();
+      //window.removeEventListener('keydown', this._boundHandleShortcuts); 
+
+  }
+ 
+
   // Called after setting `data` externally
-set data({arr, autoPreselectCount = 2, renderItem }) {
+set data({arr, defaultItems, renderItem }) {
 
   this.renderItem = renderItem || this._defaultRenderer;
 
@@ -88,11 +97,26 @@ set data({arr, autoPreselectCount = 2, renderItem }) {
     _id: def._id || `def-${i}`,
   }));
   
-  //console.log(this.fullData);
+  console.log(this.fullData);
   // 🧠 Auto-select the first 'autoPreselectCount' items if available
-  const count = Math.min(autoPreselectCount, this.fullData.length); //This ensures you’re never trying to grab more items than exist — and everything keeps humming along smoothly.
-  this.selected = this.fullData.slice(0, count);
-  this.available = this.fullData.slice(count);
+  //const count = Math.min(defaultItems.length, this.fullData.length); //This ensures you’re never trying to grab more items than exist — and everything keeps humming along smoothly.
+  try {  
+
+    if (defaultItems.length===0) { // no default item
+      console.log(`try`);
+      const count = Math.min(2, this.fullData.length);
+      this.selected  = this.fullData.slice(0,count);
+      this.available = this.fullData.slice(count);
+    } else  { // has some default items   
+      console.log(`else`);
+      // 🧵 Step 1: Extract elements at given positions
+      this.selected = defaultItems.map(pos => this.fullData[pos]);
+      // 🧮 Step 2: Subtract extracted elements from mother array
+      this.available = this.fullData.filter(item => !this.selected.includes(item));
+    }
+  } catch (e) {
+    console.log(`Fail to extract data`, e);
+  }
 
   this.saveHistory(); // ✅ Save the initial state for undo to work
 
@@ -133,8 +157,8 @@ set data({arr, autoPreselectCount = 2, renderItem }) {
 }
 
    assignFunctionsToElements() {
-    this.shadowRoot.getElementById("closeBtn").onclick = () =>
-    this.emitResult();    
+    // this.shadowRoot.getElementById("closeBtn").onclick = () =>
+    // this.emitResult();    
 
     // 📌 Get reference to the smart-toggle component for "selected" items
     this.selected_smartToggleSelect = this.shadowRoot.getElementById("selected_smartToggleSelect");
@@ -169,8 +193,8 @@ set data({arr, autoPreselectCount = 2, renderItem }) {
       <div class="columns">
         <div class="column">
           <div class="header">              
-            <strong>Select</strong>    
-            <smart-toggle id="selected_smartToggleSelect" values='["On","Off"]' icons='["","check"]' colors='["#999","#999"]' fontSize='1.8rem' btnBorder></smart-toggle>
+            <span id="selectedColumnTitle">selected</span>    
+            <smart-toggle id="selected_smartToggleSelect" values='["On","Off"]' icons='["","check"]' colors='["#999","#999"]' fontSize='1rem' btnBorder></smart-toggle>
           </div>
           <div id="selected-container" class="container selected-container">         
           
@@ -178,8 +202,8 @@ set data({arr, autoPreselectCount = 2, renderItem }) {
         </div>
         <div class="column">
           <div class="header">
-            <strong>Stock</strong>
-            <smart-toggle id="available_smartToggleSelect" values='["On","Off"]' icons='["","check"]' colors='["#999","#999"]' fontSize='1.8rem' btnBorder></smart-toggle>
+            <span id="availableColumnTitle">available</span>
+            <smart-toggle id="available_smartToggleSelect" values='["On","Off"]' icons='["","check"]' colors='["#999","#999"]' fontSize='1rem' btnBorder></smart-toggle>
           </div>
           <div id="available-container" class="container available-container"> 
           </div>
@@ -190,32 +214,34 @@ set data({arr, autoPreselectCount = 2, renderItem }) {
         <div class="left-tools">
             <smart-button-group id="history_buttonGroup" secondColor="default">
               <sl-button-group>            
-                <sl-tooltip content="Undo">
-                  <sl-button size="medium" cb="Undo" pill><sl-icon name="arrow-counterclockwise"></sl-icon></sl-button>
+                <sl-tooltip content="Undo - (Esc)">
+                  <sl-button size="small" cb="Undo"><sl-icon name="arrow-counterclockwise"></sl-icon></sl-button>
                 </sl-tooltip>
                 <sl-tooltip content="Redo">
-                  <sl-button size="medium" cb="Redo" pill><sl-icon name="arrow-clockwise"></sl-icon></sl-button>
+                  <sl-button size="small" cb="Redo"><sl-icon name="arrow-clockwise"></sl-icon> </sl-button>
                 </sl-tooltip>
               </sl-button-group>
             </smart-button-group>
         </div>
-        <div class="right-tools">
-          <smart-button-group id="history_buttonGroup" secondColor="default">
-              <sl-button-group>            
-                <sl-tooltip content="Cancel">
-                  <sl-button size="medium" cb="Cancel" pill><sl-icon name="x-lg"></sl-icon></sl-button>
-                </sl-tooltip>
-                <sl-tooltip content="Confirm">
-                  <sl-button id="closeBtn" size="medium" cb="Confirm" pill><sl-icon name="box-arrow-in-right"></sl-icon></sl-button>
-                </sl-tooltip>
-              </sl-button-group>
-            </smart-button-group>          
-        </div>
+     
         </div>
       <div id="lasso"></div>`;
 
     this.assignFunctionsToElements();
   }
+
+    //  <div class="right-tools">
+    //       <smart-button-group id="history_buttonGroup" secondColor="default">
+    //           <sl-button-group>            
+    //             <sl-tooltip content="Cancel">
+    //               <sl-button size="small" cb="Cancel"><sl-icon name="x-lg"></sl-icon> Cancel</sl-button>
+    //             </sl-tooltip>
+    //             <sl-tooltip content="Confirm">
+    //               <sl-button id="closeBtn" size="small" cb="Confirm" ><sl-icon name="box-arrow-in-right"></sl-icon> Confirm</sl-button>
+    //             </sl-tooltip>
+    //           </sl-button-group>
+    //         </smart-button-group>          
+    //     </div>
 
   renderChange() {
     const selectedContainer = this.shadowRoot.getElementById("selected-container");
@@ -228,6 +254,7 @@ set data({arr, autoPreselectCount = 2, renderItem }) {
     //reset smart toggle;
     const smart_toggles = this.shadowRoot.querySelectorAll('smart-toggle');
     smart_toggles.forEach(tog=> tog.setDefaultValue());
+    this.emitResult();    
   }
 
 
@@ -465,9 +492,10 @@ set data({arr, autoPreselectCount = 2, renderItem }) {
         // Re-bind drag and selection logic to new DOM
         this.initDragLogic();
         this.initSelectionLogic();
-
+        //this.emitResult();  
         // Reset dragged items array
         draggedItems = [];
+        //console.log('emit');
       });
     });
 
@@ -548,20 +576,34 @@ set data({arr, autoPreselectCount = 2, renderItem }) {
     this.selected = grab(".selected-container");
     this.available = grab(".available-container");
 
+    this.shadowRoot.getElementById('')
+    console.log(this.selected.length);
+    console.log(this.available.length);
     // Log this state change in undo history
     this.saveHistory();
   }
   //Used to finalize the selection and remove the component—like clicking a “Done” button.
   emitResult() {
-    this.syncContainers(); // Ensure final selections are accurate
+    //this.syncContainers(); // Ensure final selections are accurate
+    this.getSelectedIndexArray();
     this.dispatchEvent(
-      new CustomEvent("definitionEditorClosed", {
-        detail: { selected: this.selected }, // Pass selected data to parent context
+      new CustomEvent("dragdrop-box-changed", {
+        detail: { selected: this.selected,
+                  indexSelected: this.getSelectedIndexArray()
+         }, // Pass selected data to parent context
         bubbles: true, // Allow event to bubble out of shadow DOM
         composed: true, // Allow event to cross shadow boundaries
       })
     );
-    this.remove(); // Remove the component from DOM
+    
+    this.shadowRoot.getElementById(`selectedColumnTitle`).innerText=`${this.selected.length} selected`;
+    this.shadowRoot.getElementById(`availableColumnTitle`).innerText=`${this.available.length} available`;
+    // availableColumnTitle
+   // this.remove(); // Remove the component from DOM
+  }
+
+  getSelectedIndexArray() {
+    return this.selected.map(item=>item._id.slice(4,item._id.length));    
   }
 
   //Calculates which item is immediately after the dragged position—so you can insert dragged items correctly in DOM order.

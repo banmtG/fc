@@ -21,13 +21,16 @@
     ></script>  
     
     <style>
-      smart-button-group {
-        margin: 10px;
-      }
+      /* smart-button-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        padding: 5px;
+      } */
     </style>
   </head>
   <body>
-    <smart-button-group id="fruit">
+    <smart-button-group id="fruit" secondColor="warning">
       <sl-button-group label="history">
         <sl-tooltip content="Undo">
           <sl-button cb="Undo"
@@ -40,6 +43,7 @@
           ></sl-button>
         </sl-tooltip>
       </sl-button-group>
+      <div>Something disagree?</div>
 
       <sl-button-group label="Formatting">
         <sl-tooltip content="Bold">
@@ -64,16 +68,19 @@
     <button>A button</button>
 
     <script>
+
+      // wait until the slots are fully loaded before doing something inside the component.
       const group = document.querySelector("smart-button-group");
-
-      group.dispatchEvent(new CustomEvent("group-ready")); // to tell the compoenent when all slots are loaded
-
+      requestAnimationFrame(() => {        
+        group.dispatchEvent(new CustomEvent("host_inform_slots_loaded"));
+      });
+     
       group.callbacks = {
         Undo: (val) => console.log("handle_Undo is", val),
         Redo: (val) => console.log("handle_Redo fucntion is", val),
       };
 
-      group.addEventListener("smart-button-group-change", (e) => {
+      group.addEventListener("smart-button-group-changed", (e) => {
         console.log("Group :", e.detail.group_id);
         console.log("Group change:", e.detail.name, "=", e.detail.value);
         console.log("Group state:", e.detail.state);

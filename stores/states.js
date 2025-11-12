@@ -17,7 +17,7 @@ class StateStore {
      * @param {any} value
      */
     static setState(key, value) {
-        StateStore.state[key] = value;
+        StateStore.state[key] = value; //Update the internal state
 
         // Truncate future history if we've undone before setting
         if (this.history_pos !== this.history.length) {
@@ -29,14 +29,14 @@ class StateStore {
         this.history_pos = this.history.length;
 
         // Broadcast state change as event
-        document.dispatchEvent(new CustomEvent("state-change", {
+        document.dispatchEvent(new CustomEvent("state-changed", {
             detail: { key, value }
         }));
 
         // Notify listeners
-        this.listeners.forEach((listener) => {
+        this.listeners?.forEach((fn) => {
             try {
-                listener(key, value);
+                fn(key, value);
             } catch (error) {
                 console.error("Listener error:", error);
             }
@@ -75,7 +75,7 @@ class StateStore {
         const currentState = { ...this.history[this.history_pos - 1] }; // -1 to match 0-index
         StateStore.state = currentState;
 
-        document.dispatchEvent(new CustomEvent("state-change", {
+        document.dispatchEvent(new CustomEvent("state-changed", {
             detail: { key: action, state: currentState }
         }));
 

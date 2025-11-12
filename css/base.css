@@ -136,3 +136,27 @@ Trigger a CSS animation (or JS-based motion) on an item inside the container to 
 .scroll-prompt_vertical {
   animation: wiggle_vertical 5s ease-in-out infinite;
 }
+
+
+/* Control how flex item appear at the end of beginning of the flex container */
+/* Horizontal */
+.flex-item-end {
+  margin-left: auto;
+}
+
+.flex-item-start {
+  margin-right: auto;
+}
+
+/* Vertical */
+.flex-item-top {
+  align-self: flex-start;
+}
+.flex-item-bottom {
+  align-self: flex-end;
+}
+.flex-item-center {
+  align-self: center;
+}
+
+/* Control how flex item appear at the end of beginning of the flex container */

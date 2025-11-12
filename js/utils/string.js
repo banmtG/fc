@@ -126,6 +126,11 @@ function stringToArrayWithQuotes(inputString) {
 // console.log(stringToArrayWithQuotes('""')); // [""]
 // console.log(stringToArrayWithQuotes('"child1","child2, with , commas","child3"')); // ["child1", "child2, with , commas", "child3"]
 
+// sort string by length
+export function sortByLengthDesc(arr) {
+  return [...arr].sort((a, b) => b.length - a.length);
+}
+
 
 function arrayToStringWithQuotes(inputArray) {
   // Ensure input is an array

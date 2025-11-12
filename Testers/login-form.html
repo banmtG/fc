@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css" />
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace.js"></script>
+    <title>Login Form</title>
+
+    <link href="./../css/base.css" rel="stylesheet">
+    <link href="./../css/index.css" rel="stylesheet">
+    <link href="./../css/shoelace_customized.css" rel="stylesheet">  <!-- for customized shoelace default value-->      
+    <script type="module" src="./../components/smart/login-form.js"></script>
+
+</head>
+<body>
+<login-form
+  options="local,google,facebook,guest,signup"
+  dialog-title="Welcome to FlashCardX"
+  auto-close
+></login-form>
+
+<script>
+  document.querySelector('login-form').addEventListener('login-success', e => {
+    console.log('✅ Login success:', e.detail);
+    // Handle token exchange or session setup here
+  });
+</script>
+</body>
+</html>
+

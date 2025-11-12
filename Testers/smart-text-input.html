@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css" />
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace.js"></script>
+    <title>Smart Text input</title>
+    
+    <script type="module" src="./../components/smart/smart-text-input.js"></script>
+
+</head>
+<body>
+    <smart-text-input></smart-text-input>
+    <smart-text-input></smart-text-input>
+ <smart-text-input></smart-text-input>
+</body>
+<script>
+    const textInput = document.querySelectorAll(`smart-text-input`);
+    
+    customElements.whenDefined('smart-text-input').then(() => {      
+        textInput.forEach((sti,index) => {
+            sti.open(`Phrasesss ${index}`,`Sthing ${index}`);
+        }) 
+    });
+
+
+    document.addEventListener('smart-text-input-confirmed', (e) => {
+        console.log(e.detail);
+        console.log('Confirm! document level');
+        e.target.remove(); // ✅ works if event is dispatched from the dialog
+    });
+
+    // const anotherIPA = document.createElement('smart-ipa-input');
+   
+    // customElements.whenDefined('smart-ipa-input').then(() => {
+    //     document.body.append(anotherIPA);
+    //     anotherIPA.open('Another thing');
+    // });
+    
+
+</script>
+</html>

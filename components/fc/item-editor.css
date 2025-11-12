@@ -1,0 +1,166 @@
+:host {
+  display: flex;
+  font-family: var(--sl-font-sans);
+  height: 100%;
+  overflow: hidden;
+}
+
+.component_wrapper {
+  display: flex;
+  flex-direction: column;
+  /* height: 100%; /* or 100vh if it's full screen */
+  overflow: hidden; /* prevent outer scroll */
+  flex: 1 1 auto;
+  min-height: 0; /* 👈 KEY again */
+}
+
+.component-wrapper:focus-visible {
+  outline: 2px dashed #009999;
+}
+.component-wrapper:focus:not(:focus-visible) {
+  outline: none;
+}
+
+
+.component_top_controls {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: end; 
+  flex: 0 0 auto; /* fixed height */
+  padding:5px;
+  /*background: white; optional */
+  z-index: 1; /* stay above scroll */
+}
+
+#list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1 1 auto;
+  overflow-y: scroll;
+  min-height: 0; /* 👈 KEY again */
+}
+
+.list_item {
+  display: flex;
+  flex-direction: column;
+  border-color: var(--sl-color-neutral-300);
+  background-color: var( --sl-color-neutral-50);  
+  border: 2px solid var(--sl-color-neutral-200);  
+  border-radius: var(--sl-border-radius-medium);
+}
+
+.list_item.selected {
+ background-color: var(--sl-color-primary-200);
+}
+
+
+.list_item_header{
+  cursor:grab;
+  width:100%;
+  height:30px;
+  background-color: var( --sl-color-neutral-100);  
+}
+
+.list_item_header sl-icon{
+  color: var(--sl-color-neutral-500);
+  margin-left:5px;
+  margin-top:7px;
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+.list_item_header.selected {
+ background-color: var(--sl-color-primary-200);
+}
+
+.item {
+  min-width: calc(100% - 3px);
+  /* min-width: calc(100% - 26px); */
+  /*If you used width: 100% inside a flex container with nowrap, it only fills the content width, not the container width. min-width: 100% forces it to stretch to the full scrollable width.*/
+
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  transition: background-color 0.2s ease; 
+  margin-right:5px;
+}
+
+.item:not(:first-child) {
+  margin-top:5px;
+}
+
+.item_control_wrapper {
+  padding: 5px;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;  
+  overflow-x: auto;
+  scroll-behavior: smooth; /* This makes any programmatic scroll (e.g. via JavaScript or anchor links) glide smoothly. */
+  scroll-snap-type: x mandatory; /*📌 2. Scroll Snapping*/
+  -webkit-overflow-scrolling: touch; /* iOS inertia */
+  scrollbar-width: none; /* Firefox  no scrollbar*/  
+}
+
+.item_control_wrapper::-webkit-scrollbar {
+  display: none;
+}
+
+/* control the sl-button next to item*/
+.item_control_wrapper sl-button::part(label) {
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+}
+
+.item_control_wrapper sl-button::part(base) {
+  height:100%;
+  width:100%;
+  min-width:80px;
+  border-radius: 0;
+}
+
+.flex-item-end {
+  margin-left: auto;
+  display:flex;
+  flex-direction: row;
+  gap:5px;
+  user-select: none;
+}
+
+.flex-item-start {
+  margin-right: auto;
+}
+
+.flex-item-top {
+  align-self: flex-start;
+}
+.flex-item-bottom {
+  align-self: flex-end;
+}
+.flex-item-center {
+  align-self: center;
+}
+
+
+/* Chrome, Edge, Safari (WebKit Browsers) */
+.smallScrollBar::-webkit-scrollbar {
+  width: 1px;
+  background: transparent; /* hidden track */
+}
+
+.smallScrollBar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.smallScrollBar::-webkit-scrollbar-thumb {
+  background-color: transparent; /* fades in only on hover */
+  border-radius: 1px;
+  transition: background-color 0.3s ease-in-out;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.smallScrollBar:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2); /* light thumb on hover */
+}

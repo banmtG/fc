@@ -3,13 +3,9 @@ class ImagePicker extends HTMLElement {
     super();
     this.attachShadow({ mode: "open" });
 
-    this.componentCSS = `<link rel="stylesheet" href="./components/image-picker.css" />`;
-    this.CSSJSlibraries = `
-      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.17.1/cdn/themes/light.css" />
-      <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.17.1/cdn/shoelace-autoloader.js"></script>
-    `;
-
-    this.shadowRoot.innerHTML = `${this.componentCSS}${this.CSSJSlibraries}
+    this.componentCSS = `<link rel="stylesheet" href="./components/fc/image-picker.css" />`;
+   
+    this.shadowRoot.innerHTML = `${this.componentCSS}
       <div class="container">
         <div class="imagePicker searchTop">
           <sl-input size="small" placeholder="Paste compressed image links..." clearable></sl-input>
@@ -34,7 +30,9 @@ class ImagePicker extends HTMLElement {
   connectedCallback() {
   this._btn.addEventListener("click", () => {
     const raw = this._searchInput.value || "";
-    const compressedLinks = raw
+     // Remove surrounding brackets if present
+    const cleaned = raw.trim().replace(/^\[|\]$/g, "");
+    const compressedLinks = cleaned
       .split(",")
       .map((s) => s.trim().replace(/^"|"$/g, "")) // remove quotes
       .filter(Boolean);

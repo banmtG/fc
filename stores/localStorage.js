@@ -4,8 +4,8 @@
  * Utility class to manage persistent storage using browser's localStorage.
  * Designed to be reusable across any JS application with optional namespacing.
  */
-class LocalStorageManager {
-    static prefix = ""; // Optional prefix to avoid key collisions between projects/modules
+export class LocalStorageManager {
+    static prefix = "ADFC"; // Optional prefix to avoid key collisions between projects/modules
 
     /**
      * Retrieve and parse an item from localStorage

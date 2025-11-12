@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css" />
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace.js"></script>
+    <title>Smart Text input</title>
+    
+    <script type="module" src="./../components/smart/confirm-dialog.js"></script>
+
+</head>
+<body>
+    <confirm-dialog></confirm-dialog>
+
+</body>
+<script>
+    window.addEventListener("DOMContentLoaded", () => runAfterDOMLoaded());
+
+    function runAfterDOMLoaded() {
+        const confirm = document.querySelector(`confirm-dialog`);
+        
+    
+        confirm.open("Are you sure?")
+    
+
+        document.addEventListener('confirm-dialog-confirmed', (e) => {
+            console.log(e.detail);
+            console.log('Confirm! document level');
+            e.target.remove(); // ✅ works if event is dispatched from the dialog
+        });
+
+        document.addEventListener('confirm-dialog-canceled', (e) => {
+            console.log(e.detail);
+            console.log('Cancel! document level');
+            e.target.remove(); // ✅ works if event is dispatched from the dialog
+        });
+    }
+
+</script>
+</html>

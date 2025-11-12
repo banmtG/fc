@@ -14,23 +14,17 @@
     <script type="text/javascript" src="./js/utils/viewport.js"></script>
     <script type="module" src="./js/utils/deviceUtils.js"></script>
     <script type="text/javascript" src="./stores/states.js"></script>
-    <script type="text/javascript" src="./stores/localStorage.js"></script>
-    <script type="text/javascript" src="./controllers/AppController.js"></script>
+    <script type="module" src="./stores/localStorage.js"></script>
+    <script type="module" src="./controllers/AppController.js"></script>
 
-    <script type="text/javascript" src="./js/data_services/gas.js"></script>
+    <script type="module" src="./js/data_services/gas.js"></script>
     <script type="text/javascript" src="./js/data_services/local_data.js"></script>
 
-    <script type="text/javascript" src="./components/object-tree.js"></script>
-    <script type="text/javascript" src="./components/search-box.js"></script>
-    <script type="text/javascript" src="./components/word-form.js"></script>
-    <script type="text/javascript" src="./components/image-picker.js"></script>
-    <script type="text/javascript" src="./components/loading-icon.js"></script>
-    <script type="text/javascript" src="./components/phrase-mobile-editor.js"></script>
-    <script type="text/javascript" src="./components/phrase-definition-editor.js"></script>
-    
+    <script type="text/javascript" src="./components/fc/search-box.js"></script>
+    <script type="text/javascript" src="./components/fc/image-picker.js"></script>  
 
 </head>
-<body>
+<body id="thebody">
     <header>
         <div class="logo">
             <img src="./images/logo_long.png" alt="logo">
@@ -58,6 +52,17 @@
     </main>
 </body>
 <script>
+    async function loadFromNode() {
+       // const urlNode = 'https://nodejs.adapps.download/greet?name=AnhDung11111111111';
+        const urlNode = 'http://localhost:3000/greet?name=AnhDung11111111111';
+        const response = await fetch(urlNode);
+        const data = await response.json();
+        console.log(data);
+        return data;
+    }
+    
+    loadFromNode();
+
     const main_objecttree=document.querySelector('object-tree');
     const word_form=document.querySelector('word-form');
     // let aWordData = {

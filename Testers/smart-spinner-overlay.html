@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <!-- <link rel="preload" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.17.1/cdn/themes/light.css" />
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.17.1/cdn/shoelace.js"></script>   -->
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css" />
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace.js"></script>
+    <title>Smart Spinner Overlay</title>
+    <link href="./../css/base.css" rel="stylesheet">
+    <link href="./../css/index.css" rel="stylesheet">
+    <script type="module" src="./../components/smart/smart-spinner-overlay.js"></script>
+    <style>
+    </style>
+</head>
+
+<body id="mybody"> 
+    <div id="my-content" style="position: relative; height: 200px; width: 100%;
+   border: 1px solid #ccc; background-color: gold;">
+     Loading content...
+    </div>
+    <div id="my-anotherDiv" style="position: relative; height: 100px; width: 50%;
+    border: 1px solid #ccc; background-color: #cfcf;">
+     Another div....
+    </div>
+
+    <!-- <smart-spinner-overlay size="font-size: 50px; --track-width: 10px;" target="#my-content"></smart-spinner-overlay> -->
+    <!-- <smart-spinner-overlay color="--indicator-color: deeppink; --track-color: pink;" speed="--speed:10s;" target="#mybody"></smart-spinner-overlay> -->
+    <smart-spinner-overlay id="my_spinner" color="--indicator-color: yellow; --track-color: orange;" speed="--speed:2s;"></smart-spinner-overlay>
+    <script>
+        const spinner =document.querySelector('#my_spinner');
+         // spinner.target = document.getElementById('my-anotherDiv');
+         spinner.setAttribute('target','#my-anotherDiv');
+          console.log(spinner);
+    </script>
+</body>
+</html>

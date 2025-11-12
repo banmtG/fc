@@ -1,9 +1,13 @@
+import { LoadSmartSpinner } from './../../components/smart/smart-spinner-overlay.js';
+
 const GAS_Link = "https://script.google.com/macros/s/AKfycbyZ6JHUbgqcr2RPL2r1WZv2yjJfSGHZHon6x68Ba1ODMK9OTkdgiBGrdU1BJhbzE_VRYw/exec";
 
 //https://script.google.com/home/projects/1_EB72AQ8PokpJ7Qct9wiCZpDIk5Jtcg8MfMd6Mdg86e2o7oH4C7i36qH/edit
 
-async function loadDatafromServerPost(url, myPostDataObj) {
-    LoadingOverlay.show();
+export async function loadDatafromServerPost(url, myPostDataObj) {    
+    LoadSmartSpinner.show(`#thebody`); // showing the loading icon in the middle of document.body
+    const spinner = document.querySelector('smart-spinner-overlay');
+    //console.log(spinner);
     try {
         const response = await fetch(url,{
             method: 'POST',
@@ -15,12 +19,12 @@ async function loadDatafromServerPost(url, myPostDataObj) {
     } catch (e) {
         console.log(`Error fetching data from server ${e}`);
     } finally {
-        LoadingOverlay.hideWithDuration();
+       LoadSmartSpinner.hideWithDuration();
     }
 
 }
 
-async function handleDatafromServer() {
+export  async function handleDatafromServer() {
     var myPostDataObj = {
         'service': 'sheet2Array',
         'postedData': {
@@ -35,7 +39,7 @@ async function handleDatafromServer() {
 }
 
 
-async function loadDefiFromServerPost(phrases) {
+export async function loadDefiFromServerPost(phrases) {
     console.log(phrases);
       var myPostDataObj = {
         action: 'searchPhrases',
@@ -50,13 +54,13 @@ async function loadDefiFromServerPost(phrases) {
 }
 // handleDatafromServer();
 
-async function loadDefinitionfromServer(url, wordList) {
+export async function loadDefinitionfromServer(url, wordList) {
     const response = await fetch(url);
     const data = await response.json();
     return data;
 }
 
-async function loadDefinitionfromFreeServer(url, word) {
+export async function loadDefinitionfromFreeServer(url, word) {
     const response = await fetch(url);
     const data = await response.json();
     return data;

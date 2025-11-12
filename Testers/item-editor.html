@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css"
+    />
+    <script
+      type="module"
+      src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace.js"
+    ></script>
+    <title>Item Editor</title>
+    <link href="./../css/base.css" rel="stylesheet" />
+    <link href="./../css/index.css" rel="stylesheet" />
+    <link href="./../css/shoelace_customized.css" rel="stylesheet" />
+    <!-- for customized shoelace default value-->
+    <script type="text/javascript" src="./../js/utils/deviceUtils.js"></script>
+
+
+    <script type="text/javascript" src="./../js/utils/viewport.js"></script>
+
+    <script type="module" src="./../components/fc/item-editor.js"></script>
+
+    <style>
+      .wrapper {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow: hidden;
+      }
+      .w_header {
+        flex: 0 0 auto; /* fixed height */
+      }
+
+      .w_footer {
+        flex: 0 0 auto; /* fixed height */
+      }
+
+      .w_body {
+        display: flex;
+        font-family: var(--sl-font-sans);
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body style="position: relative; height: 100vh; margin: 0">
+    <div
+      style="
+        height: 50%;
+        overflow: hidden;
+        position: absolute;
+        top: 100px;
+        left: 100px;
+      "
+    >
+      <div class="wrapper">
+        <div class="w_header">Some header</div>
+        <div class="w_body"><item-editor></item-editor></div>
+        <div class="w_footer">Some footer</div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { CambridgeDictionaryKnownPos, parsePOS  } from './../js/utils/dictionary.js';
+
+      function runAfterDOMLoaded() {
+        const editor = document.querySelector("item-editor");
+        const knownPOS = Object.keys(CambridgeDictionaryKnownPos).map(
+          (item) => item.charAt(0).toUpperCase() + item.slice(1, item.length)
+        ); // extract all known POS
+
+        let pos_html = ``;
+        knownPOS.forEach((element) => {
+          pos_html =
+            pos_html + `<sl-option value="${element}">${element}</sl-option>`;
+        });
+        // const pos_html = (pos) => {
+        //   let pos_html =  ``;
+        //    knownPOS.forEach(element => { pos_html = pos_html +
+        //       `<sl-option value="${element}">${element}</sl-option>`
+        //    });
+        // };
+        const cookPos = (pos) => {
+          //pos.replace(/_/g, ' '));; // extract all known POS
+          //const modifiedPos = pos.replace(/ /g, '_'); // spaceToUnderscore
+          // const modifiedPos = pos.replace(/ /g, '_');
+          // console.log(modifiedPos);
+          const result = parsePOS(pos)
+            .map((item) => item.replace(/ /g, "_"))
+            .map(
+              (item) =>
+                item.charAt(0).toUpperCase() + item.slice(1, item.length)
+            )
+            .join(" ");
+          //console.log(result);
+          return result;
+        };
+
+        editor.template = (item) => `
+        <sl-input size="medium" placeholder="Definition" value="${
+          item.definition || ""
+        }" name="definition"></sl-input>        
+        <sl-textarea rows="2" size="medium" placeholder="Example" value="${
+          item.example || ""
+        }" name="example"></sl-textarea>        
+        <sl-select size="medium" value="${
+          item.pos ? cookPos(item.pos) : ""
+        }" placeholder="Word/phrase type" multiple clearable maxOptionsVisible=3 hoist=true name="pos">         
+          ${pos_html}
+        </sl-select>        
+        <sl-input name="info" size="medium" placeholder="Info" value="${
+          item.info || ""
+        }" name="info"></sl-input>        
+      `;
+
+        editor.data = JSON.parse(
+          `[{"pos":"ordinal numberdeterminer","info":"A1","definition":"(a person or thing) coming before all others in order, time, amount, quality, or importance","example":"This is my first visit to New York.\\nthe first time I fell in love with him the first time I saw him.\\nfirst few I'm always nervous for the first few minutes of an exam.\\nthe first of Today is the first of August."},{"pos":"ordinal numberdeterminer","info":"B2","definition":"in or at the beginning (of a series of events)","example":"The trousers shrank when I washed them, but they weren't really big enough in the first place."},{"pos":"ordinal numberdeterminer","info":"","definition":"as the first attempt or effort","example":"Enquiries about the post should be addressed in the first instance to the personnel manager."}]`
+        );
+
+        // ,{"pos":"ordinal numberdeterminer","info":"","definition":"to a very great degree or of an extremely good kind","example":"It is a diplomatic scandal of the first order."},{"pos":"ordinal numberdeterminer","info":"","definition":"at the earliest time in the day","example":"He said he'd call back first thing tomorrow."},{"pos":"ordinal numberdeterminer","info":"[before noun] music specialized","definition":"in a group of musicians or singers, relating to the highest or higher instrument, voice, or part","example":"She sings first soprano in the school choir.\\nHe is the best first trumpet player in the business.\\nUnusually, the first altos have the tune."},{"pos":"adverb","info":"A1","definition":"before all others in order, time, amount, quality, or importance","example":"come first Tom came first in the race.\\nWho finished first?\\nIf you get home first, can you feed the cat?"},{"pos":"adverb","info":"B1","definition":"for the first time","example":"When did you first meet each other?\\nThe company was still very small when I first joined."},{"pos":"adverb","info":"A2 (also firstly)","definition":"used at the beginning of a list of things you want to say or write","example":"First, I want to thank my parents.\\nfirst of all First of all (= before anything else), I'd like to ask you a few questions.\\nfirst off First off (= before anything else), let me introduce myself."},{"pos":"noun","info":"B1 [S]","definition":"the first person or thing to do or be something, or the first person or thing mentioned","example":"We've fostered several children. Tina was the first.\\nthe first to My passport was the first to arrive.\\none of the first to She was one of the first to try the new treatment.\\nTonight sees the first of three documentaries about cancer."},{"pos":"noun","info":"(also be the first to say something)","definition":"to be willing to admit something","example":"I'm the first to admit we sometimes make mistakes.\\nHe's the first to say he is paid too much money."},{"pos":"noun","info":"","definition":"from the beginning","example":"I've opposed the proposal from the very first."},{"pos":"noun","info":"[C] music specialized","definition":"In a group of musicians or singers, a first is a person who plays or sings the highest or a higher part","example":"The second violins were seated on the right side of the stage, opposite the firsts.\\nShe's usually a first but today she's singing second."},{"pos":"noun","info":"C2 [S]","definition":"something that has never happened or been done before","example":"She said sorry? That's a first!\\na first for This new surgical technique is a first for (= has never been done before in) the hospital."},{"pos":"noun","info":"[C] UK (also first-class degree)","definition":"the best possible undergraduate university degree you can get in the UK and some other countries","example":"first in She has a first in English from Newcastle University."},{"pos":"noun","info":"[U] (also first gear)","definition":"(in a vehicle) the gear used when starting to drive forward or when driving up a steep hill","example":""},{"pos":"noun","info":"[C usually singular] informal","definition":"another word for first base ","example":"I caught the ball and calmly stepped on first.\\nThere were runners on first and third with nobody out."},{"pos":"adjectiveadverbnoun","info":"","definition":"(a person or thing) coming before all others in order, time, amount, quality, or importance","example":"Would you like to go first?\\n[C] We leave on the first of August.\\nAt first (= In the beginning) I thought he was joking, but then I realized he meant it."},{"pos":"adjectiveadverbnoun","info":"","definition":"First also means first base","example":""}
+
+        //console.log(editor.data);
+        editor.addEventListener("item-editor-changed", (e) => {
+          console.log(e);
+        });
+      }
+
+      window.addEventListener("DOMContentLoaded", () => runAfterDOMLoaded());
+
+      const editor = document.querySelector("item-editor");
+    </script>
+  </body>
+</html>

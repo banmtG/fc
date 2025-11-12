@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css" />
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace.js"></script>
+    <title>Document</title>
+    <script type="module" src="./../components/smart/smart-dialog.js"></script>
+</head>
+<body>
+    <button onclick="console.log('Clicked!')">Test Button</button>
+    <div id="wrapper">
+    <smart-dialog draggable resizable>
+    <div slot="header">⚡ Supercharged Dialog</div>
+    <div slot="body">
+      <div>
+          Hello everybody!
+          <div>
+                  Hello everybody 2!
+          <sl-input size="medium" placeholder="Definition" value="${item.definition || ''}" name="definition"></sl-input>        
+          <sl-textarea rows="2" size="medium" placeholder="Example" value="${item.example || ''}" name="example"></sl-textarea>        
+          <sl-select size="medium" value="${item.pos? cookPos(item.pos) : ''}" placeholder="Word/phrase type" multiple clearable maxOptionsVisible=3 hoist=true name="pos">         
+            ${pos_html}
+          </sl-select>        
+              Hello everybody 3!
+          <sl-input name="info" size="medium" placeholder="Info" value="${item.info || ''}" name="info"></sl-input>        
+          </div>
+      </div>
+      <sl-input size="medium" placeholder="Definition" value="${item.definition || ''}" name="definition"></sl-input>        
+          <sl-textarea rows="2" size="medium" placeholder="Example" value="${item.example || ''}" name="example"></sl-textarea>        
+          <sl-select size="medium" value="${item.pos? cookPos(item.pos) : ''}" placeholder="Word/phrase type" multiple clearable maxOptionsVisible=3 hoist=true name="pos">         
+            ${pos_html}
+          </sl-select>        
+      <sl-input name="info" size="medium" placeholder="Info" value="${item.info || ''}" name="info"></sl-input>        
+        
+    </div>
+    <div slot="footer">
+      <div style="display: flex; flex-direction: row; justify-content: center;">
+          <div style="margin-right:auto">
+              <sl-button size="small" variant="primary" id="another">Something</sl-button>
+          </div>
+          <div style="margin-left:auto">
+              <sl-button size="small" variant="primary" id="confirm">Confirm</sl-button>
+              <sl-button size="small" id="cancel">Cancel</sl-button>
+          </div>
+      </div>
+    </div>
+  </smart-dialog>
+
+  <smart-dialog esc-close >
+    <div slot="header">⚡ Supercharged Dialog</div>
+    <div slot="body">
+      <p>This can be escape close.
+        This dialog supports animation, focus trap, stacking, and memory safety.</p>
+    </div>
+    <div slot="footer">   
+      
+      <sl-button size="small" variant="primary" id="confirm">Confirm</sl-button>
+      <sl-button size="small" id="cancel">Cancel</sl-button>
+
+  
+    </div>
+  </smart-dialog>
+  </div>
+
+  <script>
+    const wrapper = document.getElementById('wrapper');
+  
+    wrapper.addEventListener('smart-dialog-confirmed', (e) => {
+        console.log('Confirm! document level');
+        e.target.remove(); // ✅ works if event is dispatched from the dialog
+    });
+
+    wrapper.addEventListener('smart-dialog-canceled', (e)=> {
+        console.log('Canceled! document level');
+        e.target.remove(); // ✅ works if event is dispatched from the dialog
+    });
+
+  const somethingBtn = document.querySelector('#another');
+ 
+  somethingBtn.addEventListener('click', ()=> {console.log(`click!`)});
+</script>
+
+</body>
+</html>

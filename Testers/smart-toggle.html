@@ -11,18 +11,17 @@
     <title>Image Picker Test</title>
     <link href="./../css/base.css" rel="stylesheet">
     <link href="./../css/index.css" rel="stylesheet">
-      
-    </script><script type="text/javascript" src="./../components/smart-toggle.js"></script>
+    <script type="module" src="./../components/smart/smart-toggle.js"></script>
+    <!-- </script><script type="text/javascript" src="./../components/smart-toggle.js"></script> -->
     <style>
-        /* smart-toggle::part(icon) {
-            font-size:2rem;
-            color:blue;
-        } */
+
+       
     </style>
 </head>
 <body>
       <input>
-      <button>A button</button>
+      <sl-button>A button</sl-button>
+       <smart-toggle id="selectedAllItem_toggle" values='["On","Off"]' icons='["","check"]' colors='["#999","#999"]' fontSize='1.6rem' tooltips='["Select All","Unselect All"]' btnBorder></smart-toggle>
      <smart-toggle
         id="tog1"
         values='[true,false]' 
@@ -38,12 +37,12 @@
         fontSize='5rem'>
     </smart-toggle>
           <smart-toggle
-          id="tog3"
-        values='["On","Off"]'
-        icons='["toggle-on","toggle-off"]'
-        colors='["red","#999999"]'
-        fontSize='2.5rem'>
-    </smart-toggle>
+            id="tog3"
+            values='["On","Off"]'
+            icons='["toggle-on","toggle-off"]'
+            colors='["red","#999999"]'
+            fontSize='2.5rem'>
+        </smart-toggle>
     
     <script>
     const toggle = document.querySelectorAll("smart-toggle");   

@@ -9,14 +9,8 @@
     <link href="./../css/base.css" rel="stylesheet">
     <link href="./../css/index.css" rel="stylesheet">
     <link href="./../css/shoelace_customized.css" rel="stylesheet">  <!-- for customized shoelace default value-->
-
-    <link href="./../components/dragdrop-box.css" rel="stylesheet"> 
-    <script type="text/javascript" src="./../components/dragdrop-box.js">        
-    </script><script type="text/javascript" src="./../components/smart-toggle.js"></script>
-    <script type="module" src="./../js/utils/deviceUtils.js"></script>
-    <script type="text/javascript" src="./../js/utils/viewport.js"></script>
-    <script type="text/javascript" src="./../components/loading-icon.js"></script>
-    <script type="text/javascript" src="./../components/smart-button-group.js"></script>
+          
+   <script type="module" src="./../components/fc/dragdrop-box.js"></script>
     <style>
         dragdrop-box::part(card-img) {
             width:100%;
@@ -27,14 +21,33 @@
             height: 100px;
             border-radius: 10px;
         }
+
+        .flex-container {
+            display: flex;
+            flex-direction: column;
+            max-height: 95vh;
+        }
+
+        .container {
+            display: flex;
+            min-height: 0;
+            width:400px;
+        }
     </style>
 </head>
 <body>
     <!-- Custom element -->
-    <!-- <phrase-mobile-editor></phrase-mobile-editor> -->
-    <dragdrop-box></dragdrop-box>      
-    
+     <div class="flex-container">
+        <span>Header</span>   
+            <div class="container">
+            <dragdrop-box></dragdrop-box>      
+            </div>
+        <span>Footer</span>   
+     </div>
     <script>
+    window.addEventListener("DOMContentLoaded", () => runAfterDOMLoaded());
+    function runAfterDOMLoaded() {
+
     
     const definition = document.querySelector("dragdrop-box");
     let arrayObjects = JSON.parse("[{\"pos\":\"verb\",\"info\":\"A1 [T]\",\"definition\":\"to obtain, buy, or earn something\",\"example\":\"He went to the shop to get some milk.\\nUK I think she gets about £40,000 a year.\\nWe stopped on the way to get some breakfast.\\nget something for something I managed to get all three suitcases for under $200.\\nHow much did he get for his car? (= How much money did he sell it for?)\\nget something from something Where did you get your shoes from?\"},{\"pos\":\"verb\",\"info\":\"A1 [T]\",\"definition\":\"to receive or be given something\",\"example\":\"UK I got quite a surprise when I saw her with short hair.\\nWhen did you get the news about Sam?\\nget something from someone I got a phone call from Phil last night.\\nWhat grade did he get for the exam?\\nI got the impression that they'd rather be alone.\\nget something for something What did you get for your birthday?\\nWe don't get much snow (= it does not often snow) here.\\nI managed to get a glimpse of him (= see him for a moment) through the crowds.\\nIf you get a moment (= have time available), could you help me fill in that form?\\nget something from something She gets such pleasure from her garden.\\nget something off If you can get some time off work, we could finish the decorating.\\nget someone to yourself I can never get her to myself (= be alone with her) because she's always surrounded by people.\"},{\"pos\":\"verb\",\"info\":\"A2 [T]\",\"definition\":\"to go somewhere and bring back someone or something\",\"example\":\"Let me go get my glasses.\\n[+ two objects] Can I get you a drink?\"},{\"pos\":\"verb\",\"info\":\"[T]\",\"definition\":\"to take someone or something into your possession by force\",\"example\":\"Have the police got the man who did it yet?\\nYour cat got a bird this morning!\"},{\"pos\":\"verb\",\"info\":\"A1 [I usually + adv/prep, T]\",\"definition\":\"to reach or arrive at a particular place\",\"example\":\"We hadn't even got as far as London when the car broke down.\\nWhat time does he normally get home (from work)?\\nget to If you get to the restaurant before us, just wait at the bar.\"},{\"pos\":\"verb\",\"info\":\"[I usually + adv/prep]\",\"definition\":\"to reach a particular stage, condition, or time\",\"example\":\"get to You earn loads of money if you get to the top in that profession.\\nIt got to Thursday and she still hadn't heard any news.\\ninformal I'm getting to the stage now where I just want to give up.\"},{\"pos\":\"verb\",\"info\":\"\",\"definition\":\"to make progress or to improve\",\"example\":\"She's taking flute lessons, but she really doesn't seem to be getting anywhere with it.\"},{\"pos\":\"verb\",\"info\":\"B1 [T]\",\"definition\":\"to become ill with a disease, virus, etc.\",\"example\":\"I got food poisoning at that cheap little seafood restaurant.\\nKids get all kinds of bugs at school.\"},{\"pos\":\"verb\",\"info\":\"B1 [L]\",\"definition\":\"to become or start to be\",\"example\":\"He gets really upset if you mention his baldness.\\nIs your cold getting any better?\\nYour coffee's getting cold.\\nAfter a while you get used to all the noise.\\nYou're getting to be such a big boy, aren't you!\\n[+ to infinitive] How did you get to be a belly dancer?\"},{\"pos\":\"verb\",\"info\":\"\",\"definition\":\"to start to go or move\",\"example\":\"We'd better get moving or we'll be late.\"},{\"pos\":\"verb\",\"info\":\"B1 [T]\",\"definition\":\"to cause something to happen, or cause someone or something to do something\",\"example\":\"[+ adj] She had to get the kids ready for school.\\n[+ past participle] I'm trying to get this article finished by Thursday.\\nWe get our groceries delivered.\\n[+ -ing verb] Were you able to get the copy machine working?\\n[+ to infinitive] I can't get my computer to work!\"},{\"pos\":\"verb\",\"info\":\"B2 [T + obj + to infinitive]\",\"definition\":\"to persuade someone to do something\",\"example\":\"get someone to do something Why don't you get Nicole to come to the party?\"},{\"pos\":\"verb\",\"info\":\"[T + past participle]\",\"definition\":\"to do something to something or someone without intending to or by accident\",\"example\":\"He got his bag caught in the train doors as they were closing.\\nI always get the two youngest sisters' names confused.\"},{\"pos\":\"verb\",\"info\":\"B1 [L + past participle]\",\"definition\":\"sometimes used instead of \\\"be\\\" to form the passive\",\"example\":\"I got shouted at by some idiot for walking past his house.\\nThey're getting married later this year.\\nThis window got broken.\"},{\"pos\":\"verb\",\"info\":\"B1 [I usually + adv/prep]\",\"definition\":\"to move to a different place or into a different position\",\"example\":\"get into I hit my head as I was getting into the car.\\nget out of Get out of here now or I'll call the police.\\nThe bed is too wide - we'll never get it through the door.\\nget up Getting up the ladder was easy enough - it was coming down that was the problem.\\nget down He got down on his knees and asked me to marry him!\"},{\"pos\":\"verb\",\"info\":\"A1 [T]\",\"definition\":\"to travel somewhere in a train, bus, or other vehicle\",\"example\":\"Shall we get a taxi to the station?\"},{\"pos\":\"verb\",\"info\":\"B1 [T]\",\"definition\":\"to deal with or answer a ringing phone, knock on the door, etc.\",\"example\":\"Hey, Ty, someone's at the door - would you get it, please?\"},{\"pos\":\"verb\",\"info\":\"B2 [I + to infinitive]\",\"definition\":\"to have the chance to do something\",\"example\":\"I never get to see her now that she works somewhere else.\"},{\"pos\":\"verb\",\"info\":\"B2 [T]\",\"definition\":\"to understand or hear something\",\"example\":\"I didn't get what he said because the music was so loud.\\nI told that joke to Sophia, but she didn't get it.\"},{\"pos\":\"verb\",\"info\":\"[T]\",\"definition\":\"to prepare a meal\",\"example\":\"I'll put the kids to bed while you're getting dinner ready.\"},{\"pos\":\"verb\",\"info\":\"[I or T]\",\"definition\":\"to pay for something\",\"example\":\"Put your money away - I'll get these drinks.\"},{\"pos\":\"verb\",\"info\":\"[T] informal\",\"definition\":\"to confuse someone and make them completely unable to understand or explain\",\"example\":\"Give him a technical question - that'll really get him!\"},{\"pos\":\"verb\",\"info\":\"\",\"definition\":\"something that you say when you do not know the answer to a question\",\"example\":\"\\\"How many ounces in a kilo?\\\" \\\"You've got me there.\\\"\"},{\"pos\":\"verb\",\"info\":\"[T] informal\",\"definition\":\"to annoy someone\",\"example\":\"It really gets to me the way we're expected to actually laugh at his pathetic jokes!\"},{\"pos\":\"verb\",\"info\":\"[T] informal\",\"definition\":\"to make someone feel strongly emotional and often cry\",\"example\":\"That part in the film when he finds out that his daughter is alive - that always gets me!\"},{\"pos\":\"verb\",\"info\":\"[T]\",\"definition\":\"to hit someone, especially with a bullet or something thrown\",\"example\":\"The bullet got her in the leg.\"},{\"pos\":\"verb\",\"info\":\"[T]\",\"definition\":\"to take something into your possession, or have something happen that you accept or receive\",\"example\":\"He climbed over the fence to get his ball back.\\nMonique raised her hand to get the teacher’s attention.\\nCan I get you a drink?\\nDad keeps telling me to get a job.\\nWhat did you get on the test (= What mark did you receive)?\\nI think she gets (= earns) about $10 an hour.\\nWe don’t get much snow in this part of the country (= It does not often snow).\"},{\"pos\":\"verb\",\"info\":\"[T]\",\"definition\":\"To get something often means to buy or pay for it\",\"example\":\"He went to the store to get milk.\"},{\"pos\":\"verb\",\"info\":\"[L]\",\"definition\":\"to become or start to be\",\"example\":\"Your coffee is getting cold.\\nHe’s gotten so big, I hardly recognized him.\\nThey’re getting married later this year.\\nTom got lost in the woods.\\nWhat time do you get off work?\\nWe’d better get going/moving or we’ll be late.\"},{\"pos\":\"verb\",\"info\":\"[T]\",\"definition\":\"to become ill with a disease\",\"example\":\"Everyone seems to be getting the flu.\"},{\"pos\":\"verb\",\"info\":\"[T]\",\"definition\":\"to cause something to be done or persuade someone to do something\",\"example\":\"The bed is too wide – we’ll never get it through the door.\\nI can’t get this printer to work!\"},{\"pos\":\"verb\",\"info\":\"[T]\",\"definition\":\"to prepare a meal\",\"example\":\"Why don’t you get supper ready?\"},{\"pos\":\"verb\",\"info\":\"[always + adv/prep]\",\"definition\":\"to move in a particular direction\",\"example\":\"[I] Get away from that wet paint!\\n[I] He got down on his hands and knees to look for his contact lens.\\n[T] Her throat was so sore that she had trouble getting the medicine down (= swallowing it).\\n[I] I hit my head as I was getting into the car.\\n[M] Momma said we have to get these wet clothes off (= remove them).\\n[T] Get your feet off the couch (= move them off it).\"},{\"pos\":\"verb\",\"info\":\"[always + adv/prep]\",\"definition\":\"To get off a road when you are driving means to turn onto another road\",\"example\":\"[I] Get off the expressway at exit 43.\"},{\"pos\":\"verb\",\"info\":\"[always + adv/prep]\",\"definition\":\"To get off a train, bus, or aircraft is to leave it\",\"example\":\"[I] Get off at Union Station.\"},{\"pos\":\"verb\",\"info\":\"[T]\",\"definition\":\"to go into a vehicle or aircraft for traveling\",\"example\":\"We could call for a taxi or get the bus.\"},{\"pos\":\"verb\",\"info\":\"[I always + adv/prep]\",\"definition\":\"to arrive at a place or reach a stage in a process\",\"example\":\"We only got as far as Denver when the car broke down.\\nWhat time does he normally get home from work?\\nWe’re not getting very far (= not advancing) with this computer program, are we?\"},{\"pos\":\"verb\",\"info\":\"[T]\",\"definition\":\"to understand\",\"example\":\"I think I got the general idea of the chapter.\\nThe music was loud and I didn’t get what he said.\\nI never said he was mean – you’ve got it all wrong (= you are confused about this matter).\"},{\"pos\":\"verb\",\"info\":\"[T]\",\"definition\":\"to calculate the answer to a mathematical problem\",\"example\":\"What do you get if you divide 20 by 4?\"},{\"pos\":\"verb\",\"info\":\"[T]\",\"definition\":\"to answer a ringing telephone, a knock at the door, etc.\",\"example\":\"Hey, Juan, someone’s at the door – would you get it, please?\"},{\"pos\":\"verb\",\"info\":\"[T]\",\"definition\":\"to hit someone, esp. with something thrown or a bullet\",\"example\":\"My first throw missed, but the second got him in the leg.\"},{\"pos\":\"verb\",\"info\":\"[T] infml\",\"definition\":\"to cause someone to feel slightly angry\",\"example\":\"It gets me when I have to both cook dinner and clean the dishes.\"},{\"pos\":\"verb\",\"info\":\"[T] infml\",\"definition\":\"to have an emotional effect on someone\",\"example\":\"That scene in the movie, when the father and daughter are reunited, always gets me.\"},{\"pos\":\"verb\",\"info\":\"[T]\",\"definition\":\"to obtain, buy, or earn something\",\"example\":\"I think she gets about $40,000 a year.\\nget sth for sth How much did he get for his business when he sold it?\"},{\"pos\":\"verb\",\"info\":\"[T]\",\"definition\":\"to receive or be given something\",\"example\":\"get sth from sb/sth The results we got from our market research team indicate that potential customers seem to like the new ad campaign.\"},{\"pos\":\"verb\",\"info\":\"[I, usually + adv/prep]\",\"definition\":\"to reach a particular stage, condition, or time\",\"example\":\"get to sth Your earnings increase hugely if you get to the top in the legal profession.\"},{\"pos\":\"verb\",\"info\":\"[T] informal\",\"definition\":\"to pay for something\",\"example\":\"I'll get the bill.\"}]");
@@ -88,10 +101,9 @@
 //   }
 // ];
 
-    definition.data = {arr: arrayObjects, autoPreselectCount: 2, renderItem:renderDefi_callBack };
-
-    document.addEventListener("definitionEditorClosed", e => {
-        console.log("Selected items in order:", e.detail.selected);
+    definition.data = {arr: arrayObjects, defaultItems: [2,9], renderItem:renderDefi_callBack };
+    document.addEventListener("dragdrop-box-confirmed", e => {
+        console.log("Selected items in order:", e.detail.indexSelected);
     });
 
 
@@ -103,6 +115,9 @@
 //             </div>
 //         `;
 //     }
+
+
+    }
 
     function renderDefi_callBack(d, zone) {
         return `

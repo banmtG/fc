@@ -30,3 +30,6 @@ function createAndSaveFile(content, fileName) {
 //                 console.error('Error:', error);
 //             });
 
+export function aTestingFunctionToMakeModule () {
+    console.log(hello);
+}

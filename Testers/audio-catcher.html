@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Audio Cacher Demo</title>
+</head>
+<body>
+  <h1>🎧 Audio Cacher Component</h1>
+
+  <!-- Use the custom component -->
+  <audio-cacher url="https://api.dictionaryapi.dev/media/pronunciations/en/obituary-uk.mp3"></audio-cacher>
+
+  <!-- Listen for the cached-path event -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const audioCacher = document.querySelector('audio-cacher');
+      console.log(audioCacher);
+      audioCacher.addEventListener('cached-path', e => {
+        console.log("✅ Cached path:", e.detail.path);
+      });
+
+      // Register the service worker
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./../components/audio/sw.js').then(() => {
+          console.log("🛠️ Service Worker registered");
+        });
+      }
+    });
+  </script>
+
+<script type="module" src="./../components/audio/audio-catcher.js"></script>
+
+</body>
+</html>

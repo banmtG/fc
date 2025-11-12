@@ -11,7 +11,7 @@ async function loadWLIST() {
     LOCAL_WLIST = temp.words;
 }
 
-loadWLIST();
+// loadWLIST();
 
 function local_data_searchWLIST(arrayW) {
     let arrayT = [...arrayW];

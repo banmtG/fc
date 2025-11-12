@@ -1,7 +1,7 @@
 :root {     
 
      /* hover, focus of button */
-    --sl-focus-ring-color: var(--sl-color-primary-200);
+    --sl-focus-ring-color: var(--sl-color-primary-300);
     --sl-focus-ring-style: solid;
     --sl-focus-ring-width: 2px;
     --sl-focus-ring-offset: 1px;
