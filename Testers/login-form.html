@@ -29,13 +29,13 @@
   });
 
   document.querySelector('login-form').addEventListener('login-success', (e) => {
-  const { provider, userInfo } = e.detail;
+  const { provider, token } = e.detail;
   console.log('✅ Logged in via:', provider);
-  console.log('📧 Email:', userInfo.email);
-  console.log('🆔 User ID:', userInfo.userId);
+  console.log('📧 Email:', token.email);
+  console.log('🆔 User ID:', token.userId);
 
   // Example: update UI
-  document.getElementById('user-info').textContent = `Welcome, ${userInfo.email}`;
+  document.getElementById('user-info').textContent = `Welcome, ${token.email}`;
 });
 
 </script>
