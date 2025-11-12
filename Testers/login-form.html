@@ -23,10 +23,10 @@
 
 
 <script>
-  document.querySelector('login-form').addEventListener('login-success', e => {
-    console.log('✅ Login success:', e.detail);
-    // Handle token exchange or session setup here
-  });
+//   document.querySelector('login-form').addEventListener('login-success', e => {
+//     console.log('✅ Login success:', e.detail);
+//     // Handle token exchange or session setup here
+//   });
 
   document.querySelector('login-form').addEventListener('login-success', (e) => {
   const { provider, token } = e.detail;
