@@ -58,14 +58,14 @@ class LoginForm extends HTMLElement {
     }, 1000); // simulate async
   }
 
-  handleProviderLogin(provider) {
-    this.setLoading(true);
-    this.handleProviderLogin(provider);
-    // setTimeout(() => {
-    //   this.emitLogin(provider, { token: null }); // token can be handled externally
-    //   this.setLoading(false);
-    // }, 1000);
-  }
+//   handleProviderLogin(provider) {
+//     this.setLoading(true);
+//     // this.handleProviderLogin(provider);
+//     // setTimeout(() => {
+//     //   this.emitLogin(provider, { token: null }); // token can be handled externally
+//     //   this.setLoading(false);
+//     // }, 1000);
+//   }
 
   emitLogin(provider, detail = {}) {
     this.dispatchEvent(new CustomEvent('login-success', {
