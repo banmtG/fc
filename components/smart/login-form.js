@@ -197,21 +197,17 @@ startOAuthFlow(provider) {
     window.addEventListener('message', messageHandler);
 
     // ✅ Poll for popup closure
-    const checkClosed = setInterval(() => {
-      if (popup.closed) {
-        clearInterval(checkClosed);
-        window.removeEventListener('message', messageHandler);
-        this.setLoading(false); // hide "Authenticating..."
-        // reject('Popup closed without login');
-        console.warn('Login popup was closed by the user.');
-      }
-    }, 500);
+    // const checkClosed = setInterval(() => {
+    //   if (popup.closed) {
+    //     clearInterval(checkClosed);
+    //     window.removeEventListener('message', messageHandler);
+    //     this.setLoading(false); // hide "Authenticating..."
+    //     // reject('Popup closed without login');
+    //     console.warn('Login popup was closed by the user.');
+    //   }
+    // }, 500);
   });
 }
-
-
-
-
 
     getOAuthUrl(provider) {
         const clientId = '842799415320-ujd4fodvctbgrc6jdfkb596opkiva859.apps.googleusercontent.com';
