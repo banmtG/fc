@@ -51,7 +51,9 @@ function callProtected() {
               document.getElementById('output').textContent = JSON.stringify(data, null, 2);             
           })
           // Catch any network or parsing errors
-          .catch(err => reject(err));
+          .catch(err) {
+            console.log(`err: ${err}`);
+          };
     
 }
 </script>
