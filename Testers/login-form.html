@@ -41,15 +41,32 @@
 
 
 function callProtected() {
-      fetch('https://php.adapps.download/api/protected.php', {
-        method: 'GET',
-        credentials: 'include'
-      })
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById('output').textContent = JSON.stringify(data, null, 2);
-      });
-    }
+
+    fetch('ttps://php.adapps.download/api/protected.php', {
+            method: 'GET',
+            credentials: 'include' // 🔑 required for cross-domain cookies
+        })
+          .then(res => res.json()) // Parse JSON response
+          .then(data => {
+            // If backend confirms user is logged in
+            if (data.loggedIn) {
+              // Emit a custom event with user info (email, userId)
+              this.emitLogin(provider, {
+                email: data.email,
+                userId: data.userId
+              });
+              // Resolve the Promise with the data
+              document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+              resolve(data);
+            } else {
+              // If backend says not logged in, reject the Promise
+              reject('Session check failed');
+            }
+          })
+          // Catch any network or parsing errors
+          .catch(err => reject(err));
+    
+}
 </script>
 </body>
 </html>
