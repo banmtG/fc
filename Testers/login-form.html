@@ -1,61 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css" />
-    <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace.js"></script>
-    <title>Login Form</title>
-
-    <link href="./../css/base.css" rel="stylesheet">
-    <link href="./../css/index.css" rel="stylesheet">
-    <link href="./../css/shoelace_customized.css" rel="stylesheet">  <!-- for customized shoelace default value-->      
-    <script type="module" src="./../components/smart/login-form.js"></script>
-
+  <meta charset="UTF-8">
+  <title>Login Form</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css" />
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace.js"></script>
+  <link href="./../css/base.css" rel="stylesheet">
+  <link href="./../css/index.css" rel="stylesheet">
+  <link href="./../css/shoelace_customized.css" rel="stylesheet">
+  <script type="module" src="./../components/smart/login-form.js"></script>
 </head>
 <body>
-<login-form
-  options="local,google,facebook,guest,signup"
-  dialog-title="Welcome to FlashCardX"
-  auto-close
-></login-form>
-<div id="user-info"></div>
+  <login-form
+    options="local,google,facebook,guest,signup"
+    dialog-title="Welcome to FlashCardX"
+    auto-close
+  ></login-form>
+
+  <div id="user-info"></div>
   <button onclick="callProtected()">Call API</button>
+  <pre id="output"></pre> <!-- ✅ Added output element -->
 
+  <script>
+    document.querySelector('login-form').addEventListener('login-success', (e) => {
+      const { provider, email, userId } = e.detail;
+      console.log('✅ Logged in via:', provider);
+      console.log('📧 Email:', email);
+      console.log('🆔 User ID:', userId);
 
-<script>
-//   document.querySelector('login-form').addEventListener('login-success', e => {
-//     console.log('✅ Login success:', e.detail);
-//     // Handle token exchange or session setup here
-//   });
+      document.getElementById('user-info').textContent = `Welcome, ${email}`;
+    });
 
-  document.querySelector('login-form').addEventListener('login-success', (e) => {
-    const { provider, email, userId } = e.detail;
-    console.log('✅ Logged in via:', provider);
-    console.log('📧 Email:', email);
-    console.log('🆔 User ID:', userId);
-
-    // Example: update UI
-    document.getElementById('user-info').textContent = `Welcome, ${email}`;
-  });
-
-
-function callProtected() {
-
-    fetch('https://php.adapps.download/api/protected.php', {
-            method: 'GET',
-            credentials: 'include' // 🔑 required for cross-domain cookies
+    function callProtected() {
+      fetch('https://php.adapps.download/api/protected.php', {
+        method: 'GET',
+        credentials: 'include' // 🔑 required for cross-domain cookies
+      })
+        .then(res => res.json())
+        .then(data => {
+          console.log(data);
+          document.getElementById('output').textContent = JSON.stringify(data, null, 2);
         })
-          .then(res => res.json()) // Parse JSON response
-          .then(data => {    
-              console.log(data);      
-              document.getElementById('output').textContent = JSON.stringify(data);             
-          })
-          // Catch any network or parsing errors
-          .catch(err); 
-    
-}
-</script>
+        .catch(err => console.error('❌ API error:', err)); // ✅ Proper catch
+    }
+  </script>
 </body>
 </html>
-
