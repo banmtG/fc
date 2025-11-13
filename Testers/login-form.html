@@ -47,8 +47,9 @@ function callProtected() {
             credentials: 'include' // 🔑 required for cross-domain cookies
         })
           .then(res => res.json()) // Parse JSON response
-          .then(data => {          
-              document.getElementById('output').textContent = JSON.stringify(data, null, 2);             
+          .then(data => {    
+              console.log(data);      
+              document.getElementById('output').textContent = JSON.stringify(data);             
           })
           // Catch any network or parsing errors
           .catch(err); 
