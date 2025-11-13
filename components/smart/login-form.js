@@ -137,7 +137,7 @@ class LoginForm extends HTMLElement {
     this.setLoading(true);
     try {
         const token = await this.startOAuthFlow(provider); // real login logic
-        this.emitLogin(provider, { token });
+        // this.emitLogin(provider, { token });
     } catch (err) {
         //this.showError(`Login with ${provider} failed.`);
         console.error(err);
