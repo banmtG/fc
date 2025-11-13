@@ -163,7 +163,7 @@ startOAuthFlow(provider) {
         window.removeEventListener('message', messageHandler);
 
         // Close the popup window (user has finished login)
-        popup.close();
+        // popup.close(); replaced with window.close(); in login.php server side
 
         // 3. Do a background session check with your backend
         //    This fetch call goes to session-check.php
@@ -202,7 +202,8 @@ startOAuthFlow(provider) {
         clearInterval(checkClosed);
         window.removeEventListener('message', messageHandler);
         this.setLoading(false); // hide "Authenticating..."
-        reject('Popup closed without login');
+        // reject('Popup closed without login');
+        console.warn('Login popup was closed by the user.');
       }
     }, 500);
   });
