@@ -30,19 +30,19 @@
 //   });
 
   document.querySelector('login-form').addEventListener('login-success', (e) => {
-  const { provider, token } = e.detail;
-  console.log('✅ Logged in via:', provider);
-  console.log('📧 Email:', token.email);
-  console.log('🆔 User ID:', token.userId);
+    const { provider, token } = e.detail;
+    console.log('✅ Logged in via:', provider);
+    console.log('📧 Email:', token.email);
+    console.log('🆔 User ID:', token.userId);
 
-  // Example: update UI
-  document.getElementById('user-info').textContent = `Welcome, ${token.email}`;
-});
+    // Example: update UI
+    document.getElementById('user-info').textContent = `Welcome, ${token.email}`;
+  });
 
 
 function callProtected() {
 
-    fetch('ttps://php.adapps.download/api/protected.php', {
+    fetch('https://php.adapps.download/api/protected.php', {
             method: 'GET',
             credentials: 'include' // 🔑 required for cross-domain cookies
         })
