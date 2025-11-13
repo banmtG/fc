@@ -20,6 +20,7 @@
   auto-close
 ></login-form>
 <div id="user-info"></div>
+  <button onclick="callProtected()">Call API</button>
 
 
 <script>
@@ -38,6 +39,17 @@
   document.getElementById('user-info').textContent = `Welcome, ${token.email}`;
 });
 
+
+function callProtected() {
+      fetch('https://php.adapps.download/api/protected.php', {
+        method: 'GET',
+        credentials: 'include'
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+      });
+    }
 </script>
 </body>
 </html>
