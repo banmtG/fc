@@ -12,16 +12,41 @@
 </head>
 <body>
   <login-form
-    options="local,google,facebook,guest,signup"
+    options="google,facebook"
     dialog-title="Welcome to FlashCardX"
     auto-close
   ></login-form>
 
   <div id="user-info"></div>
   <button onclick="callProtected()">Call API</button>
-  <pre id="output"></pre> <!-- ✅ Added output element -->
-
+  <button onclick="logout()">Logout</button>
+  <pre id="output"></pre>
+  
   <script>
+    // --- Step 1: Bootstrap session (guest or authenticated) ---
+    function initBootstrap() {
+      fetch('https://php.adapps.download/fc/api/bootstrap.php', {
+        method: 'GET',
+        credentials: 'include'
+      })
+        .then(res => res.json())
+        .then(data => {
+          console.log('🔑 Bootstrap response:', data);
+
+          if (data.mode === 'authenticated') {
+            document.getElementById('user-info').textContent =
+              `Logged in as ${data.user.email}`;
+          } else {
+            document.getElementById('user-info').textContent =
+              `Guest mode (device token: ${data.device_token})`;
+          }
+        })
+        .catch(err => console.error('❌ Error during bootstrap:', err));
+    }
+
+    window.addEventListener('DOMContentLoaded', initBootstrap);
+
+    // --- Step 2: Handle login success ---
     document.querySelector('login-form').addEventListener('login-success', (e) => {
       const { provider, email, userId } = e.detail;
       console.log('✅ Logged in via:', provider);
@@ -31,17 +56,36 @@
       document.getElementById('user-info').textContent = `Welcome, ${email}`;
     });
 
+    // --- Step 3: Call protected API ---
     function callProtected() {
-      fetch('https://php.adapps.download/api/protected.php', {
+      fetch('https://php.adapps.download/fc/api/protected.php', {
         method: 'GET',
-        credentials: 'include' // 🔑 required for cross-domain cookies
+        credentials: 'include'
       })
         .then(res => res.json())
         .then(data => {
-          console.log(data);
-          document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+          console.log('📡 Protected API response:', data);
+          document.getElementById('output').textContent =
+            JSON.stringify(data, null, 2);
         })
-        .catch(err => console.error('❌ API error:', err)); // ✅ Proper catch
+        .catch(err => console.error('❌ API error:', err));
+    }
+
+    // --- Step 4: Logout ---
+    function logout() {
+      fetch('https://php.adapps.download/fc/api/logout.php', {
+        method: 'POST',
+        credentials: 'include'
+      })
+        .then(res => res.json())
+        .then(data => {
+          console.log('🚪 Logout response:', data);
+          document.getElementById('user-info').textContent =
+            'You are now logged out (guest mode)';
+          // Optionally re-bootstrap to get a fresh guest device_token
+          initBootstrap();
+        })
+        .catch(err => console.error('❌ Logout error:', err));
     }
   </script>
 </body>
