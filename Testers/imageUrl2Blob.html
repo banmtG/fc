@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IndexedDB Image Demo</title>
+    <style>
+        button { margin: 8px; padding: 8px 12px; }
+        img { max-width: 300px; display: block; margin-top: 12px; }
+        #imageSize, #dbSize { margin-top: 8px; font-family: monospace; }
+    </style>
+</head>
+<body>
+
+<h2>IndexedDB Image Demo</h2>
+
+<button onclick="stepFetchBlob()">1. Fetch Image → Blob</button>
+<button onclick="stepSaveToDB()">2. Save Blob to IndexedDB</button>
+<button onclick="stepLoadFromDB()">3. Load Blob from IndexedDB</button>
+<button onclick="stepDisplay()">4. Display Image</button>
+<button onclick="stepShowDBSize()">5. Show Total DB Size</button>
+
+<div id="status"></div>
+
+<img id="preview">
+<div id="imageSize"></div>
+<div id="dbSize"></div>
+
+<script>
+let fetchedBlob = null;
+let loadedBlob = null;
+const testURL = "https://tse4.mm.bing.net/th/id/OIP.hslMoRkSGz2UaGYw9ccprgHaE8?w=400&c=7&r=0&o=5&pid=1.7";
+
+/* ---------------- Utils ---------------- */
+
+function log(msg) {
+  document.getElementById("status").innerText = msg;
+}
+
+async function urlToBlob(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("Failed to fetch image");
+  return await res.blob();
+}
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open("imagesDB", 1);
+
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains("images")) {
+        db.createObjectStore("images", { keyPath: "id" });
+      }
+    };
+
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function saveBlobToIndexedDB(id, blob) {
+  const db = await openDB();
+
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction("images", "readwrite");
+    const store = tx.objectStore("images");
+    store.put({ id, blob });
+
+    tx.oncomplete = resolve;
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+async function loadBlobFromIndexedDB(id) {
+  const db = await openDB();
+
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction("images", "readonly");
+    const store = tx.objectStore("images");
+    const req = store.get(id);
+
+    req.onsuccess = () => resolve(req.result?.blob || null);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+/* -------- NEW: Calculate total DB size -------- */
+async function getTotalDBSize() {
+  const db = await openDB();
+
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction("images", "readonly");
+    const store = tx.objectStore("images");
+    const req = store.getAll(); // get all entries
+
+    req.onsuccess = () => {
+      let total = 0;
+      req.result.forEach(entry => total += entry.blob.size);
+      resolve(total);
+    };
+
+    req.onerror = () => reject(req.error);
+  });
+}
+
+/* ---------------- Steps for Buttons ---------------- */
+
+async function stepFetchBlob() {
+  log("Fetching image...");
+  fetchedBlob = await urlToBlob(testURL);
+  log("Step 1 done: Blob fetched! Size = " + fetchedBlob.size + " bytes");
+}
+
+async function stepSaveToDB() {
+  if (!fetchedBlob) return log("Fetch the blob first!");
+
+  log("Saving blob to IndexedDB...");
+  await saveBlobToIndexedDB("myImage", fetchedBlob);
+  log("Step 2 done: Saved to IndexedDB! (" + fetchedBlob.size + " bytes)");
+}
+
+async function stepLoadFromDB() {
+  log("Loading blob from IndexedDB...");
+  loadedBlob = await loadBlobFromIndexedDB("myImage");
+
+  if (!loadedBlob) return log("No blob found in IndexedDB!");
+  log("Step 3 done: Blob loaded! Size = " + loadedBlob.size + " bytes");
+}
+
+function stepDisplay() {
+  if (!loadedBlob) return log("Load the blob first!");
+
+  const img = document.getElementById("preview");
+  img.src = URL.createObjectURL(loadedBlob);
+
+  log("Step 4 done: Image displayed!");
+
+  // NEW: show image size
+  document.getElementById("imageSize").innerText =
+    "Image Blob Size: " + loadedBlob.size + " bytes";
+}
+
+/* -------- NEW: Show total DB size -------- */
+async function stepShowDBSize() {
+  log("Calculating IndexedDB size...");
+  const total = await getTotalDBSize();
+
+  document.getElementById("dbSize").innerText =
+    "Total imagesDB size: " + total + " bytes";
+
+  log("Step 5 done: Total DB size calculated.");
+}
+
+</script>
+</body>
+</html>

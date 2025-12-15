@@ -1,4 +1,4 @@
-import { loginLocal, loginWithProvider, loginGuest } from './../../js/login/authService.js';
+import { loginLocal, loginWithProvider, loginGuest } from '../services/authService.js';
 
 class LoginForm extends HTMLElement {
   constructor() {
@@ -81,6 +81,7 @@ async handleProviderLogin(provider) {
 
   try {
     const data = await loginWithProvider(provider); // opens popup
+    // console.log(data);
     handled = true;
     window.removeEventListener('focus', onFocus);
     this.emitLogin(provider, data);
@@ -102,6 +103,7 @@ async handleProviderLogin(provider) {
   }
 
   emitLogin(provider, detail = {}) {
+    // console.log(`emit detail`, detail);
     this.dispatchEvent(new CustomEvent('login-success', {
       detail: { provider, ...detail },
       bubbles: true,

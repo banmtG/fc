@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>ADFC</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.17.1/cdn/themes/light.css" />
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.17.1/cdn/shoelace.js"></script>  
+    <link href="./css/base.css" rel="stylesheet">
+    <link href="./css/index.css" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js/dist/fuse.js"></script>
+    
+    <script type="text/javascript" src="./js/utils/viewport.js"></script>
+    <script type="module" src="./js/utils/deviceUtils.js"></script>
+    <script type="text/javascript" src="./stores/states.js"></script>
+    <script type="module" src="./stores/localStorage.js"></script>
+    <script type="module" src="./controllers/AppController.js"></script>
+
+    <script type="module" src="./js/data_services/gas.js"></script>
+    <script type="text/javascript" src="./js/data_services/local_data.js"></script>
+
+    <script type="text/javascript" src="./components/fc/search-box.js"></script>
+    <script type="text/javascript" src="./components/fc/image-picker.js"></script>  
+
+</head>
+<body id="thebody">
+    <header>
+        <div class="logo">
+            <img src="./images/logo_long.png" alt="logo">
+        </div>
+        <div class="header_rest"></div>
+    </header>
+    <main>
+        <sl-tab-group>
+            <sl-tab slot="nav" panel="wordlist">Word List</sl-tab>
+            <sl-tab slot="nav" panel="flashcard">Card Viewer</sl-tab>
+            <sl-tab slot="nav" panel="setting">Setting</sl-tab>
+          
+            <sl-tab-panel name="wordlist" class="wordlist_container">
+               <search-box></search-box>
+               <phrase-mobile-editor></phrase-mobile-editor>
+                    <!-- <word-form></word-form>
+                    <object-tree></object-tree> -->
+            </sl-tab-panel>
+            <sl-tab-panel name="flashcard">
+                This is the flashcard tab panel.
+                <image-picker></image-picker>
+            </sl-tab-panel>
+            <sl-tab-panel name="setting">This is the setting tab panel.</sl-tab-panel>
+        </sl-tab-group>          
+    </main>
+</body>
+<script>
+    async function loadFromNode() {
+       // const urlNode = 'https://nodejs.adapps.download/greet?name=AnhDung11111111111';
+        const urlNode = 'http://localhost:3000/greet?name=AnhDung11111111111';
+        const response = await fetch(urlNode);
+        const data = await response.json();
+        console.log(data);
+        return data;
+    }
+    
+    loadFromNode();
+
+    const main_objecttree=document.querySelector('object-tree');
+    const word_form=document.querySelector('word-form');
+    // let aWordData = {
+    //     phrase: "abdicate",
+    //     ipa: "ˈæb.dɪ.keɪt",
+    //     defi: [{"pos":"verb","info":"[I or T]","definition":"If a king or queen abdicates, he or she makes a formal statement that he or she no longer wants to be king or queen","example":"King Edward VIII abdicated (the British throne) in 1936."},{"pos":"verb","info":"","definition":"to stop controlling or managing something that you are in charge of","example":"She abdicated all responsibility for the project."},{"pos":"verbnoun","info":"","definition":"to give up a position as king, or to fail to take responsibility for something","example":"[T] Edward VIII abdicated the British throne in 1936.\nThe administration has abdicated its leadership on this critical issue."},{"pos":"verbnoun","info":"","definition":"","example":"[U] I think it’s an abdication of your responsibility if you don’t vote."}],
+    //     illustration: ["tse4lTWBJhOzqe55R429BbjccAHaEK","tse3pMQDni3VxlGK1tA3yHi09wHaFz","tse30616vIt0njkMjWBBJt8tbgHaGp","tse3g5KsV9fQMHCBdY8iyIHRRgHaD4","tse2C37yBWEzi9gZbRgphw50NAHaHk","tse3hOR4JLcJi1DxSdMj9jddcAHaD4","tse2eOYd7DWd11pM9sJHIqn2sQHaD4","tse1fZp-MNcZG8v9-RV4KK0i0AHaHa","tse3g_B-_2UpIUaxff17svV_IAHaE8","tse3_uhnEV2DVQZPkb-H-xGh1QHaE8","tse485gE20sK5edprD2mI9XwuAAAAA"]
+    //     related: 
+    // }
+    // word_form.setData(aWordData);
+</script>
+
+</html>

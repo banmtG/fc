@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>IndexedDB Simple Example</title>
+</head>
+<body>
+  <script>
+    // Open (or create) a database called "MyAppDB" with version 1
+    const request = indexedDB.open("MyAppDB", 1);
+
+    // This runs the first time or whenever you bump the version number
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+
+      // Create an object store named "users" if it doesn't exist yet
+      // Each record will be keyed by "id"
+      if (!db.objectStoreNames.contains("users")) {
+        db.createObjectStore("users", { keyPath: "id" });
+      }
+    };
+
+    // This runs once the database is successfully opened
+    request.onsuccess = (event) => {
+      const db = event.target.result;
+
+      // --- 1. Save a user email ---
+      // Start a transaction in "readwrite" mode on the "users" store
+    //   const tx1 = db.transaction("users", "readwrite");
+    //   const store1 = tx1.objectStore("users");
+
+    //   // Put a record with id "user123" and an email field
+    //   store1.put({ id: "user123", email: "alice@example.com" });
+
+    //   // When the transaction completes, log success
+    //   tx1.oncomplete = () => console.log("✅ User email saved");
+
+      // --- 2. Read the user email ---
+      // Start a transaction in "readonly" mode
+      const tx2 = db.transaction("users", "readonly");
+      const store2 = tx2.objectStore("users");
+
+      // Request the record with key "user123"
+      const getReq = store2.get("user123");
+
+      // When the request succeeds, log the result
+      getReq.onsuccess = () => {
+        console.log("📧 Retrieved user:", getReq.result);
+        // Expected output: { id: "user123", email: "alice@example.com" }
+      };
+    };
+
+    // This runs if opening the database fails
+    request.onerror = (event) => {
+      console.error("❌ Database error:", event.target.error);
+    };
+  </script>
+</body>
+</html>

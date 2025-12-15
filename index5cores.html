@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FlashCardX</title>
+
+  <!-- Shoelace UI -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css" />
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace.js"></script>
+
+  <!-- App styles -->
+  <link href="./css/base.css" rel="stylesheet">
+  <link href="./css/index.css" rel="stylesheet">
+  <link href="./css/shoelace_customized.css" rel="stylesheet">
+
+  <!-- LoginForm component -->
+  <script type="module" src="./features/auth/components/login-form.js"></script>
+
+  <!-- Core files -->
+  <script type="module" src="./core/app-controller.js"></script>
+  <!-- <script type="module" src="./components/smart/user-profile-menu.js"></script> -->
+
+</head>
+<body>
+  <!-- Login dialog -->
+  <login-form
+    options="google"
+    dialog-title="Login AD Flash Card"
+    auto-close
+  ></login-form>
+
+  <!-- User info + actions -->
+  <div id="user-info"></div>
+  <user-profile-menu></user-profile-menu>
+  <button onclick="callProtected()">Call API</button>
+  <button onclick="logout()">Logout</button>
+
+  <!-- Phrase search -->
+  <input id="searchBatchInput" type="text" placeholder="Enter phrases, separated by commas" style="width: 60%; margin-top:10px;" />
+  <button onclick="searchImageMFromInput()">SearchImageM</button>
+
+  <pre id="output"></pre>
+
+  <script type="module">
+    import { AuthManager } from "./features/auth/manager/auth-manager.js";
+    import { CONFIG } from './config/config.js';  // API endpoints + constants    
+    // --- Step 1: Listen for login success from <login-form> ---
+    // document.querySelector('login-form').addEventListener('login-success', async (e) => {
+    //   const { provider, email, userId } = e.detail;
+    //   console.log('✅ Logged in via:', provider, email, userId);
+
+      // Persist token if provided
+      // if (e.detail.token) {
+      //   LocalStorage.set("authToken", e.detail.token);
+      // }
+
+      // // Bootstrap backend auth
+      // await AuthManager.bootstrap(LocalStorage.get("authToken"));
+
+      // // Update UI
+      // document.getElementById('user-info').textContent = email
+      //   ? `Welcome, ${email}`
+      //   : `Guest mode`;
+    // });
+
+    // --- Step 2: Protected API call example ---
+    async function callApi(url, options = {}) {
+      const data = await AuthManager.callApi(url, options);
+      return data;
+    }
+
+    async function callProtected() {
+      const data = await callApi(CONFIG.API_PROTECTED);
+      console.log("📡 Protected API response:", data);
+      document.getElementById("output").textContent = JSON.stringify(data, null, 2);
+    }
+
+    // --- Step 3: Phrase search ---
+    async function callSearchImageM(batch) {
+      const data = await callApi(CONFIG.API_SEARCH_DICT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ batch })
+      });
+      console.log("🖼️ searchImageM response:", data);
+      document.getElementById("output").textContent = JSON.stringify(data, null, 2);
+    }
+
+    function searchImageMFromInput() {
+      const input = document.getElementById("searchBatchInput").value;
+      const batch = input.split(",").map(p => p.trim()).filter(p => p.length > 0);
+      if (batch.length === 0) {
+        alert("Please enter at least one phrase.");
+        return;
+      }
+      callSearchImageM(batch);
+    }
+
+    // --- Step 4: Logout ---
+    async function logout() {
+      await AuthManager.logout();
+    //  document.getElementById("user-info").textContent = "Guest mode";
+    }
+
+    // Expose functions globally for buttons
+    window.callProtected = callProtected;
+    window.searchImageMFromInput = searchImageMFromInput;
+    window.logout = logout;
+
+    // --- Step 5: React to state changes ---
+    // document.addEventListener("state:changed", (e) => {
+    //   console.log("🔄 State changed:", e.detail);
+    // });
+  </script>
+</body>
+</html>

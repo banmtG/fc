@@ -1,0 +1,82 @@
+1. AppController.js → orchestrates events and routes data between components.
+
+2. appStates.js (you mentioned it’s done) → defines initial state keys and constants for your app.
+
+3. LocalStorageManager.js → handles persistence of session, tokens, cached API responses.
+
+4. states.js (StateStore) → reactive global state with undo/redo and event broadcasting.
+
+
+Recommended Industrial‑Grade Workflow
+Here’s how to wire these pieces together so your one‑page app communicates with the server cleanly:
+
+1. Bootstrap on App Load
+On startup, call bootstrap.php once.
+
+Save the returned info (auth_user, mode, quota, expiresAt) into both:
+
+StateStore.setState("auth", { isAuthenticated, user, expiresAt })
+
+LocalStorageManager.set("auth", { isAuthenticated, user, expiresAt })
+
+This ensures you know whether the user is guest or authenticated right away.
+
+2. Track Login State in StateStore
+Keep isAuthenticated, expiresAt, and quotaRemaining in StateStore.
+
+Example:
+
+js
+StateStore.setState("isAuthenticated", true);
+StateStore.setState("expiresAt", Date.now() + 15 * 60 * 1000); // 15 min
+StateStore.setState("quotaRemaining", 100);
+3. API Calls via callApi()
+Before calling, check StateStore.getState("expiresAt").
+
+If expired → refresh via bootstrap.php first.
+
+If valid → call API directly.
+
+Always catch 401 as a safety net → refresh and retry.
+
+This avoids “guest fallback” unless refresh truly fails.
+
+4. Quota Management
+For guest mode, decrement quota after each API call:
+
+js
+let quota = StateStore.getState("quotaRemaining");
+StateStore.setState("quotaRemaining", quota - 1);
+Display quota info in UI so users know their daily limit.
+
+5. Persistence with LocalStorageManager
+After login or refresh, persist state:
+
+js
+LocalStorageManager.set("auth", StateStore.getStateObject());
+On reload, restore:
+
+js
+const saved = LocalStorageManager.get("auth");
+if (saved) {
+  Object.entries(saved).forEach(([k,v]) => StateStore.setState(k,v));
+}
+6. Event‑Driven Updates
+Components listen for state-changed events.
+
+Example: when quota changes, your UI updates automatically.
+
+When login state flips, you can show “Guest mode” vs “Authenticated mode”.
+
+🎯 Bottom Line
+Your skeleton is already industrial‑grade:
+
+AppController orchestrates.
+
+StateStore tracks reactive state.
+
+LocalStorageManager persists across reloads.
+
+appStates.js defines initial keys.
+
+The best workflow is: bootstrap → track login state → refresh before expiry → quota enforcement → persist state. That way, you avoid accidental guest mode and keep the app responsive.

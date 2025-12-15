@@ -1,0 +1,91 @@
+users
+{
+  userId: "user-<UUID>",          // Primary key
+  type: "guest" | "login",            // User type
+  // Identification  
+  email: "user@example.com",          // login users only  
+  // Frontend app-related data
+  preferences: {
+    theme: "dark",
+    language: "en",
+    notifications: true
+  },
+  // Reference to playlists (stored separately)
+  playlistIds: ["pl_1", "pl_2"],
+  // Backend-related metadata (login users only)
+  backendMeta: {
+    lastSync: "2025-11-25T09:00:00",
+    serverVersion: "v2.1"
+	avatarUrl: "https://...", 
+	// Plan & Quota
+	plan: "free" | "pro" | "enterprise",
+	apiQuota: {
+		total: 1000,
+		used: 250,
+		resetDate: "2025-12-01"
+	},	
+  },
+  // Audit
+  createdAt: "2025-11-25T09:00:00",
+  updatedAt: "2025-11-25T18:00:00"
+}
+
+playlists
+{
+  playlistID: "pl-UUID",             // Primary key, e.g. pl-<ULID or UUID>
+  userID: "user-UUID",               // Foreign key to app_user
+  name: "Travel Phrases",            // Optional: human-readable name
+  description: "Useful phrases for trips", // Optional metadata
+  list: [ "phraseID1", "phraseID2", "phraseID3" ], // Array of phraseIDs
+  isDefault: false,                  // Optional: mark as default playlist
+  createdAt: "2025-11-25T09:00:00",  // Audit
+  updatedAt: "2025-11-25T18:00:00"   // Audit
+}
+
+phrases
+{
+  phraseId: "phrase-ULID",   // Primary key
+  phrase: "fast",
+  type: "word",                          // word | idiom | sentence
+  ukipa: "fɑːst",
+  usipa: "fæst",
+  soundUrls: [ "url1", "url2", "url3" ],  // external references
+  defi: [                                // array of dictionary definitions
+    { pos: "adjective", info: "A1", definition: "...", example: "..." },
+    { pos: "noun", definition: "...", example: "..." }
+  ],
+  imgUrls: [ "url1", "url2", "url3" ],   // external references
+  lang: { vi: "nhanh chóng" },           // translations by language code
+  user_ipa: "fɑːst",
+  user_defi: {
+    selectDefault: false,
+    customized_defi: [
+      { id: "id-x6yaj4cj6", definition: "...", example: "...", pos: "adjective", info: "A1", createdAt: 1764120777092 },
+      { id: "id-n4p4osw85", definition: "...", example: "", pos: "adjective", createdAt: 1764120777094 }
+    ],
+    default_defi: [0, 1]
+  },
+  user_translate: "nhanh chóng",
+  user_img: { defaultIndex: 0 },         // points to imageBlob index
+  user_sound: { defaultIndex: 0 },         // points to soundBlob index
+  user_note: "",
+  related_phrases: ["phraseId1", "phraseId2"],
+
+  // Audit
+  createdAt: "2025-11-25T09:00:00",
+  updatedAt: "2025-11-25T18:00:00"
+}
+
+imageBlob
+{
+  imgID: "img-<UUID>",                        // Primary key
+  phraseID: "w97440432_1755649973267",   // Foreign key to phrases
+  blob: [ Blob1 ],                            // Actual image binary  
+}
+
+soundBlob
+{
+  soundID: "sound-<UUID>",                      // Primary key
+  phraseID: "w97440432_1755649973267",   // Foreign key to phrases
+  blob: [ Blob1, Blob2, Blob3 ],                        // Actual sound binary  
+}

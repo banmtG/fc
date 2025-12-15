@@ -1,0 +1,22 @@
+🍪 Cookie Consent Notice
+1. Use of Cookies
+We use cookies and similar technologies to ensure the proper functioning of our website and services. Cookies are small text files stored on your device that help us provide secure access, remember your preferences, and improve your experience.
+
+2. Categories of Cookies
+Essential Cookies These cookies are strictly necessary for the operation of our services. They include authentication tokens (access, refresh, device tokens) that allow you to log in securely, maintain your session, enforce quotas, and protect against fraud. Because they are required for the site to function, they do not require your consent.
+
+Analytics Cookies These cookies help us understand how users interact with our site, such as which endpoints are most used and from which regions. They are used to improve performance and reliability. We only set these if you consent.
+
+Personalization & Marketing Cookies These cookies allow us to tailor content, remember your preferences, and deliver relevant offers. They are optional and require your consent.
+
+3. Your Choices
+You can choose to:
+
+Accept all cookies: enables essential, analytics, and personalization cookies.
+
+Reject non‑essential cookies: only essential cookies will be set, and the site will continue to function securely.
+
+Customize settings: select which categories you allow.
+
+4. Managing Cookies
+You may withdraw your consent at any time by adjusting your browser settings or using our cookie management tool. Please note that rejecting essential cookies may prevent you from accessing secure areas of the site.

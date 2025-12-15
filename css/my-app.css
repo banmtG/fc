@@ -1,0 +1,42 @@
+
+header {
+    height:50px;
+    display:flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    background-color: white;
+    gap:5px;
+}
+
+header .logo {
+    flex: 1;
+    height:100%;
+}
+
+header .logo img {
+    height:100%;
+}
+
+
+header .header_rest {    
+    margin-left: auto; 
+    margin-right: 10px;   
+}
+
+
+main {
+    flex-grow: 8;
+}
+
+
+sl-tab::part(base) {
+    font-size: var(--sl-font-size-normal);
+}
+
+
+.wordlist_container {
+    padding:10px;
+}
+
+
