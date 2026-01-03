@@ -6,7 +6,8 @@ import { CONFIG } from './../config/config.js';
 // Import UI components
 import "./../features/auth/components/login-form.js";
 import './../features/auth/components/user-profile-menu.js';
-
+import '../components/fc/new-phrase-tab.js';
+import './../components/fc/image-picker.js';
 
 // import app-controller.js
 import './../core/app-controller.js';
@@ -49,17 +50,33 @@ class MyApp extends HTMLElement {
           display: block;
         }
 
-        #output {
-          background: #111;
-          color: #0f0;
-          padding: 1rem;
-          margin-top: 1rem;
-          white-space: pre-wrap;
-          border-radius: 6px;
+        .header_rest{
+          display:flex;
+          flex-direction: row;
+          align-items: center;
+          gap:5px;
+          color: var(--sl-color-neutral-700);
+          font-size: 0.9rem;
+          cursor: pointer;
+        }
+
+        /* Add a separator (vertical bar) to every item except the first one */
+        .flex-item::before {
+          content: '|';
+          margin: 0 5px; /* Same as the container's gap value */
+          color: #ccc; /* Style the separator color */
+        }
+
+        .flex-item:first-child::before {
+          content: none; /* Hide the separator for the first item */
         }
 
         .row {
           margin: 0.5rem 0;
+        }
+
+        sl-tab-panel::part(base) {
+          padding:0;
         }
 
       </style>
@@ -70,18 +87,19 @@ class MyApp extends HTMLElement {
         </div>
         <div class="header_rest">
             <!-- User info + actions -->
-            <user-profile-menu></user-profile-menu>
+            <user-profile-menu class="flex-item"></user-profile-menu>
+            <span id="loginBtn" class="flex-item">Login</span>
+            
         </div>
     </header>
     <main>
         <sl-tab-group>
-            <sl-tab slot="nav" panel="wordlist">Add new entry</sl-tab>
-            <sl-tab slot="nav" panel="flashcard">Play the list</sl-tab>
+            <sl-tab slot="nav" panel="new_entry">Add new entry</sl-tab>
+            <sl-tab slot="nav" panel="playlist">Playlist</sl-tab>
             <sl-tab slot="nav" panel="setting">Setting</sl-tab>
           
-            <sl-tab-panel name="wordlist" class="wordlist_container">
-              <search-box></search-box>
-              <phrase-mobile-editor></phrase-mobile-editor>
+            <sl-tab-panel name="new_entry" class="wordlist_container">
+              <new-phrase-tab></new-phrase-tab>
                   
 
               <div class="row">
@@ -96,25 +114,20 @@ class MyApp extends HTMLElement {
               </div>
 
               <pre id="output"></pre>
-              <!-- <word-form></word-form>
-              <object-tree></object-tree> -->
             
             </sl-tab-panel>
-            <sl-tab-panel name="flashcard">
+            <sl-tab-panel name="playlist">
                 This is the flashcard tab panel.
                 <image-picker></image-picker>
             </sl-tab-panel>
             <sl-tab-panel name="setting">This is the setting tab panel.</sl-tab-panel>
         </sl-tab-group>          
-    </main>
+    </main>  
 
-      <!-- Login dialog -->
-      <login-form
+    <login-form
         options="google"
         dialog-title="Login AD Flash Card"
-        auto-close
-      ></login-form>
-
+        auto-close></login-form> 
     `;
   }
 
@@ -122,16 +135,23 @@ class MyApp extends HTMLElement {
   // 2. Setup event handlers (replaces inline JS in HTML)
   // -------------------------------------------------------
   setupEventHandlers() {
-    const loginForm = this.shadowRoot.querySelector("login-form");
+    this.loginForm = this.shadowRoot.querySelector("login-form");
     const userInfo = this.shadowRoot.querySelector("#user-info");
     const output = this.shadowRoot.querySelector("#output");
-
+    this.loginBtn = this.shadowRoot.querySelector("#loginBtn");
+   
     // ✅ Protected API call
     this.shadowRoot.querySelector("#btnProtected").addEventListener("click", async () => {
       console.log('call Protected API');
       const data = await AuthManager.callApi(CONFIG.API_PROTECTED);
       output.textContent = JSON.stringify(data, null, 2);
     });
+
+    this.loginBtn.addEventListener("click", ()=> {
+      console.log(`open login`);
+
+      this.loginForm.setAttribute('open', '');
+    })
 
     // ✅ SearchImageM
     this.shadowRoot.querySelector("#btnSearch").addEventListener("click", async () => {

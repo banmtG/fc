@@ -2,6 +2,7 @@ import { CONFIG } from '../../../config/config.js';  // API endpoints + constant
 import LocalStorage from "../../../core/local-storage.js"; // lightweight persistence
 import Connectivity from './../../../js/utils/connectivity.js';
 import Database from './../../../core/database.js';
+import { Spinner } from './../../../components/smart/spinner.js';
 /**
  * AuthManager
  * ===========================================
@@ -39,34 +40,35 @@ export class AuthManager {
   }
 
   // Refresh token if expired (cookies handle tokens, so just re-run bootstrap)
-  static async refreshIfNeeded() {
-    return await this.bootstrapAuth();
-  }
 
-  static async callApi(url, options = {}) {
-    const opts = { ...options, credentials: "include" };
-    const activeUser = LocalStorage.get("activeUser");
+static async callApi(url, options = {}) {
+  const opts = { ...options, credentials: "include" };
+  // const activeUser = LocalStorage.get("activeUser");
 
-    try {  
+  try {
+    Spinner.show(); // show loading icon
 
-      let res = await fetch(url, opts);
+    let res = await fetch(url, opts);
 
-      if (res.status === 401) {
-        console.warn("⚠️ Unauthorized, retrying after bootstrap...");
-        await this.bootstrapAuth();
-        res = await fetch(url, opts);
-      }
-
-      if (!res.ok) {
-        throw new Error(`API error: ${res.status}`);
-      }
-
-      return await res.json();
-    } catch (err) {
-      console.error("❌ API call failed:", err);
-      throw err;
+    if (res.status === 401) {
+      console.warn("⚠️ Unauthorized, retrying after bootstrap...");
+      await this.bootstrapAuth();
+      res = await fetch(url, opts);
     }
+
+    if (!res.ok) {
+      throw new Error(`API error: ${res.status}`);
+    }
+
+    return await res.json();
+  } catch (err) {
+    console.error("❌ API call failed:", err);
+    throw err;
+  } finally {
+    Spinner.hide(); // always hide spinner
   }
+}
+
 
   // Logout flow
   static async logout() {

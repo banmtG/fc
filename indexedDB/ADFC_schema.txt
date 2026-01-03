@@ -44,7 +44,8 @@ playlists
 
 phrases
 {
-  phraseId: "phrase-ULID",   // Primary key
+  phraseID: "phrase-ULID",   // Primary key
+  userID:  "user-UUID",               // Foreign key to app_user
   phrase: "fast",
   type: "word",                          // word | idiom | sentence
   ukipa: "fɑːst",
@@ -69,7 +70,9 @@ phrases
   user_img: { defaultIndex: 0 },         // points to imageBlob index
   user_sound: { defaultIndex: 0 },         // points to soundBlob index
   user_note: "",
-  related_phrases: ["phraseId1", "phraseId2"],
+  related_phrases: ["phraseID1", "phraseID2"],
+  reminder_text: "",
+  tags: [],
 
   // Audit
   createdAt: "2025-11-25T09:00:00",

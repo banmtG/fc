@@ -1,6 +1,10 @@
 import { loginLocal, loginWithProvider, loginGuest } from '../services/authService.js';
 
 class LoginForm extends HTMLElement {
+  static get observedAttributes() {
+    return ['open', 'close'];
+  }
+
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
@@ -8,10 +12,38 @@ class LoginForm extends HTMLElement {
     this.theme = this.getAttribute('theme') || 'light';
     this.dialogTitle = this.getAttribute('dialog-title') || 'Sign in';
     this.autoClose = this.hasAttribute('auto-close');
+
+    // bind handlers once
+    this._handleLocalLogin = this.handleLocalLogin.bind(this);
+    this._handleGuestLogin = this.handleGuestLogin.bind(this);
+    this._handleSignupToggle = this.toggleSignup.bind(this);
   }
 
   connectedCallback() {
     this.render();
+    this._attachListeners();
+    // initialize open state
+    if (this.hasAttribute('open')) {
+      this.shadowRoot.querySelector('sl-dialog').show();
+    }
+  }
+
+  disconnectedCallback() {
+    this._detachListeners();
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+    const dialog = this.shadowRoot?.querySelector('sl-dialog');
+    if (!dialog) return;
+
+    if (name === 'open') {
+      if (newValue !== null) dialog.show();
+      else dialog.hide();
+    }
+    if (name === 'close' && newValue !== null) {
+      dialog.hide();
+      this.removeAttribute('close'); // optional auto-remove
+    }
   }
 
   render() {
@@ -20,7 +52,7 @@ class LoginForm extends HTMLElement {
         .error { color: red; font-size: 0.9em; }
         .loading { display: flex; align-items: center; gap: 0.5rem; }
       </style>
-      <sl-dialog label="${this.dialogTitle}" open>
+      <sl-dialog label="${this.dialogTitle}">
         <div style="display: flex; flex-direction: column; gap: 1rem;">
           ${this.options.includes('local') ? this.renderLocalLogin() : ''}
           ${this.renderProviderButtons()}
@@ -30,72 +62,87 @@ class LoginForm extends HTMLElement {
         </div>
       </sl-dialog>
     `;
+  }
 
-    this.shadowRoot.querySelector('#local-login-btn')?.addEventListener('click', () => this.handleLocalLogin());
-    this.shadowRoot.querySelector('#guest-btn')?.addEventListener('click', () => this.emitLogin('guest'));
-    this.shadowRoot.querySelector('#signup-toggle')?.addEventListener('click', () => this.toggleSignup());
+  _attachListeners() {
+    const root = this.shadowRoot;
+    root.querySelector('#local-login-btn')?.addEventListener('click', this._handleLocalLogin);
+    root.querySelector('#guest-btn')?.addEventListener('click', this._handleGuestLogin);
+    root.querySelector('#signup-toggle')?.addEventListener('click', this._handleSignupToggle);
 
     this.options.forEach(provider => {
-      const btn = this.shadowRoot.querySelector(`#${provider}-btn`);
+      const btn = root.querySelector(`#${provider}-btn`);
       if (btn) {
         btn.addEventListener('click', () => this.handleProviderLogin(provider));
       }
     });
   }
 
- async handleLocalLogin() {
-  const username = this.shadowRoot.querySelector('#username').value;
-  const password = this.shadowRoot.querySelector('#password').value;
-  const errorEl = this.shadowRoot.querySelector('#error');
+  _detachListeners() {
+    const root = this.shadowRoot;
+    root.querySelector('#local-login-btn')?.removeEventListener('click', this._handleLocalLogin);
+    root.querySelector('#guest-btn')?.removeEventListener('click', this._handleGuestLogin);
+    root.querySelector('#signup-toggle')?.removeEventListener('click', this._handleSignupToggle);
 
-  if (!username || !password) {
-    errorEl.textContent = 'Username and password are required.';
-    return;
+    this.options.forEach(provider => {
+      const btn = root.querySelector(`#${provider}-btn`);
+      if (btn) {
+        // remove anonymous listener by rebinding with same function reference
+        btn.removeEventListener('click', () => this.handleProviderLogin(provider));
+      }
+    });
   }
 
-  this.setLoading(true);
-  try {
-    const data = await loginLocal(username, password); // call backend
-    this.emitLogin('local', data);
-  } catch (err) {
-    errorEl.textContent = 'Local login failed.';
-    console.error(err);
-  } finally {
-    this.setLoading(false);
-  }
-}
+  async handleLocalLogin() {
+    const username = this.shadowRoot.querySelector('#username').value;
+    const password = this.shadowRoot.querySelector('#password').value;
+    const errorEl = this.shadowRoot.querySelector('#error');
 
-async handleProviderLogin(provider) {
-  this.setLoading(true);
-  let handled = false;
-
-  const onFocus = () => {
-    if (!handled) {
-      handled = true;
-      this.setLoading(false);
-      this.showError(`User returned without completing ${provider} login.`);
-      window.removeEventListener('focus', onFocus);
+    if (!username || !password) {
+      errorEl.textContent = 'Username and password are required.';
+      return;
     }
-  };
-  window.addEventListener('focus', onFocus);
 
-  try {
-    const data = await loginWithProvider(provider); // opens popup
-    // console.log(data);
-    handled = true;
-    window.removeEventListener('focus', onFocus);
-    this.emitLogin(provider, data);
-  } catch (err) {
-    if (!handled) {
-      this.showError(`Login with ${provider} failed.`);
+    this.setLoading(true);
+    try {
+      const data = await loginLocal(username, password);
+      this.emitLogin('local', data);
+    } catch (err) {
+      errorEl.textContent = 'Local login failed.';
       console.error(err);
+    } finally {
+      this.setLoading(false);
     }
-  } finally {
-    this.setLoading(false);
   }
-}
 
+  async handleProviderLogin(provider) {
+    this.setLoading(true);
+    let handled = false;
 
+    const onFocus = () => {
+      if (!handled) {
+        handled = true;
+        this.setLoading(false);
+        this.showError(`User returned without completing ${provider} login.`);
+        window.removeEventListener('focus', onFocus);
+      }
+    };
+    window.addEventListener('focus', onFocus);
+
+    try {
+      const data = await loginWithProvider(provider);
+      handled = true;
+      window.removeEventListener('focus', onFocus);
+      this.emitLogin(provider, data);
+    } catch (err) {
+      if (!handled) {
+        this.showError(`Login with ${provider} failed.`);
+        console.error(err);
+      }
+    } finally {
+      this.setLoading(false);
+    }
+  }
 
   async handleGuestLogin() {
     const data = await loginGuest();
@@ -103,7 +150,6 @@ async handleProviderLogin(provider) {
   }
 
   emitLogin(provider, detail = {}) {
-    // console.log(`emit detail`, detail);
     this.dispatchEvent(new CustomEvent('login-success', {
       detail: { provider, ...detail },
       bubbles: true,
@@ -114,7 +160,7 @@ async handleProviderLogin(provider) {
       this.shadowRoot.querySelector('sl-dialog').hide();
     }
   }
-  
+
   setLoading(isLoading) {
     const errorEl = this.shadowRoot.querySelector('#error');
     errorEl.textContent = '';
@@ -163,19 +209,12 @@ async handleProviderLogin(provider) {
   }
 
   renderGuestLogin() {
-    return `
-      <sl-button id="guest-btn" variant="text">Continue as Guest</sl-button>
-    `;
+    return `<sl-button id="guest-btn" variant="text">Continue as Guest</sl-button>`;
   }
 
   renderSignupToggle() {
-    return `
-      <sl-button id="signup-toggle" variant="text">Sign up</sl-button>
-    `;
+    return `<sl-button id="signup-toggle" variant="text">Sign up</sl-button>`;
   }
-
-
-
 }
 
 customElements.define('login-form', LoginForm);

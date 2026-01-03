@@ -1,6 +1,6 @@
 // /app/ui-events/auth-ui-events.js
 
-import { hydrateUserProfileMenu } from "../../features/auth/ui-helper/user-profile-menu-ui-helper.js";
+import LocalStorage from "../../core/local-storage.js";
 
 /**
  * Register UI-related auth events.
@@ -17,6 +17,7 @@ export function registerAuthUIEvents(app) {
   document.addEventListener("app:ready", () => {
     console.log("🎨 UI: app:ready → hydrate user-profile-menu");
     app.updateUserProfileMenu();
+
   });
 
 
@@ -27,6 +28,23 @@ export function registerAuthUIEvents(app) {
   document.addEventListener("auth:persisted", () => {
     console.log("🎨 UI: auth:persisted → hydrate user-profile-menu");
     app.updateUserProfileMenu();
+
+      // NewPhraseTab localStorage.getItem('ADFC:activeUser');    
+    const phraseTab = app.shadowRoot.querySelector("new-phrase-tab");
+    if (phraseTab) {
+      phraseTab.dispatchEvent(new CustomEvent("tags-requested", {
+        detail: { origin: phraseTab },
+        bubbles: true,
+        composed: true
+      }));
+    }   
+    if (phraseTab) {
+      phraseTab.dispatchEvent(new CustomEvent("reminders-requested", {
+        detail: { origin: phraseTab },
+        bubbles: true,
+        composed: true
+      }));
+    }
   });
 
 
@@ -37,7 +55,11 @@ export function registerAuthUIEvents(app) {
   document.addEventListener("auth:ready", () => {
     console.log("🎨 UI: auth:ready → hydrate user-profile-menu");
     app.updateUserProfileMenu();
+
+  
   });
+
+
 
 
   //

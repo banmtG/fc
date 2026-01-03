@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Typeahead Iput</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">  
+
+  <!-- Shoelace core -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css" />
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace.js"></script>
+
+  <!-- Load your component -->
+
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+    }
+    .test-row {
+      display: flex;
+      align-items: center;
+      border: 1px solid #ccc;
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+      overflow: hidden;
+    }
+    .label {
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+<typeahead-input placeholder="Type reminder…" min-chars="3" limit="8" size="small"></typeahead-input>
+<sl-input size="small"></sl-input>
+<typeahead-input id="threeEvents" placeholder="Search…" min-chars="1"></typeahead-input>
+
+<script type="module">
+  import "./../components/smart/typeahead-input.js";
+
+  // Local source example
+  const localData = [
+    "Buy milk", "Read a book", "Call mom", "Practice Japanese",
+    "Watch Dexter S3E1", "Jogging 30 minutes"
+  ];
+
+  
+
+
+  window.addEventListener("DOMContentLoaded", () => {
+    const ta = document.querySelector("typeahead-input");
+    ta.setData(localData); // local suggestions
+
+    ta.setValue("Dexter SS2 EPs2"); // sets default text
+
+    // Listen to selections
+    ta.addEventListener("suggestion-selected", (e) => {
+      console.log("Selected:", e.detail);
+    });
+
+    ta.addEventListener("query-changed", (e) => {
+      console.log("Query:", e.detail.query);
+    });
+  });
+
+  const el = document.querySelector("#threeEvents");
+
+
+  el.addEventListener("query-changed", e => {
+    console.log(`query changed ${e.detail.query} through ${e.detail.method} method`);
+  });
+
+  el.addEventListener("suggestion-selected", e => {
+    console.log("User picked:", e.detail.label, e.detail.value);
+  });
+
+  el.addEventListener("options-loaded", e => {
+    console.log(`Hydrated with: ${e.detail.value} through ${e.detail.method} method`);
+  });
+
+
+  el.setData(localData); // local suggestions
+
+  el.setValue("Dexter SS2 EPs2"); // sets default text
+
+  // Remote source example (switch to API)
+  async function fetchSuggestions(query) {
+    const res = await fetch(`/api/suggest?q=${encodeURIComponent(query)}`);
+    const json = await res.json(); // expect string[] or [{label, value}]
+    return json;
+  }
+
+  // To use remote:
+  // ta.setFetcher(fetchSuggestions);
+</script>
+
+</body>
+</html>

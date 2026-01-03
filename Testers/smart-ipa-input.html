@@ -7,12 +7,17 @@
     <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace.js"></script>
     <title>Smart IPA input</title>
     <script type="module" src="./../components/smart/smart-ipa-input.js"></script>
-
+   
 </head>
 <body>
+    <div id="myapp">
     <smart-ipa-input></smart-ipa-input>
+    </div>
+    <div id="myapp1"></div>
 </body>
-<script>
+<script type="module">
+    import {FocusStack} from "./../core/focus-stack.js";
+
     const ipaInput = document.querySelector(`smart-ipa-input`);
     customElements.whenDefined('smart-ipa-input').then(() => {      
         ipaInput.open('Sthing');        
@@ -23,7 +28,14 @@
         console.log('Confirm! IPA input confirmed at document level');
         e.target.remove(); // ✅ works if event is dispatched from the dialog
     });
-
+  
+    const myapp = document.querySelector('#myapp');
+    FocusStack.pop(myapp);
+        myapp.addEventListener('keydown', (e) => {
+            // Route keys only when this component is the active one
+            if (FocusStack.peek() !== this) return;
+            console.log(e);
+        });
     // const anotherIPA = document.createElement('smart-ipa-input');
    
     // customElements.whenDefined('smart-ipa-input').then(() => {

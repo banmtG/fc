@@ -4,6 +4,9 @@ import Database from './database.js';
 import { ensureGuestSession } from './../features/auth/storage/auth-storage.js';
 import { registerAuthEvents } from '../features/auth/events/auth-events.js';
 import { registerAuthConnectivity } from './../features/auth/events/auth-connectivity.js';
+import { registerNewPhraseTabEvents } from './events/new-phrase-tab-events.js';
+import LocalStorage from './local-storage.js';
+
 
 /**
  * Central AppController
@@ -15,7 +18,7 @@ import { registerAuthConnectivity } from './../features/auth/events/auth-connect
 export class AppController {
   constructor() {
     this.db = null;
-    this.currentUser = null;
+    this.currentUserID = null;
   }
 
   async bootstrap() {
@@ -34,6 +37,8 @@ export class AppController {
       //registerDatabaseEvents(this.db); // in .\core\events\database-events.js
       registerAuthEvents();  // './../features/auth/events/auth-events.js'
       registerAuthConnectivity(); // './../features/auth/events/auth-connectivity.js';
+      this.currentUserID = LocalStorage.get('activeUser');
+      console.log(this.currentUserID);
       this.initEventListeners(); // Register event listeners
       // 3. Bootstrap backend (auth + quota)
       // const backendStatus = await AuthManager.bootstrapAuth();
@@ -54,6 +59,8 @@ export class AppController {
    * Listen for app‑wide events and route them
    */
   initEventListeners() {
+
+    registerNewPhraseTabEvents(this);
 
     // document.addEventListener("logout-success", async () => {
     //   await AuthManager.logout();

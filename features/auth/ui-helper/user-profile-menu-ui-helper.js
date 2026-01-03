@@ -2,7 +2,7 @@
 import Database from '../../../core/database.js';
 import LocalStorage from '../../../core/local-storage.js';
 
-export async function hydrateUserProfileMenu(profileMenu) {
+export async function hydrateUserProfileMenu(profileMenu) { // using in './../../../app/my-app.js';
   if (!profileMenu) return;
 
   const activeUser = LocalStorage.get("activeUser");

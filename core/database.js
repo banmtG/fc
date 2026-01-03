@@ -32,7 +32,7 @@ class DatabaseClass {
 
         // --- KEY ---
         if (!db.objectStoreNames.contains("info")) {
-          const identityStore = db.createObjectStore("info", { keyPath: "key" });
+          const info = db.createObjectStore("info", { keyPath: "key" });
           // identityStore.createIndex("identity_id", "identity_id", { unique: true });         
         }
 
@@ -60,6 +60,18 @@ class DatabaseClass {
           const soundStore = db.createObjectStore("soundBlobs", { keyPath: "soundID" });
           soundStore.createIndex("phraseID", "phraseID", { unique: false });
         }
+
+         // --- TAGS ---
+        if (!db.objectStoreNames.contains("tags")) {
+           const tagStore = db.createObjectStore("tags", { keyPath: "tagID", autoIncrement: true });
+           tagStore.createIndex("userID", "userID", { unique: false });
+           tagStore.createIndex("tag", "tag", { unique: true });
+        }
+
+        // REMINDER TEXT
+        const reminderStore = db.createObjectStore("reminders", { keyPath: "reminderID", autoIncrement: true });
+        reminderStore.createIndex("userID", "userID", { unique: false });
+        reminderStore.createIndex("text", "text", { unique: true });
       };
 
       request.onsuccess = (event) => {
@@ -120,7 +132,7 @@ class DatabaseClass {
       const tx = this.db.transaction(storeName, "readwrite");
       const store = tx.objectStore(storeName);
       const getReq = store.get(key);
-
+      console.log(updates);
       getReq.onsuccess = () => {
         let record = getReq.result;
         if (!record) {
@@ -140,6 +152,89 @@ class DatabaseClass {
   // ============================
   // Domain-Specific Helpers
   // ============================
+  // Tags
+// Add or update a tag
+  addTag(tagObj) {
+    // tagObj = { userID, tag }
+    return this._put("tags", tagObj);
+  }
+
+  // Get tag by primary key (tagID)
+  getTag(tagID) {
+    return this._get("tags", tagID);
+  }
+
+  // Get all tags
+  getAllTags() {
+    return this._getAll("tags");
+  }
+
+  // Get all tags for a specific user
+  getTagsByUser(userID) {
+    return new Promise((resolve, reject) => {
+      const tx = this.db.transaction("tags", "readonly");
+      const store = tx.objectStore("tags");
+      const index = store.index("userID");
+      const req = index.getAll(userID);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = (e) => reject(e.target.error);
+    });
+  }
+
+  // Delete tag by ID
+  deleteTag(tagID) {
+    return this._delete("tags", tagID);
+  }
+
+  // Update tag fields by ID
+  updateTag(tagID, updates) {
+    console.log(updates);
+    return this._updateFields("tags", tagID, updates);
+  }
+
+ // ============================
+// Domain-Specific Helpers
+// ============================
+
+// Reminders
+// Add or update a reminder
+addReminder(reminderObj) {
+  // reminderObj = { userID, text, select, createdAt }
+  return this._put("reminders", reminderObj);
+}
+
+// Get reminder by primary key (reminderID)
+getReminder(reminderID) {
+  return this._get("reminders", reminderID);
+}
+
+// Get all reminders
+getAllReminders() {
+  return this._getAll("reminders");
+}
+
+// Get all reminders for a specific user
+getRemindersByUser(userID) {
+  return new Promise((resolve, reject) => {
+    const tx = this.db.transaction("reminders", "readonly");
+    const store = tx.objectStore("reminders");
+    const index = store.index("userID");
+    const req = index.getAll(userID);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = (e) => reject(e.target.error);
+  });
+}
+
+// Delete reminder by ID
+deleteReminder(reminderID) {
+  return this._delete("reminders", reminderID);
+}
+
+// Update reminder fields by ID
+updateReminder(reminderID, updates) {
+  return this._updateFields("reminders", reminderID, updates);
+}
+
 
   // Users
   saveUser(user) { return this._put("users", user); }
@@ -150,10 +245,10 @@ class DatabaseClass {
 
   // indentityID
 // Simple reversible obfuscation helpers
- obfusKey(key) {
-  const salt = crypto.getRandomValues(new Uint32Array(1))[0].toString(16);
-  return btoa(`${key}::${salt}`);
-}
+  obfusKey(key) {
+    const salt = crypto.getRandomValues(new Uint32Array(1))[0].toString(16);
+    return btoa(`${key}::${salt}`);
+  }
 
  deobfusKey(obf) {
   try {

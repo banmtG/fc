@@ -22,8 +22,10 @@ export function registerAuthEvents() {
     const { mode, email } = e.detail;
     // Here you could trigger persistence logic if not already handled in auth-storage.js
     if (mode=="authenticated" && email) {
+      console.log(`persistAuthenticatedUser`);
       persistAuthenticatedUser(e);
     } else {
+      console.log(`persistGuestUser`);
       persistGuestUser();      
     }
     await persistLicense(e);

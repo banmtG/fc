@@ -1,6 +1,7 @@
 import "./smart-dialog.js";
 import "./smart-notification.js";
 import {getAppState} from './../../controllers/appStates.js';
+import { FocusStack } from './../../core/focus-stack.js';
 
 class SmartIpaInput extends HTMLElement {
   constructor() {
@@ -118,21 +119,45 @@ class SmartIpaInput extends HTMLElement {
     // remove eventListener
     this._smart_dialog.removeEventListener("smart-dialog-confirmed", this._confirmHandler);
     this._smart_dialog.removeEventListener("smart-dialog-canceled", this._cancelHandler);
-    this._ipa_input.removeEventListener("keydown", this._onKeyDown);
+    
+    // this._ipa_input.removeEventListener("keydown", this._onKeyDown);
     this._ipa_input.removeEventListener("input", this._onInput);
 
     // remove Children elements
     this.shadowRoot.querySelector(".char-grid").replaceChildren();
     this.shadowRoot.replaceChildren();
+      
+    // Ensure keyboard handling is detached and stack is updated
+    this.unbindKeyEvents();
+    FocusStack.pop(this);
   }
+  
 
   connectedCallback() {
     this.render();
     // add EventListeners
     this._smart_dialog.addEventListener("smart-dialog-confirmed", this._confirmHandler);
     this._smart_dialog.addEventListener("smart-dialog-canceled", this._cancelHandler);
-    this._ipa_input.addEventListener("keydown", this._onKeyDown);
+    
+    // this._ipa_input.addEventListener("keydown", this._onKeyDown);
     this._ipa_input.addEventListener("input", this._onInput);
+  }
+
+    /**
+   * Attach keyboard handling for this component (keydown listener).
+   */
+  bindKeyEvents() {
+    // Attach to the input (primary keyboard target) and optionally the dialog
+    this._ipa_input.addEventListener("keydown", this._onKeyDown, { capture: true });
+   
+  }
+
+  /**
+   * Detach keyboard handling for this component.
+   */
+  unbindKeyEvents() {
+    this._ipa_input.removeEventListener("keydown", this._onKeyDown, { capture: true });
+   
   }
 
   render() {
@@ -207,6 +232,9 @@ class SmartIpaInput extends HTMLElement {
 
 
   _onKeyDown(e) {
+     // Only handle if this is the active component
+    if (FocusStack.peek() !== this) return;
+
     if (["Enter"].includes(e.key)) {
       this._confirmBtn.click(); // mimic confirm Click by endter
     }
@@ -268,7 +296,15 @@ class SmartIpaInput extends HTMLElement {
 
       // 🌟 Make the modal visible by setting its opacity to 1
       this._smart_dialog.style.opacity = 1;
+      // Register with FocusStack when opened
+      FocusStack.push(this);
     });
+  }
+
+  close() {
+    this._smart_dialog.style.display = "none";
+    // Release from FocusStack when closed
+    FocusStack.pop(this);
   }
 }
 

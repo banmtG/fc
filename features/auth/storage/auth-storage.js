@@ -34,7 +34,8 @@ export async function ensureGuestSession() {
 
 
 export async function persistAuthenticatedUser(e) {
-  const { email, avatarUrl, plan, user_app_data } = e.detail;
+  
+  const { email, uuid, avatarUrl, plan, user_app_data } = e.detail;
   // Check if user already exists in IndexedDB
 
   const dbUsers = await Database.findByField("users","email","equal",email);
@@ -44,7 +45,7 @@ export async function persistAuthenticatedUser(e) {
 
   if (!dbUser) {
     const newUser = {
-      userID: "user-" + getUUID(),
+      userID: "user-" + uuid,
       type: "login",
       email,
       preferences: {},
@@ -67,7 +68,7 @@ export async function persistAuthenticatedUser(e) {
   }
 
   LocalStorage.set("activeUser", dbUser.userID);
-
+  console.log(dbUser.userID);
   // Emit persistence event
   document.dispatchEvent(new CustomEvent("auth:persisted", { detail: dbUser }));
 

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sliding Action Row Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">  
+
+  <!-- Shoelace core -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css" />
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace.js"></script>
+
+  <!-- Load your component -->
+  <script type="module" src="./../components/smart/sliding-action-drawer.js"></script>
+
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+    }
+    .test-row {
+      display: flex;
+      align-items: center;
+      border: 1px solid #ccc;
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+      overflow: hidden;
+    }
+    .label {
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Test Sliding Action Drawer</h1>
+
+  <div class="test-row">
+    <div class="label">Row content: Item A</div>
+    <sliding-action-drawer>
+      <sl-button slot="actions" data-action="edit" variant="primary">Edit</sl-button>
+      <sl-button slot="actions" data-action="delete" data-confirm="true" variant="danger">Delete</sl-button>
+      <sl-button slot="actions" data-action="archive">Archive</sl-button>
+    </sliding-action-drawer>
+  </div>
+
+  <div class="test-row">
+    <div class="label">Row content: Item B</div>
+    <sliding-action-drawer>
+      <sl-button slot="actions" data-action="share">Share</sl-button>
+      <sl-button slot="actions" data-action="duplicate">Duplicate</sl-button>
+    </sliding-action-drawer>
+  </div>
+
+  <script>
+    // Listen for action events
+    document.querySelectorAll('sliding-action-drawer').forEach(row => {
+      row.addEventListener('sl-action', e => {
+        console.log('Action fired:', e.detail);
+        alert(`Row action: ${e.detail.action}`);
+      });
+    });
+  </script>
+
+</body>
+</html>
