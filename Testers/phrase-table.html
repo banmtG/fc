@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>SmartTable + Host Demo</title>
+
+  <!-- Smart-table is imported by phrase-table.js -->
+  <script type="text/javascript" src="./phraseList.js"></script>
+  <script type="module" src="./../components/fc/phrase-table.js"></script>
+</head>
+<body>
+  <phrase-table id="phr"></phrase-table>
+
+  <script type="module">
+    // Feed data into the host component; it will map, filter, and page internally
+
+
+    const host = document.getElementById("phr");
+    // Assume phraseList.js defines global tableData
+    host.data = tableData;
+
+    // Listen to bubbled events if needed
+    host.addEventListener("row-edit", e => console.log("Edit", e.detail));
+    host.addEventListener("row-delete", e => console.log("Delete", e.detail));
+    host.addEventListener("row-multi-delete", e => console.log("Multi-delete", e.detail));
+    host.addEventListener("move", e => console.log("Move", e.detail));
+    host.addEventListener("row-selected", e => console.log("Selected", e.detail));
+    host.addEventListener("rating-changed", e => console.log("Rating changed", e.detail));
+    host.addEventListener("row-note", e => console.log("Note changed", e.detail));
+  </script>
+</body>
+</html>

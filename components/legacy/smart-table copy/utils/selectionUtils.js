@@ -1,0 +1,117 @@
+// selectionUtils.js
+
+// Remove the "selected" class from all rows
+export function clearSelectionVisuals(shadowRoot) {
+  shadowRoot.querySelectorAll(".row.selected").forEach(r => r.classList.remove("selected"));
+}
+
+// Apply selection classes to rows based on the selectedSet
+export function applySelection(shadowRoot, rowMap, selectedSet) {
+  clearSelectionVisuals(shadowRoot);
+  for (const id of selectedSet) {
+    const row = rowMap.get(String(id));
+    if (row) row.classList.add("selected");
+  }
+}
+
+// Toggle selection for a single id, honoring multi selection
+export function toggleSelection(shadowRoot, rowMap, selectedSet, id, multi) {
+  const sid = String(id);
+  const row = rowMap.get(sid);
+  if (!row) return;
+
+  if (multi) {
+    if (selectedSet.has(sid)) {
+      selectedSet.delete(sid);
+      row.classList.remove("selected");
+    } else {
+      selectedSet.add(sid);
+      row.classList.add("selected");
+    }
+  } else {
+    selectedSet.clear();
+    clearSelectionVisuals(shadowRoot);
+    selectedSet.add(sid);
+    row.classList.add("selected");
+  }
+}
+
+// Emit selection change (aggregate list of selected IDs)
+export function emitSelectionChanged(component, selectedSet) {
+  const ids = Array.from(selectedSet);
+  component.dispatchEvent(new CustomEvent("row-selected", { detail: { ids } }));
+}
+
+// Delete all currently selected rows
+export function deleteSelected(component) {
+  if (component._selected.size === 0) return;
+
+  const ids = component.getSelected();
+
+  // Remove from data
+  component._data = component._data.filter(
+    o => !component._selected.has(String(o[component._idKey]))
+  );
+
+  // Clear selection
+  component._selected.clear();
+
+  // Re-render table
+  component._renderInitial();
+
+  // Emit event
+  component.dispatchEvent(
+    new CustomEvent("row-multi-delete", { detail: { ids } })
+  );
+}
+
+// Select one or more rows
+export function selectRows(component, ids = [], multi = true) {
+  if (!Array.isArray(ids)) ids = [ids];
+
+  if (!multi) {
+    // Clear everything first
+    clearSelectionVisuals(component.shadowRoot);
+    component._selected.clear();
+  }
+
+  ids.forEach(id => {
+    const sid = String(id);
+    const row = component._rowMap.get(sid);
+    if (row) {
+      component._selected.add(sid);
+      row.classList.add("selected");
+    }
+  });
+
+  emitSelectionChanged(component, component._selected);
+}
+
+
+// Clear any existing highlight
+export function clearHighlight(component) {
+  if (!component._highlightId) return;
+  const current = component._rowMap.get(component._highlightId);
+  if (current) current.classList.remove("highlight");
+  component._highlightId = null;
+}
+
+// Set highlight on a given row id and scroll it into view
+export function setHighlight(component, id) {
+  const row = component._rowMap.get(String(id));
+  if (!row) return;
+
+  clearHighlight(component);
+  component._highlightId = String(id);
+
+  row.classList.add("highlight");
+
+  // Scroll the highlighted row into view
+  row.scrollIntoView({ block: "nearest" });
+
+  component.dispatchEvent(
+    new CustomEvent("highlight-changed", {
+      detail: { id: component._highlightId }
+    })
+  );
+}

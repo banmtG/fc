@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>GridData JSTable Demo</title>
+  <!-- <link href="./../components/lib/jstable/jstable.css" rel="stylesheet">
+  <script type="text/javascript" src="./../components/lib/jstable/jstable.min.js"></script> -->
+ <script type="module" src="./../components/smart/datagrid.js"></script>
+
+</head>
+<body>
+  <grid-data id="grid"></grid-data>
+
+  <script>
+  Promise.all([
+    customElements.whenDefined("grid-data"),
+    new Promise(resolve => {
+      const check = () => window.JSTable ? resolve() : setTimeout(check, 50);
+      check();
+    })
+  ]).then(() => {
+    const grid = document.getElementById("grid");
+    grid.data = [
+      { id: 1, phrase: "fast", status: "complete", ukipa: "fɑːst" },
+      { id: 2, phrase: "run", status: "missing", ukipa: "rʌn" },
+      { id: 3, phrase: "speedy", status: "mismatch", ukipa: "ˈspiːdi" },
+      { id: 4, phrase: "draft phrase", status: "old" }
+    ];
+  });
+
+
+   
+
+   
+  </script>
+</body>
+</html>

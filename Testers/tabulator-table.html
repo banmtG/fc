@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabulator-table</title>
+    <link href="https://unpkg.com/tabulator-tables@6.3.1/dist/css/tabulator.min.css" rel="stylesheet">
+    <script type="text/javascript" src="https://unpkg.com/tabulator-tables@6.3.1/dist/js/tabulator.min.js"></script>
+</head>
+
+<body>
+    <p>Test Title</p>
+    <tabulator-table id="tabulator-table"></tabulator-table>
+    <button id="del">Delete Selected</button>
+    <button id="all">Select All</button>
+    <button id="none">Clear</button>
+<script type="module">
+    import "./../components/smart/tabulator-table.js";
+    customElements.whenDefined("tabulator-table").then(() => {
+        const tabulator_table = document.getElementById("tabulator-table");
+        tabulator_table.data = [
+        {
+            "phraseID": "phrase-01KE3JYW2EEVZPKY4MVYH3W9TE",
+            "userID": "user-ecb0b126-de76-11f0-9b1e-e43d1a3de858",
+            "phrase": "wheelhouse",
+            "returning_phrase": "",
+            "ukipa": "ˈwiːl.haʊs",
+            "usipa": "ˈwiːl.haʊs",
+            "soundUrls": [
+                "http://www.yourdictionary.com/audio/w/wh/wheelhouse.mp3",
+                "http://www.onelook.com/pronounce/macmillan/US/wheelhouse-American-English-pronunciation.mp3",
+                "http://www.oxforddictionaries.com/media/english/uk_pron/w/whe/wheel/wheelhouse__gb_1.mp3",
+                "http://s3.amazonaws.com/audio.vocabulary.com/1.0/us/W/1MEG6WF6FXNZE.mp3",
+                "http://www.onelook.com/pronounce/macmillan/UK/wheelhouse-British-English-pronunciation.mp3",
+                "http://static.sfdict.com/staticrep/dictaudio/W01/W0120900.mp3",
+                "https://dictionary.cambridge.org/media/english/us_pron/c/cdo/cdo01/cdo0123uswhee2620.mp3",
+                "https://dictionary.cambridge.org/media/english/uk_pron/c/cdo/cdo01/cdo0123ukwhee2961.mp3"
+            ],
+            "defi": [
+                {
+                    "pos": "noun",
+                    "info": "[ C ] (also wheel-house, wheel house)",
+                    "definition": "a structure with a roof on a boat that provides shelter for the person who is controlling the direction of the boat:",
+                    "example": "The boat was hit by a 12-foot wave that broke over the wheelhouse.\nOn another trip, I took a cargo boat, sleeping on the wheel-house roof.\nI was alone in the wheel house when the ship was sighted."
+                },
+                {
+                    "pos": "noun",
+                    "info": "US",
+                    "definition": "an area that someone is interested in and skilled at:",
+                    "example": "Finding new ways of advertising our products has always been my wheelhouse.\nin someone's wheelhouse I first needed to figure out what was in my wheelhouse.\noutside someone's wheelhouse Unfortunately, for most of the time I had been working outside my wheelhouse."
+                },
+                {
+                    "pos": "noun",
+                    "info": "",
+                    "definition": "In baseball, if a pitcher throws the ball in a batter's wheelhouse, they throw the ball to a place where the batter can hit it powerfully:",
+                    "example": "in someone's wheelhouse The ball was up and right in the hitter's wheelhouse.\nin someone's wheelhouse I got a pitch in my wheelhouse but I hit it right at the second baseman."
+                }
+            ],
+            "imgUrls": [
+                "p:tse3_OIP.iZ00R3dCFQpeoQ5e035VwwHaE7",
+                "p:tse1_OIP.0q0E09zDCB5Cu-1xst4-bQHaE8",
+                "p:tse3_OIP.s_69ZQrAir_mZFRnnCuz4gHaFj",
+                "p:tse2_OIP.usM23O1_-ZmuthKw3OLjDwHaE6",
+                "p:tse4_OIP.GQoW92RP6Beu-1o3vGYBZgHaEK",
+                "p:tse1_OIP.oCOPX3v5wkkbl2yv277N0QHaE8",
+                "p:tse1_OIP.oCMIcpvLBfN4dquZtWYQUAHaE8",
+                "p:tse2_OIP.N22LWrHafSiEjQ4hhlnZhQHaE2",
+                "p:tse4_OIP.ICq15v0cOEqK3Bc7wsD9hwHaE8",
+                "p:tse1_OIP.EAsUQ3HdWrk9-0wjajAKIwHaJ3",
+                "p:tse2_OIP.zGuCAZEfXFvl7YkIoo9IiwHaFy"
+            ],
+            "lang": {
+                "es": "timonera"
+            },
+            "user_ipa": "ˈwiːl.haʊs",
+            "user_defi": {
+                "selectDefault": false,
+                "customized_defi": [],
+                "default_defi": []
+            },
+            "user_translate": "timonera",
+            "user_imgIndex": {
+                "defaultIndex": 0
+            },
+            "user_soundIndex": {
+                "defaultIndex": 0
+            },
+            "user_note": "",
+            "related_phrases": [],
+            "reminder_text": null,
+            "tags": [
+                "science"
+            ],
+            "createdAt": "2026-01-04T04:06:31.758Z",
+            "updatedAt": "2026-01-04T04:06:31.758Z",
+            "source": "d"
+        },
+        {
+            "phraseID": "phrase-01KE3JYW2EMWNRJQV3H36JWANG",
+            "userID": "user-ecb0b126-de76-11f0-9b1e-e43d1a3de858",
+            "phrase": "bracelet",
+            "returning_phrase": "",
+            "ukipa": "ˈbreɪ.slət",
+            "usipa": "ˈbreɪ.slət",
+            "soundUrls": [
+                "http://www.onelook.com/pronounce/macmillan/UK/bracelet-British-English-pronunciation.mp3",
+                "http://static.sfdict.com/staticrep/dictaudio/B05/B0561100.mp3",
+                "http://dictionary.cambridge.org/us/media/english/uk_pron/u/ukb/ukboy/ukboyfr011.mp3",
+                "http://dictionary.cambridge.org/us/media/english/us_pron/e/eus/eus75/eus75501.mp3",
+                "http://s3.amazonaws.com/audio.vocabulary.com/1.0/us/B/BETILS2UTZIJ.mp3",
+                "http://www.oxforddictionaries.com/media/english/uk_pron/b/bra/brace/bracelet__gb_1_8.mp3",
+                "http://www.yourdictionary.com/audio/b/br/bracelet.mp3",
+                "http://www.onelook.com/pronounce/macmillan/US/bracelet-American-English-pronunciation.mp3",
+                "https://dictionary.cambridge.org/media/english/us_pron/e/eus/eus75/eus75501.mp3",
+                "https://dictionary.cambridge.org/media/english/uk_pron/u/ukb/ukboy/ukboyfr011.mp3"
+            ],
+            "defi": [
+                {
+                    "pos": "noun",
+                    "info": "A2",
+                    "definition": "a piece of jewellery that is worn around the wrist or arm:",
+                    "example": "a gold/silver/diamond bracelet\na chain bracelet"
+                },
+                {
+                    "pos": "noun",
+                    "info": "",
+                    "definition": "a piece of jewelry that is worn around the wrist or arm:",
+                    "example": "a silver bracelet"
+                }
+            ],
+            "imgUrls": [
+                "p:tse2_OIP.ykLQpMfLTeJVW6Ls7sKBIQHaJ4",
+                "p:tse3_OIP.1L1DoWy8M0u62hxKXeGJLAHaHZ",
+                "p:tse4_OIP.Pz2onUNDkJfuWqpjNLonDgHaJ4",
+                "p:tse1_OIP.uvcwk29MiH9LsESFUHxaxgHaHa",
+                "p:tse3_OIP.Zb-1RBvYf8PIsejXVEasLwHaLG"
+            ],
+            "lang": {
+                "es": "pulsera"
+            },
+            "user_ipa": "ˈbreɪ.slət",
+            "user_defi": {
+                "selectDefault": false,
+                "customized_defi": [],
+                "default_defi": []
+            },
+            "user_translate": "pulsera",
+            "user_imgIndex": {
+                "defaultIndex": 0
+            },
+            "user_soundIndex": {
+                "defaultIndex": 0
+            },
+            "user_note": "",
+            "related_phrases": [],
+            "reminder_text": null,
+            "tags": [
+                "science"
+            ],
+            "createdAt": "2026-01-04T04:06:31.758Z",
+            "updatedAt": "2026-01-04T04:06:31.758Z",
+            "source": "d"
+        }];
+
+        tabulator_table.columnBuilder = (data) => [
+         {
+            formatter: "rowSelection",
+            titleFormatter: "rowSelection",
+            hozAlign: "center",
+            headerSort: false,
+            width: 40,
+        },
+        {
+            title: "phrase",
+            field: "phrase"
+        },
+        {
+            title: "CreatedAt",
+            field: "createdAt",
+            width: 30,
+        },
+        {
+            title: "status",
+            field: "source",
+            width: 30,
+            formatter(cell) {
+                const v = cell.getValue();
+                if (v==="d") { cell.getElement().style.background ="#ffd6d6";}
+                else if (v==="n") { cell.getElement().style.background ="#d6ffd6"; }
+                else cell.getElement().style.background = v === "g" ? "#fad646" : "#56fada";
+                return v;
+            },
+        },
+        {
+            title: "",
+            width: 30,
+            hozAlign: "center",
+            formatter() {
+            return "✏️";
+            },
+            cellClick(e, cell) {
+            console.log("edit", cell.getRow().getData());
+            },
+        },
+        {
+            title: "",
+            width: 30,
+            hozAlign: "center",
+            formatter() {
+            return "🗑️";
+            },
+            cellClick(e, cell) {
+            console.log("delete", cell.getRow().getData());
+            },
+        }];
+
+        document.getElementById("del").onclick = () => {
+            const rows = smart_table._table.getSelectedData();
+            console.log("delete rows", rows);
+        };
+
+        document.getElementById("all").onclick = () => {
+            smart_table._table.selectRow();
+        };
+
+        document.getElementById("none").onclick = () => {
+            smart_table._table.deselectRow();
+        };
+
+    });
+
+
+
+</script>
+
+
+</body>
+</html>

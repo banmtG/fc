@@ -33,16 +33,17 @@ export function transformFinalResults(finalResults, userID, reminderText = "", t
         customized_defi: [],
         default_defi: []
       },
-      user_translate: entry.lang[langCode] || "",
+      user_translate: entry.lang?.[langCode] || "",
       user_imgIndex: { defaultIndex: 0 },
       user_soundIndex: { defaultIndex: 0 },
       user_note: "",
       related_phrases: [],
-      reminder_text: reminderText,
-      tags,
+      reminder_text: reminderText || null,
+      tags: tags  || [],    
       createdAt: now.toISOString(),
       updatedAt: now.toISOString(),
-      source: entry.source
+      source: entry.source || null,
+      status: "draft"
     };
 
     phrases.push(phraseObj);

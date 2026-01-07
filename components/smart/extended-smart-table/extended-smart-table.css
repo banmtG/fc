@@ -1,0 +1,53 @@
+:host {
+  display: block;
+  box-sizing: border-box;
+  padding: 8px;
+  font-family: system-ui, sans-serif;
+}
+
+.toolbar {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.pager {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.pager button {
+  padding: 4px 8px;
+  border: 1px solid #ccc;
+  background: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.pager button[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-size {
+  padding: 4px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.status {
+  font-size: 12px;
+  color: #666;
+  margin-top: 6px;
+}

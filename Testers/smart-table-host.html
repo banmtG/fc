@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Table Test</title>
+
+  <!-- Tabulator -->
+  <link
+    href="https://unpkg.com/tabulator-tables@6.3.1/dist/css/tabulator.min.css"
+    rel="stylesheet"
+  />
+  <script src="https://unpkg.com/tabulator-tables@6.3.1/dist/js/tabulator.min.js"></script>
+
+  <!-- DEFINE COMPONENTS (ONCE) -->
+  <script type="module">
+    import "./../components/smart/smart-table.js";
+    import "./../components/smart/smart-table-host.js";
+  </script>
+</head>
+
+<body>
+
+
+  <h2>Direct smart-table test</h2>
+  <smart-table id="table"></smart-table>
+
+  <script type="module">
+    const table = document.getElementById("table");
+
+    customElements.whenDefined("smart-table").then(() => {
+      table.data = [
+        { phrase: "wheelhouse", createdAt: "2026-01-04", source: "d" },
+        { phrase: "bracelet", createdAt: "2026-01-04", source: "n" },
+      ];
+
+      table.columnBuilder = () => [
+        {
+          formatter: "rowSelection",
+          titleFormatter: "rowSelection",
+          hozAlign: "center",
+          headerSort: false,
+          width: 40,
+        },
+        { title: "Phrase", field: "phrase" },
+        { title: "Created", field: "createdAt", width: 120 },
+        { title: "Status", field: "source", width: 80 },
+        { width: 40, formatter: () => "✏️" },
+        { width: 40, formatter: () => "🗑️" },
+      ];
+    });
+  </script>
+</body>
+</html>

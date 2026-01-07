@@ -1,0 +1,23 @@
+/* tabulator-table.css */
+
+tabulator-table {
+  display: block;
+  width: 100%;
+}
+
+/* Scope ALL tabulator styles to this component */
+tabulator-table .tabulator {
+  font-size: 14px;
+}
+
+tabulator-table .tabulator-header {
+  background: #f5f7fa;
+}
+
+tabulator-table .tabulator-row.tabulator-selected {
+  background-color: #e0f2ff;
+}
+
+tabulator-table .tabulator-row:hover {
+  background-color: #f0f8ff;
+}

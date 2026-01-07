@@ -164,7 +164,7 @@ class NewPhraseTab extends HTMLElement {
       console.log(data);
     }
 
-    this.output.textContent = JSON.stringify(data, null, 2);
+    this.output.textContent = JSON.stringify(phrases, null, 2);
 }
 
   async _onSearchClick() {

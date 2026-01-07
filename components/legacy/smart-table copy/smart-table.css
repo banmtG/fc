@@ -1,0 +1,107 @@
+/* smart-table.css */
+:host {
+  display: block;
+  font-family: system-ui, sans-serif;
+  font-size: 1 rem;
+}
+:host(:focus) {
+  outline: none;
+}
+
+.table {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.header, .row {
+  display: grid;
+  grid-auto-columns: 1fr;
+  align-items: center;
+  user-select: none;
+}
+
+.header {
+  background: #f7f7f7;
+  font-weight: 600;
+  border-bottom: 1px solid #ddd;
+}
+
+.cell {
+  padding: 4px 5px;
+  border-right: 1px solid #eee;
+  min-width: 0;
+}
+
+.header .cell:last-child,
+.row .cell:last-child {
+  border-right: none;
+}
+
+.body {
+  display: block;
+  max-height: 60vh;
+  overflow: auto;
+}
+
+.body .row:nth-child(odd) {
+  background-color: #EBEBEB;
+}
+
+.body .row:nth-child(even) {
+  background-color: #ffffff;
+}
+
+
+.row {
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 120ms ease;
+}
+
+.row:hover { background: #fafafa; }
+
+.actions {
+  display: inline-flex;
+  gap: 6px;
+}
+.btn {
+  padding: 4px 8px;
+  font-size: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.btn-delete { color: #b00020; border-color: #e0b0b5; }
+
+.empty {
+  padding: 12px;
+  color: #666;
+}
+
+.header .cell {
+  cursor: pointer;
+  user-select: none;
+}
+
+.header .cell.sort-asc::after {
+  content: " ▲";
+  font-size: 0.8em;
+}
+
+.header .cell.sort-desc::after {
+  content: " ▼";
+  font-size: 0.8em;
+}
+
+.row.selected { outline-offset: -2px;  background: #d3e7ff !important; }
+.row.multi-selected { background: #e3f2fd; }
+
+/* Highlight vs selection visuals */
+.row.highlight {
+  outline: 2px solid #1976d2;
+  /* outline-offset: -2px;  */
+}
