@@ -32,3 +32,28 @@ export function createRow(obj, columns, templateCols, idKey) {
 
   return rowEl;
 }
+
+export function _renderHeaderCell(component,col) {
+  const cell = document.createElement("div");
+  cell.className = "cell";
+  cell.dataset.key = col.key;
+  cell.textContent = col.label;
+  if (component._sortState?.key === col.key) {
+    cell.classList.add(component._sortState.dir === "asc" ? "sort-asc" : "sort-desc");
+  }
+  // console.log(cell);
+  return cell;
+}
+
+
+export function _renderHeader(component) {
+  const headerRow = component.shadowRoot.querySelector(".header");
+  headerRow.querySelectorAll(".cell").forEach(cell => {
+    cell.classList.remove("sort-asc", "sort-desc");
+    const key = cell.dataset.key;
+    if (component._sortState?.key === key) {
+      cell.classList.add(component._sortState.dir === "asc" ? "sort-asc" : "sort-desc");
+    }
+  });
+}
+

@@ -1,13 +1,13 @@
-/* smart-table.css */
 :host {
   display: block;
   font-family: system-ui, sans-serif;
-  font-size: 1 rem;
+  font-size: 1rem;
 }
 :host(:focus) {
   outline: none;
 }
 
+/* Table container */
 .table {
   display: grid;
   grid-template-rows: auto 1fr;
@@ -16,77 +16,70 @@
   overflow: hidden;
 }
 
-.header, .row {
+/* Header + row grid */
+.header,
+.row {
   display: grid;
   grid-auto-columns: 1fr;
   align-items: center;
   user-select: none;
 }
 
+/* Header styling */
 .header {
-  background: #f7f7f7;
+  background: #eaeaea;
   font-weight: 600;
   border-bottom: 1px solid #ddd;
 }
-
-.cell {
-  padding: 4px 5px;
-  border-right: 1px solid #eee;
-  min-width: 0;
+.header .cell {
+  text-align: center;
+  cursor: pointer;
 }
 
-.header .cell:last-child,
-.row .cell:last-child {
+/* Cell styling */
+.cell {
+  padding: 6px 8px;
+  border-right: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+  min-width: 0;
+}
+.cell:last-child {
   border-right: none;
 }
 
+/* Body scroll area */
 .body {
   display: block;
   max-height: 60vh;
   overflow: auto;
 }
 
+/* Row striping */
 .body .row:nth-child(odd) {
-  background-color: #EBEBEB;
+  background-color: #f9f9f9;
 }
-
 .body .row:nth-child(even) {
-  background-color: #ffffff;
+  background-color: #fff;
 }
 
-
+/* Row hover + selection */
 .row {
-  border-bottom: 1px solid #f0f0f0;
   transition: background-color 120ms ease;
 }
-
-.row:hover { background: #fafafa; }
-
-.actions {
-  display: inline-flex;
-  gap: 6px;
+.row:hover {
+  background: #f0f0f0;
 }
-.btn {
-  padding: 4px 8px;
-  font-size: 12px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background: #fff;
-  cursor: pointer;
+.row.selected {
+  background: #d3e7ff !important;
+}
+.row.multi-selected {
+  background: #e3f2fd;
+}
+.row.highlight {
+  outline: 2px solid #1976d2;
 }
 
-.btn-delete { color: #b00020; border-color: #e0b0b5; }
-
-.empty {
-  padding: 12px;
-  color: #666;
-}
-
-.header .cell {
-  cursor: pointer;
-  user-select: none;
-}
-
+/* Sort indicators */
 .header .cell.sort-asc::after {
   content: " ▲";
   font-size: 0.8em;
@@ -97,11 +90,45 @@
   font-size: 0.8em;
 }
 
-.row.selected { outline-offset: -2px;  background: #d3e7ff !important; }
-.row.multi-selected { background: #e3f2fd; }
+/* Action buttons */
+.actions {
+  display: inline-flex;
+  gap: 6px;
+}
 
-/* Highlight vs selection visuals */
-.row.highlight {
-  outline: 2px solid #1976d2;
-  /* outline-offset: -2px;  */
+.btn {
+  padding: 4px 8px;
+  font-size: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+}
+.btn-delete {
+  color: #b00020;
+  border-color: #e0b0b5;
+}
+
+/* Empty state */
+.empty {
+  padding: 12px;
+  color: #666;
+}
+
+
+.row {
+  display: grid;
+  grid-auto-columns: 1fr;
+  align-items: stretch;
+  border-bottom: 1px solid #ddd;
+}
+
+.cell {
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  border-right: 1px solid #ddd;
+}
+.cell:last-child {
+  border-right: none;
 }

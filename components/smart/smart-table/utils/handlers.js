@@ -1,9 +1,9 @@
 // handlers.js for row‑level operations
-import { sortRows } from "./sortUtils.js";
 import { createRow } from './rowFactory.js';
 
 export function handleHeaderClick(component, target) {
   const key = target.dataset.key;
+
   let dir = "asc";
 
   // Toggle direction if already sorted asc
@@ -12,15 +12,18 @@ export function handleHeaderClick(component, target) {
   }
 
   // Update local sort state (for header UI only)
-  component._sortState = { key, dir };
+  // component._sortState = { key, dir };
 
-  // Update header sort classes
-  component.shadowRoot
-    .querySelectorAll(".header .cell")
-    .forEach(c => c.classList.remove("sort-asc", "sort-desc"));
-  target.classList.add(dir === "asc" ? "sort-asc" : "sort-desc");
+  // // Update header sort classes
+  // component.shadowRoot
+  //   .querySelectorAll(".header .cell")
+  //   .forEach(c => c.classList.remove("sort-asc", "sort-desc"));
 
+  // console.log(target);
+  // target.classList.add(dir === "asc" ? "sort-asc" : "sort-desc");
+  // console.log(target.classList);
   // 🔑 Instead of sorting data here, just emit an event
+  console.log(`key, dir`, key, dir);
   component.dispatchEvent(new CustomEvent("sort-requested", {
     detail: { key, dir },
     bubbles: true,

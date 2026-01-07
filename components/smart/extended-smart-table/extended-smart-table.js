@@ -66,7 +66,9 @@ export class ExtendedSmartTable extends HTMLElement {
 
     // Sort requests from smart-table
     this.$tbl.addEventListener("sort-requested", e => {
-      this._sortState = e.detail;
+      const { key, dir } = e.detail;      
+      this._sortState = { key, dir };
+      this.$tbl.setSortState(this._sortState);
       this._runPipeline();
     }, { signal });
 
@@ -115,13 +117,13 @@ export class ExtendedSmartTable extends HTMLElement {
   set data(value) {
     this._raw = Array.isArray(value) ? value : [];
     this._page = 1;
-    this._runPipeline();
+    // this._runPipeline();
   }
   get data() { return this._raw; }
 
   setColumns(columns) {
     this.$tbl.columns = columns;
-    this.$tbl._renderInitial?.();
+    //this.$tbl._renderInitial?.();
   }
 
   _handleRowDelete(ids) {

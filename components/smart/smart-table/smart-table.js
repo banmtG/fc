@@ -1,4 +1,4 @@
-import { createRow } from "./utils/rowFactory.js";
+import { createRow, _renderHeaderCell, _renderHeader } from "./utils/rowFactory.js";
 import {clearSelectionVisuals,applySelection,toggleSelection,emitSelectionChanged,clearHighlight,setHighlight, requestDelete, selectRows } from "./utils/selectionUtils.js";
 import { addRow, handleHeaderClick } from "./utils/handlers.js";
 
@@ -47,15 +47,20 @@ class SmartTable extends HTMLElement {
 
   set data(arr) {
     this._data = Array.isArray(arr) ? arr : [];
-    if (this.isConnected) this._renderInitial();
+    // if (this.isConnected) this._renderInitial();
   }
 
   get data() { return this._data; }
 
+  setSortState(sortState) { 
+    this._sortState = sortState; 
+    _renderHeader(this); // re-render header with arrows 
+  }
+
   getSelected() { return Array.from(this._selected); }
 
   connectedCallback() {
-    if (this._data.length) this._renderInitial();
+    // if (this._data.length) this._renderInitial();
   }
 
   disconnectedCallback() {
@@ -68,6 +73,7 @@ class SmartTable extends HTMLElement {
 
   // Rendering
   _renderInitial() {
+    console.log(`this._renderInitial`);
     const body = this.shadowRoot.querySelector(".body");
     const header = this.shadowRoot.querySelector(".header");
     body.innerHTML = "";
@@ -99,12 +105,11 @@ class SmartTable extends HTMLElement {
     header.style.gridTemplateColumns = this._templateCols;
 
     // Render header cells
+    // console.log(visibleCols);
     for (const col of visibleCols) {
-      const cell = document.createElement("div");
-      cell.className = "cell";
-      cell.textContent = col.label || col.key;
-      cell.dataset.key = col.key;
-      header.appendChild(cell);
+      const headerCell = _renderHeaderCell(this, col);
+      // console.log(headerCell);
+      header.appendChild(headerCell);
     }
 
     // Render rows using rowFactory

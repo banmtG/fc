@@ -4,6 +4,8 @@ import { createRow } from './rowFactory.js';
 
 export function handleHeaderClick(component, target) {
   const key = target.dataset.key;
+  console.log(key);
+  console.log(target);
   let dir = "asc";
 
   // Toggle direction if already sorted asc
