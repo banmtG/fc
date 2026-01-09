@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ScrollIndicator Scroll_container Demo</title>
+  <script type="text/javascript" src="./../components/smart/scroll-indicator.js"></script>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;       
+      padding:0;
+      margin:0;
+      height: 100vh;
+    }
+
+    body::-webkit-scrollbar { display: none; } /* Chrome, Safari */
+
+    
+    .body_wrapper {
+      overflow: scroll;
+      height: 1000px;
+    }
+
+    /* Wrapper anchors indicators */
+    .scroll-wrapper {
+      position: relative;
+      border: 1px solid #ccc;
+      width: 100%;
+      height: 300px;
+      overflow: hidden; /* prevent wrapper scrollbars */
+    }
+
+    .scroll_container {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      height: 100%;
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .header {
+      background: #eee;
+      padding: 8px;
+      font-weight: bold;
+    }
+
+    .body {
+      overflow-y: auto;      
+      scrollbar-width: none;     /* Firefox */
+      -ms-overflow-style: none;  /* IE/Edge legacy */
+    }
+
+    .body::-webkit-scrollbar { display: none; } /* Chrome, Safari */
+
+    .row {
+      padding: 4px;
+      border-bottom: 1px solid #ddd;
+      white-space: nowrap; /* force horizontal overflow */
+    }
+
+    /* Dock indicators */
+    scroll-indicator[direction="y"] {
+      position: absolute;
+      right: 0;
+    }
+
+    scroll-indicator[direction="x"] {
+      position: absolute;
+      bottom: 0;
+    }
+
+    /* scrollBar hidden */
+    .scrollBar_hidden {
+      overflow: auto;            /* Enables scrolling */
+      scrollbar-width: none;     /* Firefox */
+      -ms-overflow-style: none;  /* IE 10+ */
+    }
+
+    /* Chrome, Safari, Edge (WebKit) */
+    .scrollBar_hidden::-webkit-scrollbar {
+      display: none;
+    }
+
+    
+    .scroll-wrapper1 {
+      width: 100%;
+      height: 100%;
+      overflow: hidden; /* prevent wrapper scrollbars */
+    }
+
+    .scroll_container1 {   
+      display: grid;
+      grid-template-rows: auto 1fr;
+      position: relative;   
+      height: 100%;
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    #body_body {
+      padding: 20px;
+    }
+
+  </style>
+</head>
+
+<body>
+
+<div class="scroll-wrapper1 scrollBar_hidden">
+  <div class="scroll_container1 scrollBar_hidden">
+    <div class="body scrollBar_hidden" id="body_body">
+    
+      <h2>ScrollIndicator Test with Table</h2>
+
+      <div class="scroll-wrapper scrollBar_hidden">
+        <div class="scroll_container scrollBar_hidden">
+          <div class="body scrollBar_hidden" id="tableBody">
+            <!-- lots of rows to force vertical + horizontal scroll -->
+            <div class="row">Row 1 — Lorem ipsum dolor sit amet</div>
+            <div class="row">Row 2 — Consectetur adipiscing elit</div>
+            <div class="row">Row 3 — Sed do eiusmod tempor</div>
+            <div class="row">Row 4 — Ut labore et dolore magna</div>
+            <div class="row">Row 5 — Aliqua ut enim ad minim</div>
+            <div class="row">Row 6 — Quis nostrud exercitation</div>
+            <div class="row">Row 7 — Ullamco laboris nisi ut</div>
+            <div class="row">Row 8 — Aliquip ex ea commodo</div>
+            <p> Lorem ipsum dolor sit amet consectetur, adipisicing elit. Molestias sed voluptatum distinctio velit ipsam voluptas neque illum dignissimos. Impedit facilis iste inventore ab cumque sit ullam aspernatur deserunt eum illo!</p>
+            <div class="row">Row 10 — In reprehenderit in</div>
+            <div class="row">Row 11 — Voluptate velit esse</div>
+            <div class="row">Row 12 — Cillum dolore eu fugiat</div>
+            <div class="row">Row 13 — Nulla pariatur</div>
+            <div class="row">Row 14 — Excepteur sint occaecat</div>
+            <div class="row">Row 15 — Cupidatat non proident</div>
+          </div>
+        </div>
+        <!-- Vertical indicator for the body -->
+        <scroll-indicator for="#tableBody" direction="y"></scroll-indicator>
+        <!-- Horizontal indicator for the whole scroll_container -->
+        <!-- <scroll-indicator for="#mainTable" direction="x"></scroll-indicator> -->
+      </div>
+
+      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque vitae sequi nesciunt pariatur numquam rem iste consequatur fuga voluptates id sint magnam hic explicabo voluptate, quis molestiae minima aliquam ratione itaque debitis vero dolorum illum dolorem? Nihil illo, at nesciunt quo quidem quisquam pariatur neque? Distinctio qui et provident ab soluta. Deserunt consequatur voluptatem labore corrupti neque animi molestias sint consequuntur soluta? Fuga cum incidunt ipsam. Architecto tempore ipsum, deserunt rem quaerat accusantium quo saepe eos cum doloribus, minus magnam dolor vel quia modi sapiente sunt sint. Officia asperiores, voluptatum iusto quasi reiciendis numquam eligendi quas sunt, hic amet error?</p> 
+      <p> Lorem ipsum dolor sit amet consectetur, adipisicing elit. Molestias sed voluptatum distinctio velit ipsam voluptas neque illum dignissimos. Impedit facilis iste inventore ab cumque sit ullam aspernatur deserunt eum illo!</p>
+
+      <div class="scroll-wrapper scrollBar_hidden">
+        <div class="scroll_container scrollBar_hidden">
+          <div class="body scrollBar_hidden" id="tableBody1">
+            <!-- lots of rows to force vertical + horizontal scroll -->
+            <div class="row">Row 1 — Lorem ipsum dolor sit amet</div>
+            <div class="row">Row 2 — Consectetur adipiscing elit</div>
+            <div class="row">Row 3 — Sed do eiusmod tempor</div>
+            <div class="row">Row 4 — Ut labore et dolore magna</div>
+            <div class="row">Row 5 — Aliqua ut enim ad minim</div>
+            <div class="row">Row 6 — Quis nostrud exercitation</div>
+            <div class="row">Row 7 — Ullamco laboris nisi ut</div>
+            <div class="row">Row 8 — Aliquip ex ea commodo</div>
+            <div class="row">Row 9 — Duis aute irure dolor</div>
+            <div class="row">Row 10 — In reprehenderit in</div>
+            <div class="row">Row 11 — Voluptate velit esse</div>
+            <div class="row">Row 12 — Cillum dolore eu fugiat</div>
+            <div class="row">Row 13 — Nulla pariatur</div>
+            <div class="row">Row 14 — Excepteur sint occaecat</div>
+            <div class="row">Row 15 — Cupidatat non proident</div>
+          </div>
+        </div>
+
+        <!-- Vertical indicator for the body -->
+        <scroll-indicator for="#tableBody1" direction="y"></scroll-indicator>
+
+        <!-- Horizontal indicator for the whole scroll_container -->
+        <!-- <scroll-indicator for="#mainTable" direction="x"></scroll-indicator> -->
+      </div>
+    </div>
+  </div>
+
+  <scroll-indicator for="#body_body" direction="y"></scroll-indicator>
+
+</div>
+<script>
+/* Paste the refined ScrollIndicator class here */
+</script>
+
+</body>
+</html>

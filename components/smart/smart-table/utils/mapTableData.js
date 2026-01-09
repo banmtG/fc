@@ -11,7 +11,8 @@ export function mapTableData(rawData) {
 
         return {
         id: item.phraseID,              // normalized ID
-        phrase: item.phrase,       
+        phrase: item.phrase,  
+        ukipa: item.ukipa,     
         status,        
         createdAt: item.createdAt,
         rating: 1

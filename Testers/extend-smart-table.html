@@ -23,78 +23,103 @@
 
     // Pass down columns
     extTbl.setColumns([
-      { key: "phrase", label: "Phrase", width: "3fr" },
-      { key: "status", label: "Status", width: "2fr" },
-      {
-        key: "_actions",
-        sortable: false,
-        label: "Actions",
-        width: "2fr",
-        interactive: true,
-        render: (_, obj) => {
-          const div = document.createElement("div");
-          div.className = "actions";
-          div.innerHTML = `
-            <button class="btn btn-edit" data-id="${obj.id}">✏️</button>
-            <button class="btn btn-delete" data-id="${obj.id}">🗑️</button>
-          `;
-          return div;
-        },
-        events: {
-          click: (e, row, obj) => {
-            if (e.target.classList.contains("btn-edit")) {
-              row.dispatchEvent(new CustomEvent("edit-requested", {
-                detail: { id: obj.id },
-                bubbles: true,
-                composed: true
-              }));
-            }
-            if (e.target.classList.contains("btn-delete")) {
-              const msg = "Are you sure you want to delete this row?";
-              if (confirm(msg)) {
-                row.dispatchEvent(new CustomEvent("delete-requested", {
-                  detail: { ids: obj.id },
-                  bubbles: true,
-                  composed: true
-                }));
-              }
-            }
-          }
+  {
+    key: "phrase",
+    label: "Phrase",
+    width_set: {
+      value: "4fr",      // fit content width
+      min: "100px",
+      resizable: true     // allow drag resizing
+    }
+  },
+
+  {
+    key: "_actions",
+    sortable: false,
+    label: "Actions",
+    width_set: {       
+      value: "auto",      // fit content width
+      resizable: false
+    },
+    interactive: true,
+    render: (_, obj) => {
+      const div = document.createElement("div");
+      div.className = "actions";
+      div.innerHTML = `
+        <button class="btn btn-edit" data-id="${obj.id}">✏️</button>
+        <button class="btn btn-delete" data-id="${obj.id}">🗑️</button>
+      `;
+      return div;
+    },
+    events: {
+      click: (e, row, obj) => {
+        if (e.target.classList.contains("btn-edit")) {
+          row.dispatchEvent(new CustomEvent("edit-requested", {
+            detail: { id: obj.id },
+            bubbles: true,
+            composed: true
+          }));
         }
-      },
-      {
-        key: "rating",
-        label: "Stars",
-        width: "2fr",
-        interactive: true,
-        render: (val, obj) => {
-          const rating = document.createElement("star-rating");
-          rating.rating = val;
-          rating.id = obj.id;
-          rating.setAttribute("row-id", obj.id);
-          return rating;
-        }
-      },
-      {
-        key: "phrase",
-        label: "Reminder",
-        width: "2fr",
-        interactive: true,
-        render: (val, obj) => {
-          const input = document.createElement("input");
-          input.type = "text";
-          input.value = val || "";
-          input.addEventListener("input", e => {
-            input.dispatchEvent(new CustomEvent("interactive-component-changed", {
-              detail: { id: obj.id, field: "note", value: e.target.value },
+        if (e.target.classList.contains("btn-delete")) {
+          const msg = "Are you sure you want to delete this row?";
+          if (confirm(msg)) {
+            row.dispatchEvent(new CustomEvent("delete-requested", {
+              detail: { ids: obj.id },
               bubbles: true,
               composed: true
             }));
-          });
-          return input;
+          }
         }
       }
-    ]);
+    }
+  },{
+    key: "status",
+    label: "Status",
+    width_set: {
+      value: "auto",      // fit content width
+      resizable: true     // allow drag resizing
+    }
+  },
+  {
+    key: "rating",
+    label: "Stars",
+    interactive: true,
+    width_set: {
+      value: "auto",      // fit content width
+      resizable: true     // allow drag resizing
+    },
+    render: (val, obj) => {
+      const rating = document.createElement("star-rating");
+      rating.rating = val;
+      rating.id = obj.id;
+      rating.setAttribute("row-id", obj.id);
+      return rating;
+    }
+  },
+  {
+    key: "phrase",
+    label: "Reminder",
+    interactive: true,
+    width_set: {
+      value: "auto",      
+      resizable: false
+    },
+    render: (val, obj) => {
+      const input = document.createElement("input");
+      input.type = "text";
+      input.value = val || "";
+      input.addEventListener("input", e => {
+        input.dispatchEvent(new CustomEvent("interactive-component-changed", {
+          detail: { id: obj.id, field: "phrase", value: e.target.value },
+          bubbles: true,
+          composed: true
+        }));
+      });
+      return input;
+    }
+  }
+]);
+
 
 
     extTbl._runPipeline();

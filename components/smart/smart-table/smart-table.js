@@ -1,6 +1,8 @@
 import { createRow, _renderHeaderCell, _renderHeader } from "./utils/rowFactory.js";
 import {clearSelectionVisuals,applySelection,toggleSelection,emitSelectionChanged,clearHighlight,setHighlight, requestDelete, selectRows } from "./utils/selectionUtils.js";
 import { addRow, handleHeaderClick } from "./utils/handlers.js";
+import { syncPixelTracks, attachResizeHandles, detachResizeHandles } from './utils/columnWidth.js';
+import '../scroll-indicator.js';
 
 const cssUrl = new URL("./smart-table.css", import.meta.url);
 
@@ -8,9 +10,19 @@ const cssUrl = new URL("./smart-table.css", import.meta.url);
 const template = document.createElement("template");
 template.innerHTML = `
   <link rel="stylesheet" href="${cssUrl}">
-  <div class="table">
-    <div class="header"></div>
-    <div class="body"></div>
+  <div class="table-wrapper scrollBar_hidden">
+    <div class="table scrollBar_hidden" id="mainTable" style="overflow-x:auto;">
+      <div class="header"></div>
+      <div class="body scrollBar_hidden" id="tableBody" style="overflow-y:auto;">
+        <!-- rows -->
+      </div>
+    </div>
+
+    <!-- Vertical indicator for the body -->
+    <scroll-indicator for="#tableBody" direction="y" offset-header=".header"></scroll-indicator>
+
+    <!-- Horizontal indicator for the whole table -->
+    <scroll-indicator for="#mainTable" direction="x"></scroll-indicator>
   </div>
 `;
 
@@ -32,6 +44,7 @@ class SmartTable extends HTMLElement {
     this._sortState = { key: null, dir: null };
 
     // Cache references
+    this._table = this.shadowRoot.querySelector(".table"); 
     this._header = this.shadowRoot.querySelector(".header");
     this._body = this.shadowRoot.querySelector(".body");
 
@@ -45,6 +58,7 @@ class SmartTable extends HTMLElement {
     this.setAttribute("tabindex", "0");
   }
 
+
   set data(arr) {
     this._data = Array.isArray(arr) ? arr : [];
     // if (this.isConnected) this._renderInitial();
@@ -54,18 +68,43 @@ class SmartTable extends HTMLElement {
 
   setSortState(sortState) { 
     this._sortState = sortState; 
-    _renderHeader(this); // re-render header with arrows 
+   // _renderHeader(this); // re-render header with arrows 
   }
 
   getSelected() { return Array.from(this._selected); }
 
-  connectedCallback() {
-    // if (this._data.length) this._renderInitial();
-  }
+  
+// Example config:
+// extTbl.setColumns([
+//   { key: "phrase", label: "Phrase", width: "3fr", min: 120 },
+//   { key: "status", label: "Status", width: "2fr", min: 100 },
+//   { key: "actions", label: "Actions", width: "120px" }
+// ]);
+
+setColumns(columns) {
+  this._columns = columns;
+  // After header render (so container width is known), compute tracks:
+  // requestAnimationFrame(() => this._syncPixelTracks());
+}
+
+_syncPixelTracks() {
+  syncPixelTracks(this)
+}
+
+connectedCallback() {
+  this._resizeObserver = new ResizeObserver(() => this._syncPixelTracks());
+  this._resizeObserver.observe(this._table);
+  
+  // if (this._data.length) this._renderInitial();
+}
 
   disconnectedCallback() {
     this.shadowRoot.removeEventListener("click", this._onClick);
     this.removeEventListener("keydown", this._onKeyDown);
+    if (this._resizeObserver) {
+       this._resizeObserver.disconnect();
+       this._resizeObserver = null; 
+    }
     this._rowMap.clear();
     this._selected.clear();
     this._highlightId = null;
@@ -73,9 +112,12 @@ class SmartTable extends HTMLElement {
 
   // Rendering
   _renderInitial() {
-    console.log(`this._renderInitial`);
     const body = this.shadowRoot.querySelector(".body");
     const header = this.shadowRoot.querySelector(".header");
+
+    // ✅ cleanup old handles before clearing header 
+    detachResizeHandles(this);
+
     body.innerHTML = "";
     header.innerHTML = "";
     this._rowMap.clear();
@@ -100,17 +142,13 @@ class SmartTable extends HTMLElement {
     // Filter hidden columns
     const visibleCols = columnDefs.filter(c => !c.hidden);
 
-    // Build grid template from widths
-    this._templateCols = visibleCols.map(c => c.width || "1fr").join(" ");
-    header.style.gridTemplateColumns = this._templateCols;
-
     // Render header cells
-    // console.log(visibleCols);
     for (const col of visibleCols) {
       const headerCell = _renderHeaderCell(this, col);
-      // console.log(headerCell);
       header.appendChild(headerCell);
     }
+
+    attachResizeHandles(this);
 
     // Render rows using rowFactory
     for (const obj of this._data) {
@@ -119,6 +157,9 @@ class SmartTable extends HTMLElement {
       this._rowMap.set(String(obj[this._idKey]), rowEl);
     }
 
+    // Sync header + body column widths 
+    this._syncPixelTracks();
+
     // Restore selection and highlight
     applySelection(this.shadowRoot, this._rowMap, this._selected);
     if (this._highlightId) {
@@ -126,7 +167,6 @@ class SmartTable extends HTMLElement {
       if (row) row.classList.add("highlight");
     }
   }
-
 
   // Click events
  _onClick(e) {
@@ -147,7 +187,8 @@ class SmartTable extends HTMLElement {
     }
   }
 
-  // 2. Column‑level events (delegated)
+  // 2. Column‑level events (delegated) 
+  // so we dont need to add to everycell the eventlistener
   const cell = target.closest(".cell");
   const row = target.closest(".row");
   if (cell && row) {
@@ -170,16 +211,19 @@ class SmartTable extends HTMLElement {
   // 3. Row selection + highlight
   if (row) {
     const id = row.dataset.id;
+    const allIds = this._data.map(d => String(d[this._idKey]));
 
     if (e.shiftKey && this._highlightId) {
-      // SHIFT: select range from last highlight to current
-      const allIds = this._data.map(d => String(d[this._idKey]));
+      // SHIFT: extend selection from anchor (_highlightId) to current
       const startIdx = allIds.indexOf(this._highlightId);
       const endIdx = allIds.indexOf(id);
       if (startIdx !== -1 && endIdx !== -1) {
         const [from, to] = startIdx < endIdx ? [startIdx, endIdx] : [endIdx, startIdx];
-        this._selected.clear();
+
+        // Clear visuals but keep existing _selected set
         clearSelectionVisuals(this.shadowRoot);
+
+        // Add all rows in range to selection
         for (let i = from; i <= to; i++) {
           const rid = allIds[i];
           this._selected.add(rid);
@@ -187,88 +231,112 @@ class SmartTable extends HTMLElement {
           if (rEl) rEl.classList.add("selected");
         }
       }
+      // Anchor (_highlightId) stays the same until a normal/ctrl click
     } else if (e.ctrlKey || e.metaKey) {
-      // CTRL/META: toggle single row
+      // CTRL/META: toggle single row, and reset anchor to this row
       toggleSelection(this.shadowRoot, this._rowMap, this._selected, id, true);
+      this.setHighlight(id);
     } else {
-      // Normal click: single selection
+      // Normal click: reset selection and anchor
       clearSelectionVisuals(this.shadowRoot);
       this._selected.clear();
       this._selected.add(id);
       row.classList.add("selected");
+      this.setHighlight(id);
     }
-
-    // Always update highlight to the last clicked row
-    this.setHighlight(id);
 
     emitSelectionChanged(this, this._selected);
   }
 }
 
+
   // Keyboard events
-  _onKeyDown(e) {
-    const rows = Array.from(this.shadowRoot.querySelectorAll(".row"));
-    if (!rows.length) return;
+_onKeyDown(e) {
+  const rows = Array.from(this.shadowRoot.querySelectorAll(".row"));
+  if (!rows.length) return;
 
-    if (e.key === "ArrowUp" || e.key === "ArrowDown") {
-      e.preventDefault();
-      let idx = this._highlightId
-        ? rows.findIndex(r => r.dataset.id === this._highlightId)
-        : -1;
+  if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+    e.preventDefault();
+    let idx = this._highlightId
+      ? rows.findIndex(r => r.dataset.id === this._highlightId)
+      : -1;
 
-      if (e.key === "ArrowUp") {
-        idx = idx > 0 ? idx - 1 : rows.length - 1;
-      } else {
-        idx = idx < rows.length - 1 ? idx + 1 : 0;
-      }
-      this.setHighlight(rows[idx].dataset.id);
-      return;
+    if (e.key === "ArrowUp") {
+      idx = idx > 0 ? idx - 1 : rows.length - 1;
+    } else {
+      idx = idx < rows.length - 1 ? idx + 1 : 0;
     }
+    this.setHighlight(rows[idx].dataset.id);
+    return;
+  }
 
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      if (!this._highlightId) return;
+  if (e.key === "Enter" || e.key === " ") {
+    e.preventDefault();
+    if (!this._highlightId) return;
 
-      const id = this._highlightId;
-      const row = this._rowMap.get(id);
+    const id = this._highlightId;
+    const row = this._rowMap.get(id);
 
-      // Check for multi-select modifier
-      const multi = e.ctrlKey || e.metaKey || e.shiftKey;
+    if (e.shiftKey) {
+      // ✅ SHIFT+Enter/Space: select range from anchor to current
+      const allIds = this._data.map(d => String(d[this._idKey]));
+      const anchorIdx = allIds.indexOf(this._anchorId || this._highlightId);
+      const currentIdx = allIds.indexOf(id);
 
-      if (multi) {
-        // Toggle highlighted row in selection set
-        if (this._selected.has(id)) {
-          this._selected.delete(id);
-          if (row) row.classList.remove("selected");
-        } else {
-          this._selected.add(id);
-          if (row) row.classList.add("selected");
-        }
-      } else {
-        // Single select: clear everything, then add highlighted row
+      if (anchorIdx !== -1 && currentIdx !== -1) {
+        const [from, to] = anchorIdx < currentIdx
+          ? [anchorIdx, currentIdx]
+          : [currentIdx, anchorIdx];
+
         clearSelectionVisuals(this.shadowRoot);
         this._selected.clear();
+
+        for (let i = from; i <= to; i++) {
+          const rid = allIds[i];
+          this._selected.add(rid);
+          const rEl = this._rowMap.get(rid);
+          if (rEl) rEl.classList.add("selected");
+        }
+      }
+      // keep anchor fixed until a normal/ctrl/meta click resets it
+    } else if (e.ctrlKey || e.metaKey) {
+      // CTRL/META: toggle highlighted row
+      if (this._selected.has(id)) {
+        this._selected.delete(id);
+        if (row) row.classList.remove("selected");
+      } else {
         this._selected.add(id);
         if (row) row.classList.add("selected");
       }
-
-      emitSelectionChanged(this, this._selected);
-      return;
+      // reset anchor to this row
+      this._anchorId = id;
+    } else {
+      // Normal Enter/Space: single select
+      clearSelectionVisuals(this.shadowRoot);
+      this._selected.clear();
+      this._selected.add(id);
+      if (row) row.classList.add("selected");
+      // reset anchor to this row
+      this._anchorId = id;
     }
 
-    if (e.key === "Delete") {
-      e.preventDefault();
-      if (this._selected.size > 0) {
-        // console.log(this._selected);
-        const arraySelected = Array.from(this._selected);
-        const msg = this._selected.size === 1
-          ? "Are you sure you want to delete this row?"
-          : `Are you sure you want to delete these ${arraySelected.length} rows?`;
-        if (confirm(msg)) this._requestDelete(arraySelected);
-      }
-      return;
-    }
+    emitSelectionChanged(this, this._selected);
+    return;
   }
+
+  if (e.key === "Delete") {
+    e.preventDefault();
+    if (this._selected.size > 0) {
+      const arraySelected = Array.from(this._selected);
+      const msg = this._selected.size === 1
+        ? "Are you sure you want to delete this row?"
+        : `Are you sure you want to delete these ${arraySelected.length} rows?`;
+      if (confirm(msg)) this._requestDelete(arraySelected);
+    }
+    return;
+  }
+}
+
 
   // Highlight helpers
   setHighlight(id) { setHighlight(this, id); }   

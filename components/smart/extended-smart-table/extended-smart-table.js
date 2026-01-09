@@ -11,8 +11,8 @@ tpl.innerHTML = `
   <div class="toolbar">
     <input class="search-input" type="search" placeholder="Search..." />
     <div class="pager">
-      <button class="prev">&larr; Prev</button>
-      <button class="next">Next &rarr;</button>
+      <button class="prev">←</button>
+      <button class="next">→</button>
     </div>
     <select class="page-size"></select>
   </div>
@@ -35,7 +35,7 @@ export class ExtendedSmartTable extends HTMLElement {
     this._search = "";
     this._sortState = null;
     this._page = 1;
-    this._pageSize = 20;
+    this._pageSize = 10;
     this._abort = new AbortController();
 
     // Bound handlers
@@ -74,6 +74,7 @@ export class ExtendedSmartTable extends HTMLElement {
 
     // Interactive changes (patch raw only)
     this.$tbl.addEventListener("interactive-component-changed", e => {
+      console.log(e);
       const { id, field, value } = e.detail;
       this._updateRowData(id, { [field]: value });
     }, { signal });
@@ -122,11 +123,13 @@ export class ExtendedSmartTable extends HTMLElement {
   get data() { return this._raw; }
 
   setColumns(columns) {
-    this.$tbl.columns = columns;
+    this.$tbl.columns = columns;   
+    this.$tbl.setColumns(columns);
     //this.$tbl._renderInitial?.();
   }
 
   _handleRowDelete(ids) {
+    console.log(`vao _handleRowDelete`);
     // Normalize: accept single id or array
     const sids = Array.isArray(ids) ? ids.map(String) : [String(ids)];
 
@@ -219,6 +222,7 @@ export class ExtendedSmartTable extends HTMLElement {
     if (idx !== -1) {
       this._raw[idx] = { ...this._raw[idx], ...patch };
     }
+    console.log(this._raw[idx]);
     // No immediate re-render; pipeline runs only on search/sort/pagination
   }
 
@@ -227,7 +231,7 @@ export class ExtendedSmartTable extends HTMLElement {
     this._pageSizes.forEach(size => {
       const opt = document.createElement("option");
       opt.value = size;
-      opt.textContent = size === "all" ? "All" : `${size} / page`;
+      opt.textContent = size === "all" ? "All items" : `${size} items`;
 
       // Select the current page size if it matches
       if (size !== "all" && parseInt(size, 10) === this._pageSize) {

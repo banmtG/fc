@@ -3,6 +3,7 @@
   font-family: system-ui, sans-serif;
   font-size: 1rem;
 }
+
 :host(:focus) {
   outline: none;
 }
@@ -13,15 +14,17 @@
   grid-template-rows: auto 1fr;
   border: 1px solid #ddd;
   border-radius: 6px;
-  overflow: hidden;
+  overflow-y: hidden;
+  /* Shared column tracks; JS will set this to pixels */
+  /* --table-columns: auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto; */
 }
 
-/* Header + row grid */
+/* Header + row share the same tracks */
 .header,
 .row {
   display: grid;
-  grid-auto-columns: 1fr;
-  align-items: center;
+  grid-template-columns: var(--table-columns, auto auto auto auto auto auto auto auto auto auto ); 
+  align-items: stretch;
   user-select: none;
 }
 
@@ -34,68 +37,72 @@
 .header .cell {
   text-align: center;
   cursor: pointer;
+  position: relative;
+  padding-right: 16px; /* space for arrow */
 }
 
 /* Cell styling */
 .cell {
+  display: inline-flex;
+  align-items: center;
   padding: 6px 8px;
   border-right: 1px solid #ddd;
   border-bottom: 1px solid #ddd;
   min-width: 0;
+  box-sizing: border-box;
+
+  /* force text to stay on one line */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* optional: adds "…" when truncated */
 }
-.cell:last-child {
-  border-right: none;
-}
+
+
+.cell:last-child { border-right: none; }
 
 /* Body scroll area */
 .body {
+  position: relative;
   display: block;
   max-height: 60vh;
-  overflow: auto;
+  overflow-y: auto;
 }
 
 /* Row striping */
-.body .row:nth-child(odd) {
-  background-color: #f9f9f9;
-}
-.body .row:nth-child(even) {
-  background-color: #fff;
-}
+.body .row:nth-child(odd) { background-color: #f9f9f9; }
+.body .row:nth-child(even) { background-color: #fff; }
 
 /* Row hover + selection */
 .row {
   transition: background-color 120ms ease;
 }
-.row:hover {
-  background: #f0f0f0;
-}
-.row.selected {
-  background: #d3e7ff !important;
-}
-.row.multi-selected {
-  background: #e3f2fd;
-}
-.row.highlight {
-  outline: 2px solid #1976d2;
+.row:hover { background: #f0f0f0; }
+.row.selected { background: #d3e7ff !important; }
+.row.multi-selected { background: #e3f2fd; }
+.row.highlight { outline: 2px solid #1976d2; }
+
+
+.header .cell.sort-asc::after,
+.header .cell.sort-desc::after {
+  content: "";
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 4px solid transparent;
 }
 
-/* Sort indicators */
 .header .cell.sort-asc::after {
-  content: " ▲";
-  font-size: 0.8em;
+  border-bottom-color: currentColor; /* up arrow */
 }
 
 .header .cell.sort-desc::after {
-  content: " ▼";
-  font-size: 0.8em;
+  border-top-color: currentColor; /* down arrow */
 }
+
 
 /* Action buttons */
-.actions {
-  display: inline-flex;
-  gap: 6px;
-}
-
+.actions { display: inline-flex; gap: 6px; }
 .btn {
   padding: 4px 8px;
   font-size: 12px;
@@ -104,31 +111,71 @@
   background: #fff;
   cursor: pointer;
 }
-.btn-delete {
-  color: #b00020;
-  border-color: #e0b0b5;
-}
+.btn-delete { color: #b00020; border-color: #e0b0b5; }
 
 /* Empty state */
-.empty {
-  padding: 12px;
-  color: #666;
+.empty { padding: 12px; color: #666; }
+
+/* Resize handle styling */
+.resize-handle {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  cursor: col-resize;
+  user-select: none;
+  touch-action: none; /* important for pointer events on touch devices */
+}
+
+/* Thin Scroll Style */
+.thinScrollBar_container {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* smooth scroll on mobile */
+  scrollbar-width: thin; /* Firefox thin scrollbar */
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent; /* Firefox thumb + track */
+}
+
+/* Chrome, Edge, Safari (WebKit Browsers) */
+.thinScrollBar_container::-webkit-scrollbar {
+  width: 1px; /* minimum enforced */
+}
+.thinScrollBar_container::-webkit-scrollbar-thumb {
+  background-color: rgba(0,0,0,0.1);
+  border-radius: 8px;
+}
+.thinScrollBar_container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* scrollBar hidden */
+.scrollBar_hidden {
+  overflow: auto;            /* Enables scrolling */
+  scrollbar-width: none;     /* Firefox */
+  -ms-overflow-style: none;  /* IE 10+ */
+}
+
+/* Chrome, Safari, Edge (WebKit) */
+.scrollBar_hidden::-webkit-scrollbar {
+  display: none;
 }
 
 
-.row {
-  display: grid;
-  grid-auto-columns: 1fr;
-  align-items: stretch;
-  border-bottom: 1px solid #ddd;
+.table-wrapper {
+  display: block;
+  position: relative;   /* anchor for absolute children */
 }
 
-.cell {
-  display: flex;
-  align-items: center;
-  padding: 6px 8px;
-  border-right: 1px solid #ddd;
+scroll-indicator[direction="y"] {
+  position: absolute;
+  top: 0;   /* adjusted in JS to skip header */
+  right: 0;
+  height: 100%;
 }
-.cell:last-child {
-  border-right: none;
+
+scroll-indicator[direction="x"] {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
 }
