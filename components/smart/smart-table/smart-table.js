@@ -151,11 +151,20 @@ connectedCallback() {
     attachResizeHandles(this);
 
     // Render rows using rowFactory
-    for (const obj of this._data) {
-      const rowEl = createRow(obj, visibleCols, this._templateCols, this._idKey);
+    const total = this._data.length;
+    this._data.forEach((obj, index) => {
+      const rowEl = createRow(
+        obj,
+        visibleCols,
+        this._templateCols,
+        this._idKey,
+        index,
+        total
+      );
       body.appendChild(rowEl);
       this._rowMap.set(String(obj[this._idKey]), rowEl);
-    }
+    });
+
 
     // Sync header + body column widths 
     this._syncPixelTracks();
@@ -172,25 +181,27 @@ connectedCallback() {
  _onClick(e) {
   const target = e.target;
 
-  // 1. Header sort
-  if (
-    target.classList.contains("cell") &&
-    target.parentElement.classList.contains("header") &&
-    target.dataset.key
-  ) {
-    const colDef = this.columns.find(c => c.key === target.dataset.key);
+
+  const cell = target.closest(".cell"); 
+  const header = target.closest(".header");
+
+  // 1. Header sort 
+  if (cell && header && cell.dataset.key) {
+    const colDef = this.columns.find(c => c.key === cell.dataset.key);
 
     // Default to sortable unless explicitly false
     if (colDef && colDef.sortable !== false) {
-      handleHeaderClick(this, target);
-      return;
+      // Ignore clicks on resize handles
+      if (!target.closest(".resize-handle")) {
+        handleHeaderClick(this, cell);
+        return;
+      }
     }
   }
 
   // 2. Column‑level events (delegated) 
   // so we dont need to add to everycell the eventlistener
-  const cell = target.closest(".cell");
-  const row = target.closest(".row");
+  const row = target.closest(".row"); 
   if (cell && row) {
     const id = row.dataset.id;
     const obj = this._data.find(d => String(d[this._idKey]) === id);

@@ -1,8 +1,9 @@
 :host {
   display: block;
   box-sizing: border-box;
-  padding: 8px;
+  padding: 0px;
   font-family: system-ui, sans-serif;
+  color: #484848;
 }
 
 .toolbar {
@@ -50,4 +51,8 @@
   font-size: 12px;
   color: #666;
   margin-top: 6px;
+}
+
+.hidden {
+  display: none;
 }

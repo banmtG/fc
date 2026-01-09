@@ -1,5 +1,5 @@
 // rowFactory.js
-export function createRow(obj, columns, templateCols, idKey) {
+export function createRow(obj, columns, templateCols, idKey, index, total) {  
   const rowEl = document.createElement("div");
   rowEl.className = "row";
   rowEl.style.gridTemplateColumns = templateCols;
@@ -9,9 +9,11 @@ export function createRow(obj, columns, templateCols, idKey) {
     const cell = document.createElement("div");
     cell.className = "cell";
     cell.dataset.key = col.key; // ✅ add data-key attribute
+    // console.log(obj.cellBgColor[col.key]);
+    if (obj.cellBgColor[col.key]) cell.style.backgroundColor = obj.cellBgColor[col.key];
 
     if (typeof col.render === "function") {
-      const rendered = col.render(obj[col.key], obj);
+      const rendered = col.render(obj[col.key], obj, index, total); // pass index + total
       if (rendered instanceof Node) {
         cell.appendChild(rendered);
       } else {

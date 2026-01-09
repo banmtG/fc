@@ -23,6 +23,28 @@
 
     // Pass down columns
     extTbl.setColumns([
+      {
+    key: "order",
+    label: "No",
+    interactive: false,
+    width_set: { value: "auto", resizable: false },  
+    render: (val, obj) => {
+      const span = document.createElement("span");
+      span.textContent = val;
+      // defer until after append
+      console.log(obj);
+      setTimeout(() => {
+        if (span.parentNode) {
+          span.parentNode.style.justifyContent = "center";
+          if (obj.orderBgcolor) {
+            span.parentNode.style.backgroundColor = obj.orderBgcolor.bgColor;
+            span.parentNode.style.color = obj.orderBgcolor.color;
+          }
+        }
+      });
+      return span;
+    }
+  },
   {
     key: "phrase",
     label: "Phrase",
@@ -32,7 +54,27 @@
       resizable: true     // allow drag resizing
     }
   },
-
+  {
+    key: "status",
+    label: "S",
+    width_set: {
+      value: "25px",      // fit content width
+      resizable: false     // allow drag resizing
+    },
+    render: (val, obj) => {
+      const div = document.createElement("div");      
+      div.style.width = "100%;"
+      div.style.height = "100%;"
+      // defer until after append
+      setTimeout(() => {
+        if (div.parentNode) {
+          div.parentNode.style.backgroundColor = obj.statusBgColor.bgColor;
+          div.parentNode.style.color = obj.statusBgColor.color;
+        }
+      });
+      return div;
+    }
+  },
   {
     key: "_actions",
     sortable: false,
@@ -72,57 +114,56 @@
         }
       }
     }
-  },{
-    key: "status",
-    label: "Status",
-    width_set: {
-      value: "auto",      // fit content width
-      resizable: true     // allow drag resizing
-    }
-  },
-  {
-    key: "rating",
-    label: "Stars",
-    interactive: true,
-    width_set: {
-      value: "auto",      // fit content width
-      resizable: true     // allow drag resizing
-    },
-    render: (val, obj) => {
-      const rating = document.createElement("star-rating");
-      rating.rating = val;
-      rating.id = obj.id;
-      rating.setAttribute("row-id", obj.id);
-      return rating;
-    }
-  },
-  {
-    key: "phrase",
-    label: "Reminder",
-    interactive: true,
-    width_set: {
-      value: "auto",      
-      resizable: false
-    },
-    render: (val, obj) => {
-      const input = document.createElement("input");
-      input.type = "text";
-      input.value = val || "";
-      input.addEventListener("input", e => {
-        input.dispatchEvent(new CustomEvent("interactive-component-changed", {
-          detail: { id: obj.id, field: "phrase", value: e.target.value },
-          bubbles: true,
-          composed: true
-        }));
-      });
-      return input;
-    }
   }
+  // {
+  //   key: "rating",
+  //   label: "Stars",
+  //   interactive: true,
+  //   width_set: {
+  //     value: "auto",      // fit content width
+  //     resizable: true     // allow drag resizing
+  //   },
+  //   render: (val, obj) => {
+  //     const rating = document.createElement("star-rating");
+  //     rating.rating = val;
+  //     rating.id = obj.id;
+  //     rating.setAttribute("row-id", obj.id);
+  //     return rating;
+  //   }
+  // },
+  
+
+
+  // {
+  //   key: "phrase",
+  //   label: "Reminder",
+  //   interactive: true,
+  //   width_set: {
+  //     value: "auto",      
+  //     resizable: false
+  //   },
+  //   render: (val, obj) => {
+  //     const input = document.createElement("input");
+  //     input.type = "text";
+  //     input.value = val || "";
+  //     input.addEventListener("input", e => {
+  //       input.dispatchEvent(new CustomEvent("interactive-component-changed", {
+  //         detail: { id: obj.id, field: "phrase", value: e.target.value },
+  //         bubbles: true,
+  //         composed: true
+  //       }));
+  //     });
+  //     return input;
+  //   }
+  // }
 ]);
 
+    extTbl._sortState = { key:"status", dir:"asc" };
+    extTbl._pageSize = extTbl.data.length;
+    extTbl.$pageSize.value = "all";
+    extTbl._onPageSize({ target : { value : "all"}});
 
-
-    extTbl._runPipeline();
+    //extTbl._runPipeline();
     // Listen to generic events
     // extTbl.addEventListener("interactive-component-changed", e => {
     //   console.log("Interactive change:", e.detail);

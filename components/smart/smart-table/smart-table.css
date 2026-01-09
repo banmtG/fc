@@ -51,7 +51,7 @@
   min-width: 0;
   box-sizing: border-box;
 
-  /* force text to stay on one line */
+  /* force text to stay on one line 
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis; /* optional: adds "…" when truncated */

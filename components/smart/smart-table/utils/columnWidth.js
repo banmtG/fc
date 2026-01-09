@@ -128,7 +128,7 @@ export function attachResizeHandles(component) {
       const minWidth = col.width_set.min? parseToPixels(col.width_set.min) : 40;
 
       const maxWidth = col.width_set.max? parseToPixels(col.width_set.max) : parseToPixels("400px") ;
-      console.log(maxWidth);
+     
       const handle = document.createElement("div");
       handle.className = "resize-handle";
       cell.appendChild(handle);

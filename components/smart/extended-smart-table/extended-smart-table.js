@@ -11,8 +11,8 @@ tpl.innerHTML = `
   <div class="toolbar">
     <input class="search-input" type="search" placeholder="Search..." />
     <div class="pager">
-      <button class="prev">←</button>
-      <button class="next">→</button>
+      <button class="prev">❮</button>
+      <button class="next">❯</button>
     </div>
     <select class="page-size"></select>
   </div>
@@ -35,7 +35,7 @@ export class ExtendedSmartTable extends HTMLElement {
     this._search = "";
     this._sortState = null;
     this._page = 1;
-    this._pageSize = 10;
+    this._pageSize = '45';
     this._abort = new AbortController();
 
     // Bound handlers
@@ -202,12 +202,17 @@ export class ExtendedSmartTable extends HTMLElement {
     this._page += 1;
     this._runPipeline();
   }
+  
   _onPageSize(e) {
     const val = e.target.value;
     if (val === "all") {
       this._pageSize = this._raw.length;
+      this.$prev.classList.add('hidden');
+      this.$next.classList.add('hidden');
     } else {
       const n = parseInt(val, 10);
+      this.$prev.classList.remove('hidden');
+      this.$next.classList.remove('hidden');
       if (!Number.isNaN(n) && n > 0) {
         this._pageSize = n;
       }
