@@ -1,4 +1,4 @@
-import { createRow, _renderHeaderCell, _renderHeader } from "./utils/rowFactory.js";
+import { createRow, _renderHeaderCell, _renderHeader, _updateRowUI } from "./utils/rowFactory.js";
 import {clearSelectionVisuals,applySelection,toggleSelection,emitSelectionChanged,clearHighlight,setHighlight, requestDelete, selectRows } from "./utils/selectionUtils.js";
 import { addRow, handleHeaderClick } from "./utils/handlers.js";
 import { syncPixelTracks, attachResizeHandles, detachResizeHandles } from './utils/columnWidth.js';
@@ -40,6 +40,7 @@ class SmartTable extends HTMLElement {
     this._rowMap = new Map();
     this._selected = new Set();
     this._highlightId = null;
+    this._hightlightPosition = null;
     this._idKey = "id";
     this._sortState = { key: null, dir: null };
 
@@ -140,10 +141,10 @@ connectedCallback() {
     }
 
     // Filter hidden columns
-    const visibleCols = columnDefs.filter(c => !c.hidden);
+    this._visibleCols = columnDefs.filter(c => !c.hidden);
 
     // Render header cells
-    for (const col of visibleCols) {
+    for (const col of this._visibleCols) {
       const headerCell = _renderHeaderCell(this, col);
       header.appendChild(headerCell);
     }
@@ -151,13 +152,14 @@ connectedCallback() {
     attachResizeHandles(this);
 
     // Render rows using rowFactory
-    const total = this._data.length;
+    const total = this._data.length; //subset Local Total
     this._data.forEach((obj, index) => {
+      // console.log(obj);
+      // console.log(this._idKey);
       const rowEl = createRow(
         obj,
-        visibleCols,
-        this._templateCols,
-        this._idKey,
+        this._visibleCols,
+        this._idKey, // "id"
         index,
         total
       );
@@ -165,16 +167,30 @@ connectedCallback() {
       this._rowMap.set(String(obj[this._idKey]), rowEl);
     });
 
-
     // Sync header + body column widths 
     this._syncPixelTracks();
 
-    // Restore selection and highlight
+    // Restore selection
     applySelection(this.shadowRoot, this._rowMap, this._selected);
+
     if (this._highlightId) {
       const row = this._rowMap.get(this._highlightId);
-      if (row) row.classList.add("highlight");
-    }
+      if (row) { 
+        row.classList.add("highlight");
+      } else if (this._hightlightPosition) {   
+        const rowMapArray = Array.from(this._rowMap.entries());   
+        try {
+          this._highlightId = rowMapArray[this._hightlightPosition][0];
+        } catch {
+          this._highlightId = rowMapArray[rowMapArray.length-1][0];
+        }
+            
+        this.setHighlight(this._highlightId);
+        // console.log(this._highlightId);
+        // const row = this._rowMap.get(this._highlightId);
+        // if (row) row.classList.add("highlight");
+      }
+    } 
   }
 
   // Click events
@@ -357,7 +373,11 @@ _onKeyDown(e) {
   // Data ops
   addRow(obj) { addRow(this, obj); }
 
-  
+  updateRowUI(id,newRowData) { 
+    console.log(newRowData);
+    _updateRowUI(this,id,newRowData) 
+  }
+
   _requestDelete(ids) {     
     requestDelete(this, ids); 
   }  

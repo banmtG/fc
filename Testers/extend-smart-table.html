@@ -4,17 +4,57 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">  
   <title>Extended SmartTable Demo</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css" />
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace.js"></script>
 
+  <link href="./../css/base.css" rel="stylesheet">
+  <link href="./../css/index.css" rel="stylesheet">
+  <link href="./../css/shoelace_customized.css" rel="stylesheet">  <!-- for customized shoelace default value-->      
   <!-- Extended smart-table -->
   <script type="module" src="./../components/smart/extended-smart-table/extended-smart-table.js"></script>
   <script type="text/javascript" src="./phraseList.js"></script>
+  <style>
+    .legend {
+      margin-top: 5px;
+      user-select: none;   
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      align-items: center;
+      gap: 10px;
+      overflow-x: scroll;
+    }
+    .legendItems {
+      padding: 4px 6px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-shrink: 0;
+    }
+  </style>
 </head>
 <body>
   <extended-smart-table id="extTbl" search="true" pagination="10,20,50,100,all"></extended-smart-table>
-
+  <div class="legend scrollBar_hidden">
+  </div>
   <script type="module">
     import "./../components/smart/star-rating.js";
-    import { mapTableData, formatTimestamp } from "./../components/smart/smart-table/utils/mapTableData.js";
+    import { mapTableData, formatTimestamp, StatusColorData, oldDataBgColor, aPhraseNormalise_NewPhraseTab } from "./../components/smart/smart-table/utils/mapTableData.js";
+
+    const legend = document.querySelector('.legend');
+    const merged = { ...StatusColorData, ...{ 'old': oldDataBgColor } }; 
+    // console.log(merged);
+    for (const key of Object.keys(merged)) {
+        // console.log(key);
+        // console.log(merged[key]);
+        const div = document.createElement('div');
+        div.className = "legendItems";
+        div.innerHTML = merged[key].legend;
+        div.style.backgroundColor = merged[key].bgColor;
+        div.style.color = merged[key].color;
+        legend.appendChild(div);
+    }
+
 
     const extTbl = document.getElementById("extTbl");
 
@@ -32,7 +72,7 @@
       const span = document.createElement("span");
       span.textContent = val;
       // defer until after append
-      console.log(obj);
+      // console.log(obj);
       setTimeout(() => {
         if (span.parentNode) {
           span.parentNode.style.justifyContent = "center";
@@ -80,7 +120,7 @@
     sortable: false,
     label: "Actions",
     width_set: {       
-      value: "auto",      // fit content width
+      value: "80px",      // fit content width
       resizable: false
     },
     interactive: true,
@@ -91,6 +131,14 @@
         <button class="btn btn-edit" data-id="${obj.id}">✏️</button>
         <button class="btn btn-delete" data-id="${obj.id}">🗑️</button>
       `;
+
+      setTimeout(() => {
+        if (div.parentNode) {    
+            div.parentNode.style.padding = "0px";
+            div.parentNode.style.justifyContent = "center";
+        }        
+      });
+
       return div;
     },
     events: {
@@ -159,7 +207,7 @@
 ]);
 
     extTbl._sortState = { key:"status", dir:"asc" };
-    extTbl._pageSize = extTbl.data.length;
+    extTbl._pageSize = extTbl._raw.length ;
     extTbl.$pageSize.value = "all";
     extTbl._onPageSize({ target : { value : "all"}});
 
@@ -169,6 +217,37 @@
     //   console.log("Interactive change:", e.detail);
     //   // Example: { id: "123", field: "rating", value: 4 }
     // });
+
+    document.addEventListener('edit-requested', (e) => {
+      console.log("edit-requested", e.detail.id);
+    })
+
+
+    document.addEventListener('highlight-changed', (e) => {
+      console.log("highlight-changed", e.detail.id);
+    })
+
+    const theTargetID = "phrase-01KE3JYW2F420A1NY6XJANPBXQ";
+    const oldItem = tableData.find( item => item.phraseID === theTargetID);
+        
+    oldItem.phrase = "oil the wheel";
+    oldItem.defi = [
+      {
+        "pos": "noun",
+        "info": "",
+        "definition": "the part of the human brain or personality believed to produce behaviour based on instinct (= natural reactions and behaviours that are not under your conscious control) or emotion, rather than on reasonable thought or on things you have learned:",
+        "example": "These instinctual animal behaviour patterns are located in what is commonly termed the lizard brain.\nWhy can't I stop scrolling on my phone or eating sweets? I’m at the mercy of my lizard brain."
+      }
+    ];
+      
+    const normalisedItem = aPhraseNormalise_NewPhraseTab(oldItem);    
+    // console.log(normalisedItem);
+    // setTimeout(() => {        
+    //     extTbl._updateRowData(theTargetID, normalisedItem);
+    //     // console.log(extTbl._raw);
+    //     extTbl.updateRowUI(theTargetID);
+    // }, 5000);
+
   </script>
 </body>
 </html>

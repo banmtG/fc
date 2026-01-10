@@ -101,20 +101,24 @@ export function clearHighlight(component) {
 
 // Set highlight on a given row id and scroll it into view
 export function setHighlight(component, id) {
-  const row = component._rowMap.get(String(id));
+  const row = component._rowMap.get(String(id));  
   if (!row) return;
 
   clearHighlight(component);
   component._highlightId = String(id);
 
-  row.classList.add("highlight");
-
+  row.classList.add("highlight");  
+  component._hightlightPosition = row.dataset.index;
+  //console.log(Array.from(component._rowMap.entries())[row.dataset.index].id);
   // Scroll the highlighted row into view
   row.scrollIntoView({ block: "nearest" });
 
+  console.log(component._highlightId);
   component.dispatchEvent(
     new CustomEvent("highlight-changed", {
-      detail: { id: component._highlightId }
+      detail: { id: component._highlightId },
+      bubbles: true,
+      composed: true
     })
   );
 }

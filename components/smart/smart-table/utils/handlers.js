@@ -56,22 +56,38 @@ export function deleteRow(component, id) {
   }));
 }
 
-// export function updateRow(component, id, patch) {
-//   const sid = String(id);
 
-//   // 🔑 Instead of mutating data and DOM, emit a generic intent
-//   component.dispatchEvent(new CustomEvent("row-update-requested", {
-//     detail: { id: sid, patch },
-//     bubbles: true,
-//     composed: true
-//   }));
-// }
-
-
-export function setHighlight(component, id) {
+export function updateRowUI(component, id, patch) {
   const sid = String(id);
-  component.shadowRoot.querySelectorAll(".row.highlight")
-    .forEach(r => r.classList.remove("highlight"));
+
   const rowEl = component._rowMap.get(sid);
-  if (rowEl) rowEl.classList.add("highlight");
+  if (!rowEl) return;
+
+  for (const [key, value] of Object.entries(patch)) {
+    const colDef = component.columns.find(c => c.key === key);
+    if (!colDef) continue;
+    const cell = rowEl.querySelector(`.cell[data-key="${key}"]`);
+    if (!cell) continue;
+    if (colDef.interactive) continue; // skip interactive components
+
+    cell.innerHTML = "";
+    if (typeof colDef.render === "function") {
+      const rendered = colDef.render(value, component._data[idx]);
+      if (rendered instanceof Node) cell.appendChild(rendered);
+      else cell.textContent = rendered ?? "";
+    } else {
+      cell.textContent = value ?? "";
+    }
+  }
 }
+
+// export function setHighlight(component, id) {
+//   const sid = String(id);
+//   component.shadowRoot.querySelectorAll(".row.highlight")
+//     .forEach(r => r.classList.remove("highlight"));
+//   const rowEl = component._rowMap.get(sid);
+//   if (rowEl) {
+//     rowEl.classList.add("highlight");    
+//     console.log(rowEl.dataset.index);
+//   }
+// }

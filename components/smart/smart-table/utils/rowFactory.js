@@ -1,9 +1,10 @@
 // rowFactory.js
-export function createRow(obj, columns, templateCols, idKey, index, total) {  
+export function createRow(obj, columns, idKey, localIndex, localTotal) {  
   const rowEl = document.createElement("div");
   rowEl.className = "row";
-  rowEl.style.gridTemplateColumns = templateCols;
   rowEl.dataset.id = String(obj[idKey]);
+  rowEl.dataset.index = localIndex;
+  rowEl.dataset.total = localTotal;
 
   for (const col of columns) {
     const cell = document.createElement("div");
@@ -13,7 +14,7 @@ export function createRow(obj, columns, templateCols, idKey, index, total) {
     if (obj.cellBgColor[col.key]) cell.style.backgroundColor = obj.cellBgColor[col.key];
 
     if (typeof col.render === "function") {
-      const rendered = col.render(obj[col.key], obj, index, total); // pass index + total
+      const rendered = col.render(obj[col.key], obj, localIndex, localTotal); // pass index + total
       if (rendered instanceof Node) {
         cell.appendChild(rendered);
       } else {
@@ -39,6 +40,32 @@ export function createRow(obj, columns, templateCols, idKey, index, total) {
   }
 
   return rowEl;
+}
+
+export function _updateRowUI(component, id, newRowData) {
+  const oldRow = component._rowMap.get(id);
+  if (oldRow) {
+    const currentClassName = oldRow.className;
+    const newRow = createRow(
+      newRowData,
+      component._visibleCols,
+      component._idKey,
+      oldRow.dataset.index,
+      oldRow.dataset.total,
+    );
+    oldRow.replaceWith(newRow);    
+    // add highlight animation for newly row 
+    newRow.classList.add("row-highlight"); 
+    newRow.addEventListener("animationend", () => { 
+      newRow.classList.remove("row-highlight"); 
+    }, { once: true }); 
+
+    setTimeout(() => {
+        newRow.className = currentClassName;
+        component._rowMap.set(id, newRow);   
+    }, 1000);
+    
+  }
 }
 
 // Utility: apply sort classes to a header cell

@@ -64,7 +64,7 @@
 .body {
   position: relative;
   display: block;
-  max-height: 60vh;
+  max-height: 50vh;
   overflow-y: auto;
 }
 
@@ -102,19 +102,33 @@
 
 
 /* Action buttons */
-.actions { display: inline-flex; gap: 6px; }
-.btn {
-  padding: 4px 8px;
-  font-size: 12px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+.actions { 
+  display: flex; 
+  gap: 0px; width: 70px; 
+  height: 100%; 
+  align-items: center;
+  justify-content: center;
+}
+
+.actions .btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 57%;
+  height: 100%;
+  padding: 6px 8px;
+  font-size: 20px;
+  border: none;
+  border-right: 1px solid #f1f1f1;
+  border-radius: 0px;
   background: #fff;
   cursor: pointer;
 }
-.btn-delete { color: #b00020; border-color: #e0b0b5; }
 
-/* Empty state */
-.empty { padding: 12px; color: #666; }
+/* .actions .btn:last-child { 
+  border: none; /* remove border on the last button 
+} */
+
 
 /* Resize handle styling */
 .resize-handle {
@@ -179,3 +193,28 @@ scroll-indicator[direction="x"] {
   left: 0;
   width: 100%;
 }
+
+/* @keyframes rowHighlight {
+  0%   { background-color: transparent; } 
+  15%  { background-color: rgba(255, 255, 0, 0.677); }
+  35%  { background-color: rgba(255, 255, 0, 0.907); }
+  50%  { background-color: rgba(255, 255, 0, 1); }
+  65%  { background-color: rgba(255, 255, 0, 0.626); }
+  85%  { background-color: rgba(255, 255, 0, 0.326); }
+  100% { background-color: transparent; }
+}
+
+.row-highlight {
+  animation: rowHighlight 4.5s ease forwards;
+} */
+
+@keyframes rowHighlight {
+  0%   { background-color: transparent; }
+  50%  { background-color: rgb(255, 255, 184); } /* max highlight */
+  100% { background-color: transparent; }
+}
+
+.row-highlight {
+  animation: rowHighlight 1s ease; /* no 'forwards' */
+}
+

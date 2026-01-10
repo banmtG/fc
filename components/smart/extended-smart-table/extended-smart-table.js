@@ -129,6 +129,7 @@ export class ExtendedSmartTable extends HTMLElement {
   }
 
   _handleRowDelete(ids) {
+    console.log(ids);
     console.log(`vao _handleRowDelete`);
     // Normalize: accept single id or array
     const sids = Array.isArray(ids) ? ids.map(String) : [String(ids)];
@@ -136,6 +137,8 @@ export class ExtendedSmartTable extends HTMLElement {
     // Remove from raw dataset
     this._raw = this._raw.filter(o => !sids.includes(String(o.id)));
 
+    // clear selected of smart-table after delete rows.
+    this.$tbl._selected.clear();
     // Re-run pipeline
     this._runPipeline();
     // Forward event for host apps
@@ -229,6 +232,17 @@ export class ExtendedSmartTable extends HTMLElement {
     }
     console.log(this._raw[idx]);
     // No immediate re-render; pipeline runs only on search/sort/pagination
+  }
+
+  updateRowUI(id) { //call this after _updateRowData()
+    const checkObjectInUI = this.$tbl.data.find(item => item.id === id);
+       // console.log(this._raw[id]);
+    // console.log(checkObjectInUI);     
+    if (checkObjectInUI) {
+      const sid = String(id);
+      const idx = this._raw.findIndex(o => String(o.id) === sid);
+      this.$tbl.updateRowUI(id, this._raw[idx]);
+    }
   }
 
     _renderPageSizeOptions() {

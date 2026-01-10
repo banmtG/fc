@@ -1,17 +1,13 @@
-const StatusColorData = {
-  '1missing': { bgColor: "orange", color: "white"},  
-  '2changed': { bgColor: "#eaffa0ff", color: "#000000"},
-  '3found': { bgColor: "#67ff20", color: "#000000"},   
+export const StatusColorData = {
+  '1missing': { legend: "Missing definition", bgColor: "#D5AA9F", color: "white"},  
+  '2changed': { legend: "Different phrase", bgColor: "#AEC3B0", color: "#000000"},
+  '3found': { legend: "Found definition",  bgColor: "#E3EFD3", color: "#000000"},   
 }
 
-const oldDataBgColor = { bgColor: "#8e8e8e", color: "#ffffff"};
+export const oldDataBgColor = { legend: "Old drafts", bgColor: "#8e8e8e", color: "#ffffff"};
 
-export function mapTableData(rawData) {
-  const total = rawData.length;
-
-  return rawData.map((item, index) => {
+export function aPhraseNormalise_NewPhraseTab(item) {
     let status = "3found";
-
     if (!item.defi || item.defi.length === 0) {
       status = "1missing";
     } else if (item.returning_phrase && item.returning_phrase !== item.phrase) {
@@ -23,15 +19,20 @@ export function mapTableData(rawData) {
       phrase: item.phrase,
       ukipa: item.ukipa,
       status,
-      // createdAt is now the formatted object
-      order : index+1,
       cellBgColor: {
-        phrase: "white",
+        // phrase: "white",
       },      
       orderBgcolor: item.oldData? oldDataBgColor : null,
       statusBgColor: formatStatusBgColor(status, StatusColorData),
       rating: 1
     };
+}
+export function mapTableData(rawData) {
+  // const total = rawData.length;
+  return rawData.map((item, index) => {
+      return { ...aPhraseNormalise_NewPhraseTab(item), 
+        order: index+1,
+       };
   });
 }
 
