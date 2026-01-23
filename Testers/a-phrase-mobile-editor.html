@@ -18,344 +18,104 @@
   
 <script>
   window.addEventListener("DOMContentLoaded", () => runAfterDOMLoaded());
+  const editor = document.querySelector("a-phrase-mobile-editor");    
 
   function runAfterDOMLoaded() {
-    const editor = document.querySelector("a-phrase-mobile-editor");    
-    
-  const sampleData = [
-  {
-    "id": "w3029889_1756475633744",
-    "order": 3,
-    "phrase": "both",
-    "dictIndex": 4104,
-    "ukipa": "bəʊθ",
-    "usipa": "boʊθ",
-    "uks": "u/ukb/ukbor/ukborin027.mp3",
-    "uss": "b/bot/both_/both.mp3",
-    "defi": "[{\"pos\":\"predeterminer,determiner,pronoun\",\"info\":\"A1\",\"definition\":\"(referring to) two people or things together\",\"example\":\"Both my parents are teachers.\\nboth of whom They have two children, both of whom live abroad.\\nboth of which She has written two novels, both of which have been made into television series.\\nBoth Mike and Jim have red hair/Mike and Jim both have red hair.\\nboth of them I loved both of them.\\nthem both I loved them both.\\nThe problem with both of these proposals is that they are hopelessly impractical.\\nboth of us Are both of us invited, or just you?\\nWould you like milk or sugar or both?\\nboth something and something Both men and women have complained about the advertisement.\\nI felt both happy and sad at the same time.\\nboth sides I think it's important to listen to both sides of the argument.\\nImproved childcare facilities would benefit both sexes, not just women.\\nI failed my driving test because I didn't keep both hands on the steering wheel.\"},{\"pos\":\"adjective,pronoun\",\"info\":\"\",\"definition\":\"used to refer to two people or things together\",\"example\":\"Would you like milk or sugar or both in your coffee?\\nIf both parents work, who will care for the kids?\\nAre both of us invited, or just you?\\nKeep both hands on the steering wheel.\"}]",
-    "imgUrl": "p:tse1_OIP.nputMDcGSvky-XnRiq5UXAHaEK,p:tse4_OIP.rgeQOJmr4pw1VD1bEcGDDwHaEK,p:tse4_OIP.vfZ6mUFi8NczzxNdn1PiDAHaLm,p:tse1_OIP.0YmwKunDdYxhc4RHEkOtIAHaE8,p:tse3_OIP.9D1bF6kNbKoPvinx4MmQfAHaGN,p:tse1_OIP.AZTEmwddfmeqkCc8ohGjtAHaDt,p:tse1_OIP.Hq_rceq3e5bwfR8hu7KW7AHaFL,p:tse4_OIP.1Gil48sIP7n7Dq0JzUi-swHaFu,p:tse3_OIP.y8HL-jmyUqvEZM18krTnRgHaHZ,p:tse2_OIP.yjKeRv2bKWNh0sZXbaPzIgHaHa,p:tse4_OIP.0ovmyO0y74rXZbjTjeduAwHaKe,p:tse4_OIP.HVRLQYOmlEzxMYqKJJkp5wHaKe",
-    "lang-vi": "cả hai",
-    "user_ipa": "bəʊθ",
-    "user_sound": {
-      "default": 0
-    },
-    "user_defi": {
-      "selectD": false,
-      "user_defi": [
-        {
-          "definition": "",
-          "example": "",
-          "pos": "",
-          "info": ""
-        }
-      ],
-      "default_defi": [
-        0,
-        1
-      ]
-    },
-    "user_translate": "cả hai",
-    "user_img": {
-      "default": 0
-    },
-    "user_note": "",
-    "related_phrases": []
-  },
-  {
-    "id": "w3079282_1756475633744",
-    "order": 7,
-    "phrase": "dear",
-    "dictIndex": 8800,
-    "ukipa": "dɪər",
-    "usipa": "dɪr",
-    "uks": "u/ukd/ukddt/ukddt__026.mp3",
-    "uss": "d/dea/dear_/dear.mp3",
-    "defi": "[{\"pos\":\"adjective\",\"info\":\"B2\",\"definition\":\"loved or liked very much\",\"example\":\"She was a very dear friend.\\nHe was very dear to me.\\nThis place is very dear to me - we came here on our honeymoon.\\nWhat a dear (= very attractive) little kitten!\\nMy dear Gina - how nice to see you!\"},{\"pos\":\"adjective\",\"info\":\"A1\",\"definition\":\"used at the beginning of a letter to greet the person you are writing to\",\"example\":\"Dear Kerry/Mum and Dad/Ms Smith/Sir\"},{\"pos\":\"adjective\",\"info\":\"mainly UK comparative dearer | superlative dearest\",\"definition\":\"costing too much\",\"example\":\"The food was good but very dear.\"},{\"pos\":\"exclamation\",\"info\":\"A2\",\"definition\":\"used in expressions of anger, disappointment, sadness, or surprise\",\"example\":\"Oh dear! I've lost my keys again.\\nDear me, it's already 4.30 and I said I'd be home by 5.00!\\nDearie me, what a mess!\"},{\"pos\":\"noun\",\"info\":\"[C usually singular] informal\",\"definition\":\"a kind person\",\"example\":\"Annie's such a dear - she's brought me breakfast in bed every morning this week.\"},{\"pos\":\"noun\",\"info\":\"[as form of address]\",\"definition\":\"used to address someone you love or are being friendly to, not used between men\",\"example\":\"Here's your receipt, dear.\\nWould you like a drink, dear?\\nLovely to see you, my dear.\"},{\"pos\":\"adjective\",\"info\":\"\",\"definition\":\"loved or greatly liked\",\"example\":\"She’s a dear friend.\"},{\"pos\":\"adjective\",\"info\":\"\",\"definition\":\"Dear is used at the beginning of a letter to greet the person you are writing to\",\"example\":\"Dear Kerrie/Mom and Dad/Ms. Smith/Sir\"},{\"pos\":\"adjective\",\"info\":\"\",\"definition\":\"Dearest can be used in a letter to greet someone you love\",\"example\":\"Dearest Ben, I think of you every day.\"},{\"pos\":\"exclamation\",\"info\":\"\",\"definition\":\"used to express annoyance, disappointment, unhappiness, or surprise\",\"example\":\"Oh dear! I’ve lost my keys again.\"},{\"pos\":\"noun\",\"info\":\"\",\"definition\":\"a person who is loved or greatly liked\",\"example\":\"Annie’s such a dear.\"},{\"pos\":\"noun\",\"info\":\"\",\"definition\":\"Dear is used to address someone in a friendly way, esp. someone you love or a child\",\"example\":\"Have something to eat, dear.\"},{\"pos\":\"adjective\",\"info\":\"\",\"definition\":\"expensive\",\"example\":\"Tourist restaurants are too dear for the locals.\"},{\"pos\":\"adjective\",\"info\":\"\",\"definition\":\"to cause someone to have a lot problems or to lose a lot of money\",\"example\":\"The Government's lack of knowledge about IT systems has undoubtedly cost it dear.\"}]",
-    "imgUrl": "p:tse1_OIP.TzANWOBtd0ZW6WBfUAuZFgHaFV,p:tse1_OIP.G0fbPO3pGcavPOsks1gDWwHaE8,p:tse1_OIP.W-I3pafQenTFK2v_1F7GXQHaEK,p:tse3_OIP.KJljVc8XobWPYNhjJWDqyQHaEK,p:tse4_OIP.Un7EG0ZsRC9fobwT43KckgHaD4,p:tse4_OIP.ilEn4N5S4LfMMPouln4ZSgHaHp,p:tse3_OIP.0XcrTTzSzGg_MSDMtsELXwHaEK,p:tse1_OIP.vQkhlCPYp3gdfs6tFuH1CgHaK9,p:tse4_OIP.Gnbx608yb2uNtjLW_9Zq7gHaFo,p:tse1_OIP.cXmc6uBCRpTrI7cdmfswQgHaEK,p:tse3_OIP.N_K-mvaK9tSRF1CpKTY2KQHaHa,p:tse3_OIP.amNk45U0wvyvvME8FmxITgHaHa",
-    "lang-vi": "Thân mến",
-    "user_ipa": "dɪər",
-    "user_sound": {
-      "default": 0
-    },
-    "user_defi": {
-      "selectD": true,
-      "user_defi": [
-        {
-          "definition": "",
-          "example": "",
-          "pos": "",
-          "info": ""
-        }
-      ],
-      "default_defi": [
-        0,
-        1
-      ]
-    },
-    "user_translate": "Thân mến",
-    "user_img": {
-      "default": 0
-    },
-    "user_note": "",
-    "related_phrases": []
-  },
-  {
-    "id": "w97440432_1756475633744",
-    "order": 2,
-    "phrase": "first",
-    "dictIndex": 13434,
-    "ukipa": "ˈfɜːst",
-    "usipa": "ˈfɝːst",
-    "uks": "u/ukf/ukfir/ukfirew008.mp3",
-    "uss": "f/fir/first/first.mp3",
-    "defi": "[{\"pos\":\"ordinal number,determiner\",\"info\":\"A1\",\"definition\":\"(a person or thing) coming before all others in order, time, amount, quality, or importance\",\"example\":\"This is my first visit to New York.\\nthe first time I fell in love with him the first time I saw him.\\nfirst few I'm always nervous for the first few minutes of an exam.\\nthe first of Today is the first of August.\"},{\"pos\":\"ordinal number,determiner\",\"info\":\"B2\",\"definition\":\"in or at the beginning (of a series of events)\",\"example\":\"The trousers shrank when I washed them, but they weren't really big enough in the first place.\"},{\"pos\":\"ordinal number,determiner\",\"info\":\"\",\"definition\":\"as the first attempt or effort\",\"example\":\"Enquiries about the post should be addressed in the first instance to the personnel manager.\"},{\"pos\":\"ordinal number,determiner\",\"info\":\"\",\"definition\":\"to a very great degree or of an extremely good kind\",\"example\":\"It is a diplomatic scandal of the first order.\"},{\"pos\":\"ordinal number,determiner\",\"info\":\"\",\"definition\":\"at the earliest time in the day\",\"example\":\"He said he'd call back first thing tomorrow.\"},{\"pos\":\"ordinal number,determiner\",\"info\":\"[before noun] music specialized\",\"definition\":\"in a group of musicians or singers, relating to the highest or higher instrument, voice, or part\",\"example\":\"She sings first soprano in the school choir.\\nHe is the best first trumpet player in the business.\\nUnusually, the first altos have the tune.\"},{\"pos\":\"adverb\",\"info\":\"A1\",\"definition\":\"before all others in order, time, amount, quality, or importance\",\"example\":\"come first Tom came first in the race.\\nWho finished first?\\nIf you get home first, can you feed the cat?\"},{\"pos\":\"adverb\",\"info\":\"B1\",\"definition\":\"for the first time\",\"example\":\"When did you first meet each other?\\nThe company was still very small when I first joined.\"},{\"pos\":\"adverb\",\"info\":\"A2 (also firstly)\",\"definition\":\"used at the beginning of a list of things you want to say or write\",\"example\":\"First, I want to thank my parents.\\nfirst of all First of all (= before anything else), I'd like to ask you a few questions.\\nfirst off First off (= before anything else), let me introduce myself.\"},{\"pos\":\"noun\",\"info\":\"B1 [S]\",\"definition\":\"the first person or thing to do or be something, or the first person or thing mentioned\",\"example\":\"We've fostered several children. Tina was the first.\\nthe first to My passport was the first to arrive.\\none of the first to She was one of the first to try the new treatment.\\nTonight sees the first of three documentaries about cancer.\"},{\"pos\":\"noun\",\"info\":\"(also be the first to say something)\",\"definition\":\"to be willing to admit something\",\"example\":\"I'm the first to admit we sometimes make mistakes.\\nHe's the first to say he is paid too much money.\"},{\"pos\":\"noun\",\"info\":\"\",\"definition\":\"from the beginning\",\"example\":\"I've opposed the proposal from the very first.\"},{\"pos\":\"noun\",\"info\":\"[C] music specialized\",\"definition\":\"In a group of musicians or singers, a first is a person who plays or sings the highest or a higher part\",\"example\":\"The second violins were seated on the right side of the stage, opposite the firsts.\\nShe's usually a first but today she's singing second.\"},{\"pos\":\"noun\",\"info\":\"C2 [S]\",\"definition\":\"something that has never happened or been done before\",\"example\":\"She said sorry? That's a first!\\na first for This new surgical technique is a first for (= has never been done before in) the hospital.\"},{\"pos\":\"noun\",\"info\":\"[C] UK (also first-class degree)\",\"definition\":\"the best possible undergraduate university degree you can get in the UK and some other countries\",\"example\":\"first in She has a first in English from Newcastle University.\"},{\"pos\":\"noun\",\"info\":\"[U] (also first gear)\",\"definition\":\"(in a vehicle) the gear used when starting to drive forward or when driving up a steep hill\",\"example\":\"\"},{\"pos\":\"noun\",\"info\":\"[C usually singular] informal\",\"definition\":\"another word for first base \",\"example\":\"I caught the ball and calmly stepped on first.\\nThere were runners on first and third with nobody out.\"},{\"pos\":\"adjective,adverb,noun\",\"info\":\"\",\"definition\":\"(a person or thing) coming before all others in order, time, amount, quality, or importance\",\"example\":\"Would you like to go first?\\n[C] We leave on the first of August.\\nAt first (= In the beginning) I thought he was joking, but then I realized he meant it.\"},{\"pos\":\"adjective,adverb,noun\",\"info\":\"\",\"definition\":\"First also means first base\",\"example\":\"\"}]",
-    "imgUrl": "p:tse1_OIP.du_RkK5Z6PWoItyTvnUIXwHaHa,p:tse3_OIP.D6WlaDpi3fC39ln1MFA6KwAAAA,p:tse3_OIP.2yAu2zoX5jwBRDnxPksmOwHaHX,p:tse3_OIP.qrWCaTJvXrJ7kOaVVormtAHaGy,p:tse2_OIP.qK9rlOOVEOM2oahCtqT8RgAAAA,p:tse4_OIP.I0RJV5D6rGkXuU0SKC2uggHaDF,p:tse4_OIP.PonlD-2iSZpKeStwYhCC_wAAAA,p:tse4_OIP.kis9atJwD1h4Gb-p8NbzawHaB7,p:tse1_OIP.dCRpza1dzR1XxbDTz8H_nwHaFw,p:tse1_OIP.NprSAXRNk_ewCPcJ8mpSCwAAAA,p:tse1_OIP.rzhzi9qArB0ltqjWy-TB0gHaK-,q:tse3_OIF.%2blpcv0b%2bY9Zv2mTVzGs63A,q:tse2_OIF.%2fQkuL3kLbRBMTkp7EqGnlg",
-    "lang-vi": "Đầu tiên",
-    "user_ipa": "ˈfɜːst",
-    "user_sound": {
-      "default": 0
-    },
-    "user_defi": {
-      "selectD": true,
-      "user_defi": [
-        {
-          "definition": "",
-          "example": "",
-          "pos": "",
-          "info": ""
-        }
-      ],
-      "default_defi": [
-        0,
-        1
-      ]
-    },
-    "user_translate": "Đầu tiên",
-    "user_img": {
-      "default": 0
-    },
-    "user_note": "",
-    "related_phrases": []
-  },
-  {
-    "id": "w3318169_1756475633744",
-    "order": 5,
-    "phrase": "less",
-    "dictIndex": 20409,
-    "ukipa": "les",
-    "usipa": "les",
-    "uks": "u/ukl/ukles/ukles__006.mp3",
-    "uss": "l/les/less_/less.mp3",
-    "defi": "[{\"pos\":\"determiner,pronoun,adverb\",\"info\":\"A2\",\"definition\":\"a smaller amount (of), or to a smaller degree\",\"example\":\"We must try to spend less money.\\nExercise more and eat less.\\nless than I eat less chocolate and fewer biscuits than I used to.\\nGetting out of bed in summer is less difficult than in winter.\"},{\"pos\":\"determiner,pronoun,adverb\",\"info\":\"\",\"definition\":\"used to say that something does not have the good or attractive characteristic that is stated\",\"example\":\"I think he was less than honest with me.\"},{\"pos\":\"determiner,pronoun,adverb\",\"info\":\"\",\"definition\":\"If something happens less and less, it becomes gradually smaller in amount or happens less often\",\"example\":\"He's less and less able to look after himself.\"},{\"pos\":\"preposition\",\"info\":\"\",\"definition\":\"→ minus \",\"example\":\"The total is 30 dollars, less the five dollars deposit that you paid.\"},{\"pos\":\"suffix\",\"info\":\"\",\"definition\":\"used to form adjectives meaning \\\"without (the thing mentioned)\\\"\",\"example\":\"meaningless\\nfriendless\"},{\"pos\":\"adjective,adverb\",\"info\":\"\",\"definition\":\"a smaller amount of something, to a smaller degree, or not as much; comparative oflittle \",\"example\":\"We’ve got to spend less money.\\nIt was less than a mile to the nearest gas station.\\nShe had less reason to complain than I.\\nSkiing conditions this year are less than ideal (= not good).\\nThere were no less than (= as many as) a thousand people buying tickets.\"},{\"pos\":\"preposition\",\"info\":\"\",\"definition\":\"minus ; after subtracting\",\"example\":\"$30, less the discount of 15%, is $25.50.\"},{\"pos\":\"preposition\",\"info\":\"\",\"definition\":\"after subtracting a particular number or amount\",\"example\":\"The account will pay at least base rate less 0.25% until 31 March next year.\"}]",
-    "imgUrl": "p:tse3_OIP.jB7YzdrNdBUKB9JZwvo7BgHaD4,p:tse2_OIP.7dqlMoe8PQJCpbiUNUCblwHaKe,p:tse2_OIP.UX1NU3sAvbfLwgKNurmh9wHaEN,p:tse4_OIP.1g0-fCc4Mei0uTkHkxwuXgHaEM,p:tse1_OIP.x9oWHevwfOeP4gshxDKm7QHaJl,p:tse3_OIP.IMr7TrOzkpHkCquhV-h9EwHaJl,p:tse1_OIP.SgwcEwbIZy0m9oWsPf9KSAHaKe,p:tse1_OIP.RjNnsvaQIUktVk_Iq7GmKQHaJl,p:tse1_OIP.UhlMgsvrvOdOYalfe1E9pAHaJl,p:tse1_OIP.cPKOn_rn7fYqRtyurervPQHaFj,p:tse1_OIP.mx25KZumGh3vOjWPjoUWZwHaKe,p:tse1_OIP.CAnsVhH9hVMHeZy5HaWoXgHaKd,p:tse3_OIP.BihTeKXNJ7LU2AGMTFUOXQHaD2,p:tse1_OIP.3IeStDHSrSKwgkD_HdGXOAHaHa,p:tse1_OIP.rEpJPLO7aw6FH1Iy-1fBqQHaHa",
-    "lang-vi": "ít hơn",
-    "user_ipa": "les",
-    "user_sound": {
-      "default": 0
-    },
-    "user_defi": {
-      "selectD": true,
-      "user_defi": [
-        {
-          "definition": "",
-          "example": "",
-          "pos": "",
-          "info": ""
-        }
-      ],
-      "default_defi": [
-        0,
-        1
-      ]
-    },
-    "user_translate": "ít hơn",
-    "user_img": {
-      "default": 0
-    },
-    "user_note": "",
-    "related_phrases": []
-  },
-  {
-    "id": "w84049_1756475633744",
-    "order": 0,
-    "phrase": "The",
-    "dictIndex": 36761,
-    "ukipa": "ðiː",
-    "usipa": "ðə",
-    "uks": "e/epd/epd33/epd33125.mp3",
-    "uss": "t/the/the_0/the_01_00.mp3",
-    "defi": "[{\"pos\":\"determiner\",\"info\":\"A1\",\"definition\":\"used before nouns to refer to particular things or people that have already been talked about or are already known or that are in a situation where it is clear what is happening\",\"example\":\"I just bought a new shirt and some new shoes. The shirt was pretty expensive, but the shoes weren't.\\nPlease would you pass the salt.\\nI'll pick you up at the airport.\"},{\"pos\":\"determiner\",\"info\":\"A1\",\"definition\":\"used before some nouns that refer to place when you want to mention that type of place, without showing exactly which example of the place you mean\",\"example\":\"We spent all day at the beach.\\nLet's go to the movies this evening.\\nI have to go to the bank and get some Euros.\"},{\"pos\":\"determiner\",\"info\":\"A1\",\"definition\":\"used before noun phrases in which the range of meaning of the noun is limited in some way\",\"example\":\"I really enjoyed the book I've just finished reading.\\nDo you like the other kids in your class?\"},{\"pos\":\"determiner\",\"info\":\"A1\",\"definition\":\"used to refer to things or people when only one exists at any one time\",\"example\":\"What will happen in the future?\\nAfter I leave college, I want to travel around the world.\\nThey live in the north of Spain.\\nEd Koch was for many years the mayor of New York.\\nWhen we went to Paris, we went up the Eiffel Tower.\"},{\"pos\":\"determiner\",\"info\":\"A2\",\"definition\":\"used before superlatives and other words, such as \\\"first\\\" or \\\"only\\\" or numbers showing something's position in a list, to refer to only one thing or person\",\"example\":\"That was one of the best films I've ever seen.\\nWhat's the highest mountain in Asia?\\nI will never forget the first time we met.\\nYou're the fifth person to ask me that question.\"},{\"pos\":\"determiner\",\"info\":\"\",\"definition\":\"used to say that the particular person or thing being mentioned is the best, most famous, etc. In this use, \\\"the\\\" is usually given strong pronunciation\",\"example\":\"Harry's Bar is the place to go.\\nYou don't mean you met the Will Smith (= the film star), do you?\"},{\"pos\":\"determiner\",\"info\":\"\",\"definition\":\"used before some adjectives to turn the adjectives into nouns that refer to one particular person or thing described by the adjective\",\"example\":\"It seems that the deceased (= this particular dead person) had no living relatives.\\nI suppose we'll just have to wait for the inevitable (= the particular thing that is certain to happen).\"},{\"pos\":\"determiner\",\"info\":\"\",\"definition\":\"used before some adjectives to turn the adjectives into nouns that refer to people or things in general that can be described by the adjective\",\"example\":\"She lives in a special home for the elderly.\\nThe French were defeated at Waterloo in 1815.\"},{\"pos\":\"determiner\",\"info\":\"\",\"definition\":\"used before a singular noun to refer to all the things or people represented by that noun\",\"example\":\"The panda is becoming an increasingly rare animal.\\nThe car is responsible for causing a lot of damage to our environment.\"},{\"pos\":\"determiner\",\"info\":\"\",\"definition\":\"used before a family name to refer to two people who are married or to a whole family\",\"example\":\"The Jacksons are coming to visit on Saturday.\"},{\"pos\":\"determiner\",\"info\":\"\",\"definition\":\"used before some nouns referring to musical instruments or dances to mean the type of instrument or dance in general\",\"example\":\"Nico is learning to play the piano.\\nCan you do the waltz?\"},{\"pos\":\"determiner\",\"info\":\"\",\"definition\":\"used before a noun to represent the activity connected with that noun\",\"example\":\"I'm going under the knife (= having a medical operation) next week.\\nIt's not a good idea to spend more than three hours at the wheel (= driving a vehicle) without a break.\"},{\"pos\":\"determiner\",\"info\":\"B2\",\"definition\":\"used before numbers that refer to periods of ten years\",\"example\":\"the 60s\"},{\"pos\":\"determiner\",\"info\":\"B2\",\"definition\":\"used before each of two comparative adjectives or adverbs when you want to show how one amount gets bigger or smaller in relation to the other\",\"example\":\"The sooner I get this piece of work done, the sooner I can go home.\"},{\"pos\":\"determiner\",\"info\":\"\",\"definition\":\"used before comparative adjectives or adverbs when you want to show that someone or something has become more or less of a particular state\",\"example\":\"She doesn't seem to be any the worse for her bad experience.\"},{\"pos\":\"determiner\",\"info\":\"\",\"definition\":\"used for emphasis when you are expressing a strong opinion about someone or something\",\"example\":\"André's got a new job, the lucky devil.\"},{\"pos\":\"determiner\",\"info\":\"B1\",\"definition\":\"used instead of a possessive adjective such as your, her, or my\",\"example\":\"He held his daughter by the arm (= her arm).\\nI can't remember where I parked the (= my) car.\"},{\"pos\":\"determiner\",\"info\":\"\",\"definition\":\"enough\",\"example\":\"I'd like to go out tonight, but I don't think I have the energy.\\n[+ to infinitive] I don't have the time to talk to you now.\"},{\"pos\":\"determiner\",\"info\":\"\",\"definition\":\"each; every\",\"example\":\"It does 30 miles to the gallon.\"},{\"pos\":\"definite article\",\"info\":\"\",\"definition\":\"used before a noun to refer to a particular thing because it is clear which thing is intended\",\"example\":\"I just bought a new shirt and tie. The shirt was expensive, but the tie wasn’t.\\nThere’s someone at the front door.\\nI’ll pick you up at the airport at 6 o’clock.\"},{\"pos\":\"definite article\",\"info\":\"\",\"definition\":\"\\\"The\\\" is used before some nouns to refer to a type of activity or thing intended\",\"example\":\"Let’s go to the movies.\"},{\"pos\":\"definite article\",\"info\":\"\",\"definition\":\"\\\"The\\\" is used to refer to things or people when only one exists at any one time\",\"example\":\"the Statue of Liberty\"},{\"pos\":\"definite article\",\"info\":\"\",\"definition\":\"\\\"The\\\" is also used before superlatives and other words, such as first or only or numbers\",\"example\":\"What’s the highest mountain in North America?\\nShe’s leaving on the 24th of May.\"},{\"pos\":\"definite article\",\"info\":\"\",\"definition\":\"\\\"The\\\" can mean each or every\",\"example\":\"My car gets 30 miles to the gallon.\"},{\"pos\":\"definite article\",\"info\":\"\",\"definition\":\"When used before some adjectives, \\\"the\\\" changes the adjective into a noun to refer to all of what is described\",\"example\":\"the homeless/poor/rich\"},{\"pos\":\"definite article\",\"info\":\"\",\"definition\":\"You can use \\\"the\\\" before a singular noun to refer to all the things or people represented by that noun\",\"example\":\"Nicole is learning to play the piano.\"},{\"pos\":\"definite article\",\"info\":\"\",\"definition\":\"You use \\\"the\\\" before numbers that refer to periods of 10 years\",\"example\":\"the 1930s\"},{\"pos\":\"definite article\",\"info\":\"\",\"definition\":\"used instead of your, my, his, her, etc.\",\"example\":\"He tapped me on the (= my) shoulder.\\nHow are Grace and the (= her) kids?\"},{\"pos\":\"definite article\",\"info\":\"\",\"definition\":\"enough\",\"example\":\"He hasn’t got the experience for this kind of work.\"}]",
-    "imgUrl": "p:tse2_OIP.h5XpMhU0LidQVSIMgHNO6wAAAA,p:tse4_OIP.4QdxH2GHKvKmdtCuyIKqhgHaEK,p:tse2_OIP.xE1FgsCyCvOVBVRY3cLejgD6D6,p:tse3_OIP.JYthdt-b0nmFB3YvgplnHAHaEK,p:tse1_OIP.F_3jlv41CebR_N_Xfpbu4wHaEK,p:tse1_OIP.HEm4PKGkQxaM_StxTLoXRgHaH9,p:tse4_OIP._5NXOkxFo8wp0MQytRCp2gHaHa,p:tse1_OIP.rImqEdRUwfQfE1cZVjOU4wHaE7,p:tse1_OIP.Ngd_fpJ_UFv8uAl6I4onTgHaFj,p:tse2_OIP.7oVXGMdNZqWPzhkVUxn7OAHaHa,p:tse1_OIP.HRSjEyXkJzM2u6VmshfpngHaEK",
-    "lang-vi": "Các",
-    "user_ipa": "ðiː",
-    "user_sound": {
-      "default": 0
-    },
-    "user_defi": {
-      "selectD": true,
-      "user_defi": [
-        {
-          "definition": "",
-          "example": "",
-          "pos": "",
-          "info": ""
-        }
-      ],
-      "default_defi": [
-        0,
-        1
-      ]
-    },
-    "user_translate": "Các",
-    "user_img": {
-      "default": 0
-    },
-    "user_note": "",
-    "related_phrases": []
-  },
-  {
-    "id": "w110339486_1756475633744",
-    "order": 1,
-    "phrase": "three",
-    "dictIndex": 36937,
-    "ukipa": "θriː",
-    "usipa": "θriː",
-    "uks": "u/ukt/uktho/ukthoug012.mp3",
-    "uss": "t/thr/three/three.mp3",
-    "defi": "[{\"pos\":\"number\",\"info\":\"A1\",\"definition\":\"the number 3\",\"example\":\"I've got three sisters.\\nSchool finishes at three (o'clock).\"},{\"pos\":\"number\",\"info\":\"\",\"definition\":\"3\",\"example\":\"Ann-Marie has three children.\\na three-bedroom house\"},{\"pos\":\"number\",\"info\":\"\",\"definition\":\"Three can also mean three o’clock.\",\"example\":\"\"}]",
-    "imgUrl": "p:tse4_OIP.LNCuEbLj5NQGtS6MKzsRCgHaJv,p:tse1_OIP.ugTiggsmUSVSh2ptcwbiWgHaLN,p:tse1_OIP.qid_RPKlG-9nBZcBZvZhmAHaHa,p:tse2_OIP.2KbDpKvdKTWCjQeMBqYWVQHaJl,p:tse1_OIP.y3HhvmXdLRJm-zvD4HFwmwHaHa,p:tse4_OIP.T59S6V2YEkHv3l3_hVNJQwHaF7,p:tse4_OIP.sBEKAKY-K9FD4nerz3StDgHaHa,p:tse4_OIP._H9OrjSy1cYnRK3oUQbEQwHaJ4,p:tse3_OIP.fZQY0RSoZRX9VRQRBJjqJAHaJW,p:tse4_OIP.OZKehloeISGFKQYmhXeMIAHaFT,p:tse4_OIP.Cd34iuqJ0QQ0r6dh2nvC_QHaEK,p:tse4_OIP.uHi_7JHvxK31NNECUh1gmQHaEo,p:tse1_OIP.Cim-i1QE46jmqBfLUQhYPAHaJq",
-    "lang-vi": "ba",
-    "user_ipa": "θriː",
-    "user_sound": {
-      "default": 0
-    },
-    "user_defi": {
-      "selectD": true,
-      "user_defi": [
-        {
-          "definition": "",
-          "example": "",
-          "pos": "",
-          "info": ""
-        }
-      ],
-      "default_defi": [
-        0,
-        1
-      ]
-    },
-    "user_translate": "ba",
-    "user_img": {
-      "default": 0
-    },
-    "user_note": "",
-    "related_phrases": []
-  },
-  {
-    "id": "w3737_1756475633744",
-    "order": 4,
-    "phrase": "un",
-    "dictIndex": 38290,
-    "ukipa": "ˌjuːˈen",
-    "usipa": "ˌjuːˈen",
-    "uks": "u/uka/uka31/uka31519.mp3",
-    "uss": "u/usa/usa31/usa31519.mp3",
-    "defi": "[{\"pos\":\"noun\",\"info\":\"\",\"definition\":\"abbreviation for the United Nations: an international organization that was established in 1945 and aims to solve world problems in a peaceful way:\",\"example\":\"The UN has decided to impose sanctions.\"},{\"pos\":\"prefix\",\"info\":\"\",\"definition\":\"used to add the meaning \\\"not\\\", \\\"lacking\\\", or \\\"the opposite of\\\" before adjectives, adverbs, verbs, and nouns\",\"example\":\"unrealistic\\nunhappily\\nunscrew\\nunfairness\"},{\"pos\":\"adjective\",\"info\":\"\",\"definition\":\"relating to the UN (= the United Nations)\",\"example\":\"the UN Security Council\\nUN troops\"},{\"pos\":\"noun\",\"info\":\"\",\"definition\":\"one\",\"example\":\"Mira will fit in the back of the car - she's only a little 'un!\"},{\"pos\":\"prefix\",\"info\":\"\",\"definition\":\"used to add the meaning \\\"not,\\\" \\\"lacking,\\\" or \\\"the opposite of\\\" to adjectives, adverbs, verbs, and nouns\",\"example\":\"unaided; unalterable; unaltered; unanticipated; unappreciated; unapproachable; unassigned; unassisted; unattainable; unbiased; uncommunicative; unconfined; unconvinced; uncultured; undefined; undiminished; uneconomical; unlicensed; unmodified; unmonitored; unmotivated; unobtainable; unpublished; unregulated; unrestricted; unrestrictive; unscheduled; unstressed; unstructured; unsustainable\"},{\"pos\":\"noun\",\"info\":\"\",\"definition\":\"abbreviation for United Nations (= an international organization that was established in 1945 to maintain world peace)\",\"example\":\"\"}]",
-    "imgUrl": "p:tse4_OIP.o8xf01oc6T1UCqVg8DW9cQHaDK,p:tse3_OIP.AY-k-MadV-Ytyl9lccJ2YwHaEA,p:tse1_OIP.DbeRSxnLdZoLq7d4bQ1SsgHaE8,p:tse4_OIP.sOeAoO3bEOGIcRMc_-Xe8gHaE1,p:tse4_OIP.24DjclihKMM7Aej9V6Q9UAHaF_,p:tse2_OIP.cU0bu9wxs8fG3anowwpX8gHaKD,p:tse4_OIP.-CwhxxVd0S4_kc1PljGzmwHaE8,p:tse4_OIP.77yzvdSrCMWQ-GvTrkYVIAHaFP,p:tse1_OIP.ku_aNBr3JCMlq2bkKZhX-wHaFO,p:tse4_OIP._blRot79OHcuxlwM7cvuHwHaHa,p:tse4_OIP.a30NrSV5SzsiJ5IezcQ-SgHaHa",
-    "lang-vi": "không",
-    "user_ipa": "ˌjuːˈen",
-    "user_sound": {
-      "default": 0
-    },
-    "user_defi": {
-      "selectD": false,
-      "user_defi": [
-        {
-          "definition": "",
-          "example": "",
-          "pos": "",
-          "info": ""
-        }
-      ],
-      "default_defi": [
-        0,
-        1
-      ]
-    },
-    "user_translate": "không",
-    "user_img": {
-      "default": 0
-    },
-    "user_note": "",
-    "related_phrases": []
-  },
-  {
-    "id": "w-1377549412_1756475633744",
-    "order": 6,
-    "phrase": "buying",
-    "type": "word",
-    "ukipa": "baɪ",
-    "usipa": "baɪ",
-    "uks": "u/ukb/ukbut/ukbutte013.mp3",
-    "uss": "b/buy/buy__/buy.mp3",
-    "defi": "[{\"pos\":\"verb\",\"info\":\"A1\",\"definition\":\"to get something by paying money for it:\",\"example\":\"Eventually she had saved enough money to buy a small car.\\nHe bought his mother some flowers/He bought some flowers for his mother.\\nThere are more people buying at this time of the year so prices are high.\"},{\"pos\":\"verb\",\"info\":\"informal\",\"definition\":\"to pay someone so that they do what you want or do not cause you any trouble:\",\"example\":\"He claimed that the judges concerned had been bought.\\nIt shouldn't be possible to buy a Senator to vote on issues that are important to you.\"},{\"pos\":\"verb\",\"info\":\"informal\",\"definition\":\"to pay someone or do something for someone, so that that person does not tell anyone something that they know about and that you want to remain secret:\",\"example\":\"What will we have to do to buy her silence?\"},{\"pos\":\"verb\",\"info\":\"informal\",\"definition\":\"to believe that something is true:\",\"example\":\"She'll never buy that story about you getting lost!\"},{\"pos\":\"noun\",\"info\":\"\",\"definition\":\"to be worth/not be worth the price:\",\"example\":\"This jacket is a really good buy, at £200.\"},{\"pos\":\"verb\",\"info\":\"infml\",\"definition\":\"to obtain something by paying money for it:\",\"example\":\"She was saving to buy a car.\\nHe bought some flowers for his girlfriend.\"},{\"pos\":\"verb\",\"info\":\"infml\",\"definition\":\"to believe that something is true:\",\"example\":\"She’ll never buy that story about having to take care of your sick grandmother.\"},{\"pos\":\"noun\",\"info\":\"\",\"definition\":\"an occasion in which you pay less for something than what it is worth, and are therefore pleased:\",\"example\":\"The rug turned out to be quite a buy.\"},{\"pos\":\"verb\",\"info\":\"\",\"definition\":\"to get something by paying money for it:\",\"example\":\"Most people who move into a new house are going to buy things.\\nThere are more people buying at this time of the year so prices are high.\\nThe company was set up to buy and sell shares on behalf of investors.\"},{\"pos\":\"verb\",\"info\":\"COMMERCE, FINANCE\",\"definition\":\"to be enough money to get something:\",\"example\":\"A country where the pound buys almost 30% more than it did a year ago will attract British tourists.\\nbuy sb sth A few dollars will buy you a book that holds the experience of a lifetime.\"},{\"pos\":\"noun\",\"info\":\"\",\"definition\":\"something worth the price asked or paid for it:\",\"example\":\"The shares look undervalued and are a good buy.\\nThis car was a real buy for $4000.\"}]",
-    "imgUrl": "",
-    "lang-vi": "mua",
-    "user_ipa": "baɪ",
-    "user_sound": {
-      "default": 0
-    },
-    "user_defi": {
-      "selectD": true,
-      "user_defi": [
-        {
-          "definition": "",
-          "example": "",
-          "pos": "",
-          "info": ""
-        }
-      ],
-      "default_defi": [
-        0,
-        1
-      ]
-    },
-    "user_translate": "mua",
-    "user_img": "",
-    "user_note": "",
-    "related_phrases": []
-  }
-];
-  editor.setData = {
-          id: "w97440432_1755649973267",
-        "order": 3,
-        "phrase": "fast",
-        "type": "word",
-        "ukipa": "fɑːst",
-        "usipa": "fæst",
-        "uks": "u/ukf/ukfar/ukfarth015.mp3",
-          "defi": `[{"pos":"adjective","info":"A1","definition":"moving or happening quickly, or able to move or happen quickly:","example":"fast cars\\na fast swimmer\\nComputers are getting faster all the time."},{"pos":"adjective","info":"","definition":"If your watch or clock is fast, it shows a time that is later than the correct time.","example":""},{"pos":"adjective","info":"art\\n                      specialized","definition":"used to refer to photographic film that allows you to take pictures when there is not much light or when things are moving quickly","example":""},{"pos":"adjective","info":"","definition":"used to describe something that is full of speed and excitement:","example":"It's not a relaxing movie - it's pretty fast and furious."},{"pos":"adjective","info":"old-fashioned disapproving","definition":"without moral principles:","example":"a fast crowd\\na fast woman"},{"pos":"adjective","info":"","definition":"If the colour of a piece of clothing is fast, the colour does not come out of the cloth when it is washed.","example":""},{"pos":"adverb","info":"A2","definition":"quickly:","example":"The accident was caused by people driving too fast in bad conditions.\\nYou'll have to act fast.\\nChildren's publishing is a fast-growing business."},{"pos":"adverb,adjective","info":"C2","definition":"firmly fixed:","example":"stuck fast The glue had set and my hand was stuck fast.\\nstick fast When she tried to remove the ring, she found that it had stuck fast.\\nHe tried to get away, but she held him fast."},{"pos":"noun","info":"","definition":"a period of time when you eat no food:","example":"Hundreds of prisoners began a fast in protest about prison conditions."},{"pos":"verb","info":"","definition":"to eat no food for a period of time:","example":"One day a week he fasts for health reasons."},{"pos":"adjective","info":"","definition":"moving or happening quickly or able to move or happen quickly:","example":"a fast car\\nThe fastest way to get there is by plane."},{"pos":"adjective","info":"","definition":"If your watch or clock is fast, it shows a time later than the real time.","example":""},{"pos":"adjective,adverb","info":"","definition":"connected or attached in a way that is not easily unfastened:","example":"Tie the boat fast to the pier."},{"pos":"verb,noun","info":"","definition":"to have a period of time when you eat no food:","example":"We will be fasting until sundown tomorrow."},{"pos":"verb,noun","info":"","definition":"","example":"They organized a fast to draw attention to the issue of hunger."},{"pos":"adverb","info":"","definition":"quickly:","example":"The accident was caused by people driving too fast in bad conditions.\\nThis type of wilderness area is disappearing fast."}]`
-         ,
-        "imgUrl": "p:tse1_OIP.7dd-2m-ZpR6gqSwHMTrdHQHaE6,p:tse4_OIP.dbnFxPeqsIrz0eIsXfJe2gHaGJ,p:tse4_OIP.RsfPLY2VrrNAUCTChYsFNAHaF7,p:tse4_OIP.gMzjYLkM3OxTx3bwQFBJQQHaEK,q:tse3_OIF.U%2fcoO20oDc0m6ZOdbFjS7A,q:tse2_OIF.NdkhWaS6lwXBI2vehi12%2bA,q:tse4_OIF.2dg9%2fdjv8rEicWSgTelqkg,p:tse4_OIF.I9MmD6VJF2L2113VQDXvVQ,q:tse2_OIF.%2bO8hSATSaeIHAzpnyrIbsQ",
-        "lang-vi": "nhanh chóng", 
-
-          user_ipa: "fɑːst",
-          user_sound: {
-            default: 0,
-          },
-          user_defi: {
-            selectD: false,
-            user_defi: `[{"definition": "","example": "","pos": "","info": ""}]`,
-            default_defi: [0, 1],
-          },
-          user_translate: "Đầu tiên",
-          user_img: {
-            default: 0,
-          },
-          user_note: "",
-          related_phrases: [],
+   
+  editor.setData =  {
+            "phraseID": "phrase-01KE3JYW2EEVZPKY4MVYH3W9TE",
+            "userID": "user-ecb0b126-de76-11f0-9b1e-e43d1a3de858",
+            "phrase": "wheel house wheel house in my heart is wheel house in my heart wheelhouse wheelhouse in my heart wheelhouse in my heart",
+            "returning_phrase": "wheelhouse",
+            "ukipa": "ˈwiːl.haʊs aaa",
+            "usipa": "ˈwiːl.haʊs bbb",
+            "soundUrls": [
+                "http://www.onelook.com/pronounce/macmillan/US/wheelhouse-American-English-pronunciation.mp3",
+                "http://www.oxforddictionaries.com/media/english/uk_pron/w/whe/wheel/wheelhouse__gb_1.mp3",
+                "http://s3.amazonaws.com/audio.vocabulary.com/1.0/us/W/1MEG6WF6FXNZE.mp3",
+                "http://www.onelook.com/pronounce/macmillan/UK/wheelhouse-British-English-pronunciation.mp3",
+                "http://static.sfdict.com/staticrep/dictaudio/W01/W0120900.mp3",
+                "https://dictionary.cambridge.org/media/english/us_pron/c/cdo/cdo01/cdo0123uswhee2620.mp3",
+                "https://dictionary.cambridge.org/media/english/uk_pron/c/cdo/cdo01/cdo0123ukwhee2961.mp3"
+            ],
+            "defi": [
+                {
+                    "pos": "noun",
+                    "info": "[ C ] (also wheel-house, wheel house)",
+                    "definition": "a structure with a roof on a boat that provides shelter for the person who is controlling the direction of the boat:",
+                    "example": "The boat was hit by a 12-foot wave that broke over the wheelhouse.\nOn another trip, I took a cargo boat, sleeping on the wheel-house roof.\nI was alone in the wheel house when the ship was sighted."
+                },                
+                {
+                    "pos": "adjective,adverb",
+                    "info": "",
+                    "definition": "not in the intended manner, or out of position, or wrong:",
+                    "example": "There are too many people involved, and something is bound to go awry."
+                }, 
+                {
+                    "pos": "adjective",
+                    "info": "",
+                    "definition": "not frightened of or not trying to avoid something dangerous or unpleasant:",
+                    "example": "It is a brave and unflinching account of prison life."
+                },
+                {
+                    "pos": "adjective,noun",
+                    "info": "",
+                    "definition": "disapproving of or refusing to accept people, behavior, or ideas that are different from your own:",
+                    "example": "As a historian, she was intolerant of poorly done research."
+                },{
+                    "pos": "verb,adjective",
+                    "info": "",
+                    "definition": "",
+                    "example": "I felt obligated to speak up and defend my friend’s reputation."
+                },{
+                    "pos": "noun",
+                    "info": "COMMERCE\n                      (also salvage material)",
+                    "definition": "waste material or material that has not been used that has value because it can be sold:",
+                    "example": "The pigs ate contaminated pet food sold to farms as salvage.\nMany of the buildings have been erected out of salvage material."
+                }
+            ],
+            "imgUrls": [
+                "p:tse3_OIP.iZ00R3dCFQpeoQ5e035VwwHaE7",
+                "p:tse1_OIP.0q0E09zDCB5Cu-1xst4-bQHaE8",
+                "p:tse3_OIP.s_69ZQrAir_mZFRnnCuz4gHaFj",
+                "p:tse2_OIP.usM23O1_-ZmuthKw3OLjDwHaE6",
+                "p:tse4_OIP.GQoW92RP6Beu-1o3vGYBZgHaEK",
+                "p:tse1_OIP.oCOPX3v5wkkbl2yv277N0QHaE8",
+                "p:tse1_OIP.oCMIcpvLBfN4dquZtWYQUAHaE8",
+                "p:tse2_OIP.N22LWrHafSiEjQ4hhlnZhQHaE2",
+                "p:tse4_OIP.ICq15v0cOEqK3Bc7wsD9hwHaE8",
+                "p:tse1_OIP.EAsUQ3HdWrk9-0wjajAKIwHaJ3",
+                "p:tse2_OIP.zGuCAZEfXFvl7YkIoo9IiwHaFy"
+            ],
+            "lang": {
+                es: "timonera"
+            },
+            "user_ipa": "ˈwiːl.haʊs",
+            "user_defi": {
+                selectDefault: true,
+                customized_defi: [],
+                default_defi: [1,2]
+            },
+            "user_translate": "timonera",
+            "user_imgIndex": {
+                source: "link",
+                defaultIndex: 0
+            },
+            "user_soundIndex": {
+                source: "link",
+                defaultIndex: 0
+            },
+            "user_note": "Some note",
+            "related_phrases": [],
+            "reminder_text": null,
+            "tags": [
+                "science"
+            ],
+            "createdAt": "2026-01-04T04:06:31.758Z",
+            "updatedAt": "2026-01-04T04:06:31.758Z",
+            "source": "d"
         };
-  }
+      }
 </script>
 </body>
 </html>

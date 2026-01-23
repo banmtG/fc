@@ -113,7 +113,7 @@ export function setHighlight(component, id) {
   // Scroll the highlighted row into view
   row.scrollIntoView({ block: "nearest" });
 
-  console.log(component._highlightId);
+  // console.log(component._highlightId);
   component.dispatchEvent(
     new CustomEvent("highlight-changed", {
       detail: { id: component._highlightId },

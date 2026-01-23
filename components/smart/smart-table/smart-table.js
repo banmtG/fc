@@ -2,7 +2,6 @@ import { createRow, _renderHeaderCell, _renderHeader, _updateRowUI } from "./uti
 import {clearSelectionVisuals,applySelection,toggleSelection,emitSelectionChanged,clearHighlight,setHighlight, requestDelete, selectRows } from "./utils/selectionUtils.js";
 import { addRow, handleHeaderClick } from "./utils/handlers.js";
 import { syncPixelTracks, attachResizeHandles, detachResizeHandles } from './utils/columnWidth.js';
-import '../scroll-indicator.js';
 
 const cssUrl = new URL("./smart-table.css", import.meta.url);
 
@@ -10,19 +9,12 @@ const cssUrl = new URL("./smart-table.css", import.meta.url);
 const template = document.createElement("template");
 template.innerHTML = `
   <link rel="stylesheet" href="${cssUrl}">
-  <div class="table-wrapper scrollBar_hidden">
-    <div class="table scrollBar_hidden" id="mainTable" style="overflow-x:auto;">
+
+    <div class="table" id="mainTable" style="overflow-x:auto;">
       <div class="header"></div>
-      <div class="body scrollBar_hidden" id="tableBody" style="overflow-y:auto;">
-        <!-- rows -->
+      <div class="body" id="tableBody" style="overflow-y:auto;">
       </div>
-    </div>
 
-    <!-- Vertical indicator for the body -->
-    <scroll-indicator for="#tableBody" direction="y" offset-header=".header"></scroll-indicator>
-
-    <!-- Horizontal indicator for the whole table -->
-    <scroll-indicator for="#mainTable" direction="x"></scroll-indicator>
   </div>
 `;
 
@@ -41,8 +33,9 @@ class SmartTable extends HTMLElement {
     this._selected = new Set();
     this._highlightId = null;
     this._hightlightPosition = null;
-    this._idKey = "id";
+    // this._idKey = "phraseID";
     this._sortState = { key: null, dir: null };
+    this._allowDeleteKey = false; // Allow Delete Key to delete multiple rows
 
     // Cache references
     this._table = this.shadowRoot.querySelector(".table"); 
@@ -156,6 +149,7 @@ connectedCallback() {
     this._data.forEach((obj, index) => {
       // console.log(obj);
       // console.log(this._idKey);
+
       const rowEl = createRow(
         obj,
         this._visibleCols,
@@ -237,7 +231,7 @@ connectedCallback() {
 
   // 3. Row selection + highlight
   if (row) {
-    const id = row.dataset.id;
+    const id = row.dataset.id; 
     const allIds = this._data.map(d => String(d[this._idKey]));
 
     if (e.shiftKey && this._highlightId) {
@@ -262,7 +256,7 @@ connectedCallback() {
     } else if (e.ctrlKey || e.metaKey) {
       // CTRL/META: toggle single row, and reset anchor to this row
       toggleSelection(this.shadowRoot, this._rowMap, this._selected, id, true);
-      this.setHighlight(id);
+      this.setHighlight(id);   
     } else {
       // Normal click: reset selection and anchor
       clearSelectionVisuals(this.shadowRoot);
@@ -351,7 +345,7 @@ _onKeyDown(e) {
     return;
   }
 
-  if (e.key === "Delete") {
+  if (e.key === "Delete"&&this._allowDeleteKey) {
     e.preventDefault();
     if (this._selected.size > 0) {
       const arraySelected = Array.from(this._selected);
@@ -374,7 +368,7 @@ _onKeyDown(e) {
   addRow(obj) { addRow(this, obj); }
 
   updateRowUI(id,newRowData) { 
-    console.log(newRowData);
+     console.log(newRowData);
     _updateRowUI(this,id,newRowData) 
   }
 

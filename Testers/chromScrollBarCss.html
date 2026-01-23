@@ -1,0 +1,145 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>slim scrollbar</title>
+  <style>
+    .container {
+/*   background: gray; */
+  width: 100%;
+  max-height: 200px;
+  overflow: auto;
+}
+
+/* scrollbar */
+::-webkit-scrollbar {
+  width: 1px;
+  height: 1px;
+}
+
+::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.3);
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
+}
+
+::-webkit-scrollbar-thumb:window-inactive {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.scroll-wrapper {
+  padding: 5px;
+  max-height: 200px;
+  overflow: auto;
+  width: 700px;
+}
+.scroll_container {
+  padding: 5px;
+  max-height: 200px;
+
+}
+.body {
+  padding: 5px;
+  max-height: 200px;
+}
+
+.scroll-wrapper1 {
+  padding: 5px;
+  max-height: 700px;
+  max-width: 500px;
+  overflow: auto;
+}
+
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h4>Title Content</h4>
+    <p>A scrollbar is an interaction technique or widget in which continuous text, pictures, or any other content can be scrolled in a predetermined direction (up, down, left, or right) on a computer display, window, or viewport so that all of the content
+      can be viewed, even if only a fraction of the content can be seen on a device's screen at one time. It offers a solution to the problem of navigation to a known or unknown location within a two-dimensional information space.[1] It was also known
+      as a handle in the very first GUIs. They are present in a wide range of electronic devices including computers, graphing calculators, mobile phones, and portable media players. The user interacts with the scrollbar elements using some method of
+      direct action, the scrollbar translates that action into scrolling commands, and the user receives feedback through a visual updating of both the scrollbar elements and the scrolled content.</p>
+    <p>Although scrollbar designs differ throughout their history, they usually appear on one or two sides of the viewing area as long rectangular areas containing a bar (or thumb) that can be dragged along a trough (or track) to move the body of the document.
+      This can be placed vertically, horizontally, or both in the window depending on which direction the content extends past its boundaries. Two arrows are often included on either end of the thumb or trough for more precise adjustments. The “thumb”
+      has different names in different environments: on the Mac OS X 10.4 it is called a "scroller";[3] on the Java platform it is called "thumb" or "knob"; Microsoft's .NET documentation refers to it as "scroll box" or "scroll thumb"; in other environments
+      it is called "elevator", "quint", "puck", "wiper" or "grip".</p>
+    <p><a href="https://en.wikipedia.org/wiki/Scrollbar">content by wiki</a></p>
+  </div>
+
+  
+
+<div class="scroll-wrapper1">
+  <div class="scroll_container1">
+    <div class="body" id="body_body">
+    
+      <h2>ScrollIndicator Test with Table</h2>
+
+      <div class="scroll-wrapper">
+        <div class="scroll_container">
+          <div class="body" id="tableBody">
+            <!-- lots of rows to force vertical + horizontal scroll -->
+            <div class="row">Row 1 — Lorem ipsum dolor sit amet</div>
+            <div class="row">Row 2 — Consectetur adipiscing elit</div>
+            <div class="row">Row 3 — Sed do eiusmod tempor</div>
+            <div class="row">Row 4 — Ut labore et dolore magna</div>
+            <div class="row">Row 5 — Aliqua ut enim ad minim</div>
+            <div class="row">Row 6 — Quis nostrud exercitation</div>
+            <div class="row">Row 7 — Ullamco laboris nisi ut</div>
+            <div class="row">Row 8 — Aliquip ex ea commodo</div>
+            <p> Lorem ipsum dolor sit amet consectetur, adipisicing elit. Molestias sed voluptatum distinctio velit ipsam voluptas neque illum dignissimos. Impedit facilis iste inventore ab cumque sit ullam aspernatur deserunt eum illo!</p>
+            <div class="row">Row 10 — In reprehenderit in</div>
+            <div class="row">Row 11 — Voluptate velit esse</div>
+            <div class="row">Row 12 — Cillum dolore eu fugiat</div>
+            <div class="row">Row 13 — Nulla pariatur</div>
+            <div class="row">Row 14 — Excepteur sint occaecat</div>
+            <div class="row">Row 15 — Cupidatat non proident</div>
+          </div>
+        </div>
+        <!-- Vertical indicator for the body -->
+        <scroll-indicator for="#tableBody" direction="y"></scroll-indicator>
+        <!-- Horizontal indicator for the whole scroll_container -->
+        <!-- <scroll-indicator for="#mainTable" direction="x"></scroll-indicator> -->
+      </div>
+
+      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque vitae sequi nesciunt pariatur numquam rem iste consequatur fuga voluptates id sint magnam hic explicabo voluptate, quis molestiae minima aliquam ratione itaque debitis vero dolorum illum dolorem? Nihil illo, at nesciunt quo quidem quisquam pariatur neque? Distinctio qui et provident ab soluta. Deserunt consequatur voluptatem labore corrupti neque animi molestias sint consequuntur soluta? Fuga cum incidunt ipsam. Architecto tempore ipsum, deserunt rem quaerat accusantium quo saepe eos cum doloribus, minus magnam dolor vel quia modi sapiente sunt sint. Officia asperiores, voluptatum iusto quasi reiciendis numquam eligendi quas sunt, hic amet error?</p> 
+      <p> Lorem ipsum dolor sit amet consectetur, adipisicing elit. Molestias sed voluptatum distinctio velit ipsam voluptas neque illum dignissimos. Impedit facilis iste inventore ab cumque sit ullam aspernatur deserunt eum illo!</p>
+
+      <div class="scroll-wrapper">
+        <div class="scroll_container">
+          <div class="body" id="tableBody1">
+            <!-- lots of rows to force vertical + horizontal scroll -->
+            <div class="row">Row 1 — Lorem ipsum dolor sit amet</div>
+            <div class="row">Row 2 — Consectetur adipiscing elit</div>
+            <div class="row">Row 3 — Sed do eiusmod tempor</div>
+            <div class="row">Row 4 — Ut labore et dolore magna</div>
+            <div class="row">Row 5 — Aliqua ut enim ad minim</div>
+            <div class="row">Row 6 — Quis nostrud exercitation</div>
+            <div class="row">Row 7 — Ullamco laboris nisi ut</div>
+            <div class="row">Row 8 — Aliquip ex ea commodo</div>
+            <div class="row">Row 9 — Duis aute irure dolor</div>
+            <div class="row">Row 10 — In reprehenderit in</div>
+            <div class="row">Row 11 — Voluptate velit esse</div>
+            <div class="row">Row 12 — Cillum dolore eu fugiat</div>
+            <div class="row">Row 13 — Nulla pariatur</div>
+            <div class="row">Row 14 — Excepteur sint occaecat</div>
+            <div class="row">Row 15 — Cupidatat non proident</div>
+          </div>
+        </div>      
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+
+</html>

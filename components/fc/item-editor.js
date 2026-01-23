@@ -178,7 +178,7 @@ class ItemEditor extends HTMLElement {
   set data(entry) {
     //console.log(entry);
     this.entry = entry;
-    const value = this.entry.user_defi.user_defi;
+    const value = this.entry.user_defi.customized_defi;
     //console.log(value);
     let inputArray = [];
     try {
@@ -187,6 +187,7 @@ class ItemEditor extends HTMLElement {
     } catch (e) {
       console.log(`error parsing input`, e);
     }
+    
    // console.log(inputArray);
     this.originalData = [...inputArray];
    // console.log(this.originalData);
@@ -202,6 +203,8 @@ class ItemEditor extends HTMLElement {
     this._saveHistory();
     this.renderItems();
 
+    if (value.length==0&& this.entry.defi.length==0) this._addNewItem();
+    
     /* wait for all shoelace sl- components to be loaded */
                 const tagsUsed = new Set(
                 Array.from(this.shadowRoot.querySelectorAll('*'))
@@ -330,7 +333,7 @@ class ItemEditor extends HTMLElement {
 
         } else {
              // remove certain itemID from data
-            this.currentData = this.currentData.filter(item=>!item.id===itemId);
+            this.currentData = this.currentData.filter(item=>item.id!==itemId);
            
             // remove certain itemID from selectedID
             if (this.selectedItemId.has(itemId)) this.selectedItemId.delete(itemId);
@@ -410,7 +413,7 @@ class ItemEditor extends HTMLElement {
 
   emitChange() {
     this.dispatchEvent(new CustomEvent('item-editor-changed', {
-      detail: { data: JSON.stringify(this.currentData) },
+      detail: { data: this.currentData },
       bubbles: false,
       composed: true
     }));

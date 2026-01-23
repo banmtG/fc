@@ -36,6 +36,7 @@ export class ExtendedSmartTable extends HTMLElement {
     this._sortState = null;
     this._page = 1;
     this._pageSize = '45';
+    this._columnsToSearch = "all";
     this._abort = new AbortController();
 
     // Bound handlers
@@ -120,7 +121,30 @@ export class ExtendedSmartTable extends HTMLElement {
     this._page = 1;
     // this._runPipeline();
   }
+  
   get data() { return this._raw; }
+
+
+  setConfig(configs) {         
+    this._idKey = configs.idKey;
+    this.$tbl._idKey = this._idKey;
+    this._sortState = { key: configs.sortKey, dir: configs.sortDir};    
+
+    if (!Number.isNaN(configs.pageSize) && configs.pageSize > 0) {
+        this._pageSize = configs.pageSize;
+        this.$pageSize.value = configs.pageSize;
+    } else if (configs.pageSize==="all") {
+        this._pageSize = this.data.length;
+        this.$pageSize.value = "all";
+    }
+    this.$tbl.style.setProperty('--tableMaxHeight',configs.tableMaxHeight);
+    this.$tbl._allowDeleteKey = configs._allowDeleteKey? configs.allowDeleteKey : false;
+
+    this._columnsToSearch = configs.columnToSearch? configs.columnToSearch : "all"; // all = default; ["phrase","status"] data field
+    this._cellPadding = configs.cellPading? configs.cellPading : "6px 8px";
+    this.$tbl.style.setProperty('--cellPadding', this._cellPadding);
+    this._onPageSize({ target : { value : `${configs.pageSize}`}});      // this will also call render()
+  }
 
   setColumns(columns) {
     this.$tbl.columns = columns;   
@@ -129,13 +153,11 @@ export class ExtendedSmartTable extends HTMLElement {
   }
 
   _handleRowDelete(ids) {
-    console.log(ids);
-    console.log(`vao _handleRowDelete`);
     // Normalize: accept single id or array
     const sids = Array.isArray(ids) ? ids.map(String) : [String(ids)];
 
     // Remove from raw dataset
-    this._raw = this._raw.filter(o => !sids.includes(String(o.id)));
+    this._raw = this._raw.filter(o => !sids.includes(String(o[this._idKey])));
 
     // clear selected of smart-table after delete rows.
     this.$tbl._selected.clear();
@@ -145,6 +167,31 @@ export class ExtendedSmartTable extends HTMLElement {
     this.dispatchEvent(new CustomEvent("rows-deleted", { detail: { ids: sids } }));
   }
 
+  _flattenValues(obj) {
+    let result = [];
+    if (Array.isArray(obj)) {
+      obj.forEach(v => result.push(...this._flattenValues(v)));
+    } else if (obj && typeof obj === "object") {
+      Object.values(obj).forEach(v => result.push(...this._flattenValues(v)));
+    } else {
+      result.push(String(obj ?? ""));
+    }
+    return result;
+  }
+
+  _buildHaystack(row, columns) {
+    if (columns === "all") {
+      console.log(columns);
+      const hay = this._flattenValues(row).join(" ").toLowerCase();
+      return hay;
+    } else {
+      console.log(columns);
+      const hay = columns.map(col => {
+        return this._flattenValues(row[col]).join(" ");
+      }).join(" ").toLowerCase();
+      return hay;
+    }
+  }
 
   
   // Pipeline: raw → filter → sort → paginate → render
@@ -154,13 +201,7 @@ export class ExtendedSmartTable extends HTMLElement {
     // Filter
     const q = this._search.trim().toLowerCase();
     if (q) {
-      view = view.filter(row => {
-        const hay = [
-          String(row.phrase || ""),
-          String(row.status || "")
-        ].join(" ").toLowerCase();
-        return hay.includes(q);
-      });
+      view = view.filter(row => this._buildHaystack(row, this._columnsToSearch).includes(q)); 
     }
 
     // Sort
@@ -178,6 +219,7 @@ export class ExtendedSmartTable extends HTMLElement {
 
     // Render
     this.$tbl.data = pageSlice;
+
     this.$tbl._renderInitial?.();
 
     if (this.$status) {
@@ -226,7 +268,7 @@ export class ExtendedSmartTable extends HTMLElement {
 
   _updateRowData(id, patch) {
     const sid = String(id);
-    const idx = this._raw.findIndex(o => String(o.id) === sid);
+    const idx = this._raw.findIndex(o => String(o[this._idKey]) === sid);
     if (idx !== -1) {
       this._raw[idx] = { ...this._raw[idx], ...patch };
     }
@@ -235,12 +277,13 @@ export class ExtendedSmartTable extends HTMLElement {
   }
 
   updateRowUI(id) { //call this after _updateRowData()
-    const checkObjectInUI = this.$tbl.data.find(item => item.id === id);
+    const checkObjectInUI = this.$tbl.data.find(item => item[this._idKey] === id);
        // console.log(this._raw[id]);
     // console.log(checkObjectInUI);     
     if (checkObjectInUI) {
       const sid = String(id);
-      const idx = this._raw.findIndex(o => String(o.id) === sid);
+      const idx = this._raw.findIndex(o => String(o[this._idKey]) === sid);
+      console.log(idx);
       this.$tbl.updateRowUI(id, this._raw[idx]);
     }
   }

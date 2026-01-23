@@ -46,7 +46,7 @@ export function parsePOS(rawTag) {
 export function getAllUniquePOS(entry) {
     const posSet = new Set();
       try {
-        const definitions = entry.defi? JSON.parse(entry.defi) : "";
+        const definitions = Array.isArray(entry.defi)? entry.defi : "";
         if (definitions.length>0)
         definitions.forEach(def => {
           const rawPos = def.pos?.trim();
@@ -83,26 +83,12 @@ export function correctPos(raw) {
     
 }
 
-export function extractFromDefiObjects(arr, defiString) {
+export function extractFromDefiObjects(arr, defiArray) {
   //console.log(arr);
 //  console.log(defiString);
   if (arr.length===0) appNotify('Select definition from Dictionary first!')
-    let parsedDefs = [];
-    try {
-      const parsed = JSON.parse(defiString);
-      if (!Array.isArray(parsed)) {
-        console.warn("Parsed defiString is not an array.");
-        return [];
-      }
-      parsedDefs = parsed;
-    } catch (err) {
-        appNotify('No data from Dictionary!')
-        //console.error("Failed to parse defiString:", err);
-      return [];
-    }
-   // console.log(parsedDefs);
-    const result = arr.filter(i => Number.isInteger(i) && i >= 0 && i < parsedDefs.length)
-      .map(i => parsedDefs[i]);
+    const result = arr.filter(i => Number.isInteger(i) && i >= 0 && i < defiArray.length)
+      .map(i => defiArray[i]);
    // console.log(result);
     return result;
 }

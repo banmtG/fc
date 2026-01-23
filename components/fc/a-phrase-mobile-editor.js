@@ -3,6 +3,7 @@ import './defi-edit.js';
 import  { correctPos, getAllUniquePOS, extractFromDefiObjects } from '../../js/utils/dictionary.js';
 import '../smart/smart-ipa-input.js';
 import '../smart/smart-text-input.js';
+import  './../smart/advanced-combobox/combo-input.js';
 
 class APhraseMobileEditor extends HTMLElement {
   constructor() {
@@ -16,29 +17,28 @@ class APhraseMobileEditor extends HTMLElement {
     template.innerHTML = `${this.componentCSS}
     <div class="noScroll_container">
       <sl-card class="card-basic" id="container">
-        <div style="overflow: hidden; max-height: 65px; margin: 0px 0; display: flex; gap:0.5rem; align-items: center;">
-          <sl-button size="small" id="phraseEditBtn" class="editElement">></sl-button>
-          <h2 id="phrase"></h2>
-          <pos-badge-group id="posBadgeGroup"></pos-badge-group>
+        <div style="margin: 0px 0; display: flex; gap:0.5rem; align-items: ">
+          <sl-button size="small" id="phrase" style="width: 100%;" class="multiline editElement"></sl-button>
+         
         </div>
         <sl-divider class="editElement"></sl-divider>  
           <sl-button size="small" id="ipaEditBtn" class="editElement">IPA</sl-button>
           <span id="ipa"></span>
           <sl-button size="small" id="soundEditBtn" class="editElement">🔊</sl-button> 
+          <pos-badge-group id="posBadgeGroup"></pos-badge-group>
         <sl-divider class="editElement"></sl-divider>     
         <div style="display:flex; gap:5px; flex-direction:column;">
           <sl-button size="small" id="definitionEditBtn" class="editElement">Definition</sl-button>
           <div id="definition"></div>
         </div>
         <sl-divider class="editElement"></sl-divider>
-          <sl-button size="small" id="translateEditBtn" class="editElement">Translate</sl-button>
-          <span id="translation"></span>
+          <sl-input class="label-on-left" label="Translate" size="small" id="translateEditInput"></sl-input>
         <sl-divider class="editElement"></sl-divider>
-          <sl-button size="small" id="noteEditBtn" class="editElement">Note</sl-button>
-          <span id="note"></span> 
+          <sl-input class="label-on-left" label="Note" size="small" id="noteEditInput"></sl-input>
         <sl-divider class="editElement"></sl-divider>
-          <sl-button size="small" id="connectEditBtn" class="editElement">Connecting</sl-button>
-          <span id="connect"></span> 
+          
+          <combo-input id="comboInput" class="label-on-left" label="Connect" placeholder="Tags: select or add a new tag"></combo-input>
+
         <sl-divider class="editElement"></sl-divider>
           <sl-button size="small" id="imageEditBtn" class="editElement">Image</sl-button>
           <div id="image"></div> 
@@ -48,6 +48,7 @@ class APhraseMobileEditor extends HTMLElement {
     <smart-text-input></smart-text-input>  
     <smart-ipa-input></smart-ipa-input>  
     <defi-edit></defi-edit>    
+
     `;
    
     // Attach to shadow DOM
@@ -56,19 +57,12 @@ class APhraseMobileEditor extends HTMLElement {
 
 
     this._phrase = sR.getElementById("phrase");  
-
     this._posBadgeGroup = sR.getElementById("posBadgeGroup");
-
     this._ipa= sR.getElementById("ipa");  
-
-    this._definition= sR.getElementById("definition");      
-   
-    this._user_translate= sR.getElementById("translation");  
-    
-    this._user_note= sR.getElementById("note");  
-   
-    this._connect= sR.getElementById("connect");  
-
+    this._definition= sR.getElementById("definition");         
+    this._user_translate= sR.getElementById("translation");     
+    this._user_note= sR.getElementById("note");     
+    this._connect= sR.getElementById("connect"); 
     this._image= sR.getElementById("image");  
   }
 
@@ -84,31 +78,41 @@ class APhraseMobileEditor extends HTMLElement {
   // 🔌 Pass in data dynamically using a setter
   set setData(entry) {
     //console.log(value);
-    this.entry = entry;
-    //console.log(this.entry);   
-    this._initRender(this.entry);
+    this.entry = entry; 
     this._initAssignBtnFunction();
+    this._initRender(this.entry);
+
   }
 
   _initRender(entry) {
-    this._phrase.innerHTML = entry.phrase;
+    //entry.phrase = entry.returning_phrase? entry.returning_phrase : entry.phrase;
+    //this._phrase.innerHTML = entry.returning_phrase? entry.returning_phrase : entry.phrase;
+    this._renderPhraseTitle(entry);
     const allRawPos = correctPos(getAllUniquePOS(entry));   
+    this._posBadgeGroup.innerHTML = "";
     this._posBadgeGroup.pos = allRawPos;
     this._ipa.innerText = entry.user_ipa? `/${entry.user_ipa}/`: "";    
     this._definition.innerHTML = this._createDefiDivHtml(entry);
-    this._user_translate.innerHTML = entry.user_translate? entry.user_translate : "";
-    this._user_note.innerHTML = entry.user_note? entry.user_note : "";
+    // this._user_translate.innerHTML = entry.user_translate? entry.user_translate : "";
+    this._translateEditInput .value = entry.user_translate? entry.user_translate : "";
+    // this._user_note.innerHTML = entry.user_note? entry.user_note : "";
+     this._noteEditInput.value = entry.user_note? entry.user_note : "";
 
   }
 
   _initAssignBtnFunction() {
     const sR = this.shadowRoot;
-    this._phraseEditBtn = sR.getElementById("phraseEditBtn");    
+    // this._phrase = sR.getElementById("phraseEditBtn");    
     this._ipaEditBtn = sR.getElementById("ipaEditBtn");    
     this._soundEditBtn = sR.getElementById("soundEditBtn");
     this._definitionEditBtn = sR.getElementById("definitionEditBtn");   
-    this._translateEditBtn = sR.getElementById("translateEditBtn");
-    this._noteEditBtn = sR.getElementById("noteEditBtn");
+    // this._translateEditBtn = sR.getElementById("translateEditBtn");
+
+    this._translateEditInput = sR.getElementById("translateEditInput");
+
+    // this._noteEditBtn = sR.getElementById("noteEditBtn");
+    this._noteEditInput = sR.getElementById("noteEditInput");
+
     this._connectEditBtn = sR.getElementById("connectEditBtn");
     this._imageEditBtn = sR.getElementById("imageEditBtn");
 
@@ -117,7 +121,7 @@ class APhraseMobileEditor extends HTMLElement {
     this._defiEditDialog = this.shadowRoot.querySelector('defi-edit');
 
     this._handlePhraseEdit = this._handlePhraseEdit.bind(this);
-    this._phraseEditBtn.addEventListener('click',this._handlePhraseEdit);
+    this._phrase.addEventListener('click',this._handlePhraseEdit);
 
     this._handleIPAEdit = this._handleIPAEdit.bind(this);
     this._ipaEditBtn.addEventListener('click',this._handleIPAEdit);
@@ -128,11 +132,11 @@ class APhraseMobileEditor extends HTMLElement {
 
     this._definitionEditBtn.addEventListener('click',this._handleDefinitionEdit);
 
-    this._handleTranslateEdit = this._handleTranslateEdit.bind(this);
-    this._translateEditBtn.addEventListener('click',this._handleTranslateEdit);
+    // this._handleTranslateEdit = this._handleTranslateEdit.bind(this);
+    // this._translateEditBtn.addEventListener('click',this._handleTranslateEdit);
 
-    this._handleNoteEdit = this._handleNoteEdit.bind(this);
-    this._noteEditBtn.addEventListener('click',this._handleNoteEdit);
+    // this._handleNoteEdit = this._handleNoteEdit.bind(this);
+    // this._noteEditBtn.addEventListener('click',this._handleNoteEdit);
 
     this._phraseIPAialog.addEventListener("smart-ipa-input-confirmed", (e) => {
       //console.log(e.detail);
@@ -157,32 +161,40 @@ class APhraseMobileEditor extends HTMLElement {
     this._textEditDialog.open("Phrase",this.entry.phrase,"phrase");    
   }
 
-  _handleTranslateEdit() {
-    this._textEditDialog.open("Translate",this.entry.user_translate,"user_translate");    
-  }
+  // _handleTranslateEdit() {
+  //   this._textEditDialog.open("Translate",this.entry.user_translate,"user_translate");    
+  // }
 
-  _handleNoteEdit() {
-    this._textEditDialog.open("Note",this.entry.user_note,"user_note");    
-  }
+  // _handleNoteEdit() {
+  //   this._textEditDialog.open("Note",this.entry.user_note,"user_note");    
+  // }
 
   _handleIPAEdit() {
-    this._phraseIPAialog.open(this.entry.user_ipa);    
+    this._phraseIPAialog.open(this.entry);    
   }
 
   _handleDefinitionEdit() {
     this._defiEditDialog.open(this.entry);    
   }
 
+  _renderPhraseTitle(entry) {    
+    console.log(`vao render title`);
+    this._phrase.textContent  = entry.phrase;
+  }
+
   _createDefiDivHtml(entry) {   
     console.log(entry);
-    let defArray;
-    if (entry.user_defi?.selectD===true) {
-      defArray = Array.isArray(entry.user_defi.default_defi)? extractFromDefiObjects(entry.user_defi.default_defi, entry.defi) : "";
+
+    let defArray = entry.defi? entry.defi : [];
+    if (entry.user_defi?.selectDefault===true) {
+      defArray = Array.isArray(entry.user_defi.default_defi)? extractFromDefiObjects(entry.user_defi.default_defi, entry.defi) : [];
     } else {
-      defArray = Array.isArray(JSON.parse(entry.user_defi.user_defi))? JSON.parse(this.entry.user_defi.user_defi) : "";
+      defArray = Array.isArray(entry.user_defi.customized_defi)? this.entry.user_defi.customized_defi : [];
     }
-    //console.log(defArray);
+    
+    console.log(defArray);
     if (!Array.isArray(defArray)) return "";
+
     const container = document.createElement('div');
     container.style.display = 'flex';
     container.style.flexDirection = 'column';
@@ -196,7 +208,7 @@ class APhraseMobileEditor extends HTMLElement {
       const exampleArray = example?.split('\n');
       
       let exampleHtml = ``;
-      exampleArray.forEach(exam=> { exampleHtml = exampleHtml + `<div class="examChild">${exam}</div>` } );
+      exampleArray?.forEach(exam=> { exampleHtml = exampleHtml + `<div class="examChild">${exam}</div>` } );
       //console.log(exampleArray);
       const details = document.createElement('sl-details');
       // Create and assign a summary slot

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Smart Dragdrop Dual Column Demo</title>
+  <!-- Include the condensed CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css" />
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace.js"></script>
+  <link rel="stylesheet" href="./smart-dragdrop.css">
+</head>
+<body>
+  <h2>Smart Dragdrop – Dual Column Demo</h2>
+
+  <!-- Use the component in dual mode (default) -->
+  <smart-dragdrop id="demo" mode="dual" view="icon"></smart-dragdrop>
+
+  <script type="module">
+    import './smart-dragdrop.js';
+
+    const demo = document.getElementById('demo');
+
+    // Example dataset
+    demo.data = {
+      arr: [
+        { _id: "item1", text: "1. Apple" },
+        { _id: "item2", text: "2. Banana" },
+        { _id: "item3", text: "3. Cherry" },
+        { _id: "item4", text: "4. Date" },
+        { _id: "item5", text: "5. Elderberry" },
+        { _id: "item6", text: "6. Fig" },
+        { _id: "item7", text: "7. Grape" },
+        { _id: "item8", text: "8. Honeydew" }
+      ],
+      // Preselect the first two items into the "selected" column
+      defaultItems: [0, 1],
+      renderItem: (item, zone) => `
+        <div class="draggable" draggable="true" data-zone="${zone}" data-id="${item._id}">
+          ${item.text}
+        </div>
+      `
+    };
+
+    // Listen for changes
+    demo.addEventListener('dragdrop-box-changed', e => {
+      console.log('Selected items:', e.detail.selected);
+      console.log('Selected indices:', e.detail.indexSelected);
+    });
+  </script>
+</body>
+</html>

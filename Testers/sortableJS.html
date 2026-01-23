@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">  
+
+  <title>SortableJS Multi-Select Demo</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 10px;
+      width: 100vw;
+      height: 70vh;
+    }
+
+    .sContainer {
+      border: 1px solid #ccc;
+      user-select: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: flex-start;
+      align-content: flex-start;
+      gap: 10px;
+      width: 100%;
+      height:100%;
+      overflow-x: scroll;
+      flex-wrap: nowrap;
+    }
+
+    .sItem {
+      display: flex;
+      flex-direction: column;
+      width: 190px;
+      height: 20px;
+      flex-shrink: 0;
+      padding: 10px;
+      background: #f0f0f0;
+      border: 1px solid #ccc;
+      gap:15px;
+    }
+
+    .sItem img {
+      width: 100%;   
+      height: calc(100% - 10px);    
+    }
+
+    .selected {
+      background: #cce5ff;
+      border-color: #3399ff;
+    }
+
+
+  </style>
+</head>
+<body>
+  <h2>SortableJS Multi-Select Demo</h2>
+  <p>Click items to select them, then drag to move multiple at once.</p>
+
+  <div id="container" class="sContainer"></div>
+
+  <table id="sampleTable" border="1">
+      <thead>
+          <tr>
+              <th>Cell 1</th>
+              <th>Title</th>
+          </tr>
+      </thead>
+      <tbody>
+          <tr>
+            <td>Some text Item</td>
+            <td>Some text Title</td>
+          </tr>
+      </tbody>
+  </table>
+
+  <!-- Load SortableJS + MultiDrag plugin from CDN --> 
+  <!-- <script type="text/javascript" src="./../components/lib/sortableJS/Sortable.js"></script> -->
+ <script type="module">
+
+import Sortable from "./../components/lib/sortableJS/sortable.complete.esm.js";
+
+const items = [
+  { id: "item1", title: "1 Apple", img: "https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=300&h=300&fit=crop" },
+  { id: "item2", title: "2 Banana", img: "https://tse2.mm.bing.net/th/id/OIP.FZ0pu7WcurIoPGU9JX4ErQHaGu?w=400&c=7&r=0&o=5&pid=1.7" },
+  { id: "item3", title: "3 Cherry", img: "https://tse2.mm.bing.net/th/id/OIP.EqqYHX_EkrkJdfwH7uH-TQHaHa?w=400&c=7&r=0&o=5&pid=1.7" },
+  { id: "item4", title: "4 Orange", img: "https://tse4.mm.bing.net/th/id/OIP.07Oyb9un-38JIVCzqibMHgHaFS?w=400&c=7&r=0&o=5&pid=1.7" },
+  { id: "item5", title: "5 Elderberry", img: "https://tse4.mm.bing.net/th/id/OIP.fzVHa_qkyMgd3TLO1_gn7gHaE7?w=400&c=7&r=0&o=5&pid=1.7" }, // elderberries are rarer, reused berry photo
+  { id: "item6", title: "6 Fig", img: "https://tse3.mm.bing.net/th/id/OIP.UiZ55vDrwoTy3dL2pz_cnQHaEI?w=400&c=7&r=0&o=5&pid=1.7" },
+  { id: "item7", title: "7 Grape", img: "https://tse1.mm.bing.net/th/id/OIP.r4gzGgFQwO6Pzo1mFJ2AyQHaE8?w=400&c=7&r=0&o=5&pid=1.7" },
+  { id: "item8", title: "8 Honeydew", img: "https://tse1.mm.bing.net/th/id/OIP.dIq5cQ_4_dPo5-WXFRYcZQHaHa?w=400&c=7&r=0&o=5&pid=1.7" }, // melon photo
+  { id: "item9", title: "9 Kiwi", img: "https://tse2.mm.bing.net/th/id/OIP.Gkx0GvvJcsfuhgsV_SfrhwHaEJ?w=400&c=7&r=0&o=5&pid=1.7" },
+  { id: "item10", title: "10 Lemon", img: "https://tse4.mm.bing.net/th/id/OIP.vFI4z4FnOjhlibJz73cCbwHaLH?w=400&c=7&r=0&o=5&pid=1.7" }
+];
+
+
+    // Render items into container
+    const container = document.getElementById('container');
+    items.forEach(item => {
+      const el = document.createElement('div');
+      el.className = 'sItem';
+      el.dataset.id = item.id;
+      el.innerHTML = `
+        <div>${item.title}</div>
+      `;
+      container.appendChild(el);
+    });
+
+    insert_Row();
+
+    function insert_Row() {
+      // 1. Get a reference to the table body
+      let tableRef = document.getElementById("sampleTable").getElementsByTagName('tbody')[0];
+      console.log(tableRef);
+      // 2. Insert a row at the end of the table body
+      // The index -1 or tableRef.rows.length will append to the end
+
+      // 3. Insert cells into the new row
+      items.forEach(item => {
+        console.log(item);
+        let newRow = tableRef.insertRow();
+        console.log(newRow);
+        let cell1 = newRow.insertCell(0);  
+         // 4. Add content to the cells
+        cell1.innerHTML = item.id;    
+        console.log(cell1);
+        let cell2 = newRow.insertCell(1);     
+        cell2.innerHTML = item.title;
+        console.log(cell2);
+      });     
+    }
+
+    
+    // Initialize Sortable with multi-drag
+    new Sortable(container, {
+      animation: 150,
+      multiDrag: true,
+      selectedClass: "selected",
+      fallbackTolerance: 3, 
+      onEnd: (evt) => {
+        // Get final order of IDs
+        const ids = Array.from(container.children).map(el => el.dataset.id);
+        console.log("Final order of IDs:", ids);
+      },
+      onSelect: function(/**Event*/evt) {
+        evt.item // The selected item
+        // console.log(evt);
+        const id =  evt.item.dataset.id;
+        // console.log(Array.from(document.querySelectorAll('.selected')));
+
+        const selectedIDs = Array.from(document.querySelectorAll('.selected')).map(el => el.dataset.id);
+        console.log("newest Selected ID:", id);
+        console.log("Selected list ids:", selectedIDs);
+
+      },
+      // Called when an item is deselected
+      onDeselect: function(/**Event*/evt) {
+        evt.item // The deselected item
+        const id =  evt.item.dataset.id;     
+        // console.log(Array.from(document.querySelectorAll('.selected')));
+        const selectedIDs = Array.from(document.querySelectorAll('.selected')).map(el => el.dataset.id);
+        console.log("newest Delected ID:", id);
+        console.log("Selected list ids:", selectedIDs);
+      }
+    });
+
+
+    let tableRef = document.getElementById("sampleTable").getElementsByTagName('tbody')[0];
+
+    // Initialize Sortable with multi-drag
+    new Sortable(tableRef, {
+      animation: 150,
+      multiDrag: true,
+      selectedClass: "selected",
+      fallbackTolerance: 3,           
+    });
+  </script>
+</body>
+</html>

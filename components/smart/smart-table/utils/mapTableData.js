@@ -15,7 +15,7 @@ export function aPhraseNormalise_NewPhraseTab(item) {
     }
 
     return {
-      id: item.phraseID,       // normalized ID
+      phraseID: item.phraseID,       // normalized ID
       phrase: item.phrase,
       ukipa: item.ukipa,
       status,

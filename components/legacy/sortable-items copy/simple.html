@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Multi Sortable with Group Drag</title>
+  <style>
+    multi-sortable {
+      display: block;
+    }
+    .ms-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      border: 1px solid #ccc;
+      padding: 8px;
+      position: relative;
+    }
+    .ms-item {
+      width: 120px;
+      height: 120px;
+      border: 1px solid #999;
+      background: #f9f9f9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      cursor: grab;
+    }
+    
+    .ms-item.selected {
+      background: #cce5ff;
+      border-color: #3399ff;
+    }
+    .ms-placeholder {
+      width: 120px;
+      height: 120px;
+      border: 2px dashed #3399ff;
+      background: rgba(51,153,255,0.1);
+    }
+  </style>
+</head>
+<body>
+  <multi-sortable id="demo"></multi-sortable>
+
+  <script type="module">
+    class MultiSortable extends HTMLElement {
+      constructor() {
+        super();
+        this._items = [];
+        this._renderer = null;
+        this._abort = new AbortController();
+        this._selected = new Set();
+        this._container = document.createElement('div');
+        this._container.className = 'ms-container';
+        this.appendChild(this._container);
+        this._dragGroup = null;
+        this._placeholder = null;
+      }
+
+      connectedCallback() {
+        const { signal } = this._abort;
+
+        // Selection logic
+        this._container.addEventListener('click', e => {
+          const itemEl = e.target.closest('.ms-item');
+          if (!itemEl) return;
+          const id = itemEl.dataset.id;
+          if (e.ctrlKey) {
+            if (this._selected.has(id)) {
+              this._selected.delete(id);
+              itemEl.classList.remove('selected');
+            } else {
+              this._selected.add(id);
+              itemEl.classList.add('selected');
+            }
+          } else {
+            this._selected.clear();
+            this._container.querySelectorAll('.ms-item.selected')
+              .forEach(el => el.classList.remove('selected'));
+            this._selected.add(id);
+            itemEl.classList.add('selected');
+          }
+          this.dispatchEvent(new CustomEvent('selection-change', {
+            detail: { ids: Array.from(this._selected) }
+          }));
+        }, { signal });
+
+        // Drag start
+        this._container.addEventListener('dragstart', e => {
+          const itemEl = e.target.closest('.ms-item');
+          if (!itemEl) return;
+          const id = itemEl.dataset.id;
+          if (this._selected.size > 1 && this._selected.has(id)) {
+            this._dragGroup = Array.from(this._selected);
+          } else {
+            this._dragGroup = [id];
+          }
+          // Create placeholder
+          this._placeholder = document.createElement('div');
+          this._placeholder.className = 'ms-placeholder';
+          e.dataTransfer.effectAllowed = 'move';
+        }, { signal });
+
+        // Drag over
+        this._container.addEventListener('dragover', e => {
+          e.preventDefault();
+          if (!this._dragGroup) return;
+          const afterEl = this._getDragAfterElement(e.clientX, e.clientY);
+          if (afterEl && this._container.contains(afterEl)) {
+            this._container.insertBefore(this._placeholder, afterEl);
+          } else {
+            this._container.appendChild(this._placeholder);
+          }
+        }, { signal });
+
+        // Drop
+        this._container.addEventListener('drop', e => {
+          e.preventDefault();
+          if (!this._dragGroup) return;
+          const fragment = document.createDocumentFragment();
+          this._dragGroup.forEach(id => {
+            const el = this._container.querySelector(`.ms-item[data-id="${id}"]`);
+            if (el) fragment.appendChild(el);
+          });
+          this._container.insertBefore(fragment, this._placeholder);
+          this._placeholder.remove();
+          this._placeholder = null;
+          this._updateOrder();
+          this._dragGroup = null;
+        }, { signal });
+      }
+
+      disconnectedCallback() {
+        this._abort.abort();
+      }
+
+      set items(arr) {
+        this._items = Array.isArray(arr) ? arr.slice() : [];
+        this._render();
+      }
+      get items() { return this._items.slice(); }
+
+      set renderer(fn) {
+        this._renderer = typeof fn === 'function' ? fn : null;
+        this._render();
+      }
+
+      getOrder() {
+        return Array.from(this._container.children)
+          .filter(el => el.classList.contains('ms-item'))
+          .map(el => el.dataset.id);
+      }
+
+      setOrder(ids) {
+        const map = new Map(this._items.map(i => [i.id, i]));
+        this._items = ids.map(id => map.get(id)).filter(Boolean);
+        this._render();
+        this.dispatchEvent(new CustomEvent('order-change', { detail: { ids } }));
+      }
+
+      _render() {
+        this._container.innerHTML = '';
+        for (const item of this._items) {
+          const el = document.createElement('div');
+          el.className = 'ms-item';
+          el.dataset.id = item.id;
+          el.draggable = true;
+          if (this._renderer) {
+            const rendered = this._renderer(item);
+            if (typeof rendered === 'string') {
+              el.innerHTML = rendered;
+            } else if (rendered instanceof HTMLElement) {
+              el.innerHTML = '';
+              el.appendChild(rendered);
+            }
+          } else {
+            el.textContent = item.title ?? item.id;
+          }
+          this._container.appendChild(el);
+        }
+      }
+
+      _getDragAfterElement(x, y) {
+        const els = [...this._container.querySelectorAll('.ms-item:not(.selected)')];
+        return els.find(el => {
+          const rect = el.getBoundingClientRect();
+          return x < rect.left + rect.width / 2;
+        });
+      }
+
+      _updateOrder() {
+        const ids = this.getOrder();
+        const map = new Map(this._items.map(i => [i.id, i]));
+        this._items = ids.map(id => map.get(id)).filter(Boolean);
+        this.dispatchEvent(new CustomEvent('order-change', { detail: { ids } }));
+      }
+    }
+
+    customElements.define('multi-sortable', MultiSortable);
+
+    // Demo usage
+    const demo = document.getElementById('demo');
+    demo.items = [
+          { id: "item1", title: "1 Apple", img: "https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=300&h=300&fit=crop" },
+          { id: "item2", title: "2 Banana", img: "https://tse2.mm.bing.net/th/id/OIP.FZ0pu7WcurIoPGU9JX4ErQHaGu?w=400&c=7&r=0&o=5&pid=1.7" },
+          { id: "item3", title: "3 Cherry", img: "https://tse2.mm.bing.net/th/id/OIP.EqqYHX_EkrkJdfwH7uH-TQHaHa?w=400&c=7&r=0&o=5&pid=1.7" },
+          { id: "item4", title: "4 Orange", img: "https://tse4.mm.bing.net/th/id/OIP.07Oyb9un-38JIVCzqibMHgHaFS?w=400&c=7&r=0&o=5&pid=1.7" },
+          { id: "item5", title: "5 Elderberry", img: "https://tse4.mm.bing.net/th/id/OIP.fzVHa_qkyMgd3TLO1_gn7gHaE7?w=400&c=7&r=0&o=5&pid=1.7" },
+          { id: "item6", title: "6 Fig", img: "https://tse3.mm.bing.net/th/id/OIP.UiZ55vDrwoTy3dL2pz_cnQHaEI?w=400&c=7&r=0&o=5&pid=1.7" },
+          { id: "item7", title: "7 Grape", img: "https://tse1.mm.bing.net/th/id/OIP.r4gzGgFQwO6Pzo1mFJ2AyQHaE8?w=400&c=7&r=0&o=5&pid=1.7" },
+          { id: "item8", title: "8 Honeydew", img: "https://tse1.mm.bing.net/th/id/OIP.dIq5cQ_4_dPo5-WXFRYcZQHaHa?w=400&c=7&r=0&o=5&pid=1.7" },
+          { id: "item9", title: "9 Kiwi", img: "https://tse2.mm.bing.net/th/id/OIP.Gkx0GvvJcsfuhgsV_SfrhwHaEJ?w=400&c=7&r=0&o=5&pid=1.7" },
+          { id: "item10", title: "10 Lemon", img: "https://tse4.mm.bing.net/th/id/OIP.vFI4z4FnOjhlibJz73cCbwHaLH?w=400&c=7&r=0&o=5&pid=1.7" }
+        ];
+
+    demo.renderer = (item) => `
+            <div><img src="${item.img}" alt="${item.title}"></div>
+            <div><strong>${item.title}</strong></div>       
+        `;
+    
+    demo.addEventListener('selection-change', e => {
+      console.log('Selected IDs:', e.detail.ids);
+    });
+    demo.addEventListener('order-change', e => {
+      console.log('Order changed:', e.detail.ids);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">  
+
+  <title>Smart Dragdrop – Single Column Demo</title>
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css" />
+  <script type="module"
+          src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace.js"></script>
+  <link rel="stylesheet" href="./smart-dragdrop.css">
+
+  <style>
+    html,body {
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+      margin:0;
+      padding: 5px;
+    }
+
+    .wrapper {
+      height: 60vh;
+      border: 1px solid black;
+      overflow: hidden;
+    }
+
+
+  </style>
+</head>
+<body>
+  <h2>Smart Dragdrop – Single Column Demo</h2>
+
+  <div class="wrapper">
+    <!-- Just mode="single"; columns drive the view -->
+    <smart-dragdrop id="demo" mode="single" layout="auto"></smart-dragdrop>
+  </div>
+
+  <script type="module">
+    import './smart-dragdrop.js';
+    import { tableData } from "./../../../Testers/phraseList.js";
+
+    const demo = document.getElementById('demo');
+
+    demo.data = {
+    //  idKey : "phraseID",
+    //  arr: tableData.slice(0,30),
+     arr: [
+
+      { id: "item1", title: "1 Apple", img: "https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=300&h=300&fit=crop" },
+      { id: "item2", title: "2 Banana", img: "https://tse2.mm.bing.net/th/id/OIP.FZ0pu7WcurIoPGU9JX4ErQHaGu?w=400&c=7&r=0&o=5&pid=1.7" },
+      { id: "item3", title: "3 Cherry", img: "https://tse2.mm.bing.net/th/id/OIP.EqqYHX_EkrkJdfwH7uH-TQHaHa?w=400&c=7&r=0&o=5&pid=1.7" },
+      { id: "item4", title: "4 Orange", img: "https://tse4.mm.bing.net/th/id/OIP.07Oyb9un-38JIVCzqibMHgHaFS?w=400&c=7&r=0&o=5&pid=1.7" },
+      { id: "item5", title: "5 Elderberry ddddddddddd dddddddddddd", img: "https://tse4.mm.bing.net/th/id/OIP.fzVHa_qkyMgd3TLO1_gn7gHaE7?w=400&c=7&r=0&o=5&pid=1.7" }, // elderberries are rarer, reused berry photo
+      { id: "item6", title: "6 Fig", img: "https://tse3.mm.bing.net/th/id/OIP.UiZ55vDrwoTy3dL2pz_cnQHaEI?w=400&c=7&r=0&o=5&pid=1.7" },
+      { id: "item7", title: "7 Grape", img: "https://tse1.mm.bing.net/th/id/OIP.r4gzGgFQwO6Pzo1mFJ2AyQHaE8?w=400&c=7&r=0&o=5&pid=1.7" },
+      { id: "item8", title: "8 Honeydew", img: "https://tse1.mm.bing.net/th/id/OIP.dIq5cQ_4_dPo5-WXFRYcZQHaHa?w=400&c=7&r=0&o=5&pid=1.7" }, // melon photo
+      { id: "item9", zone: "selec", order: 0, title: "9 Kiwi", img: "https://tse2.mm.bing.net/th/id/OIP.Gkx0GvvJcsfuhgsV_SfrhwHaEJ?w=400&c=7&r=0&o=5&pid=1.7" },
+      { id: "item10", zone: "select2", order: 0, title: "10 Lemon", img: "https://tse4.mm.bing.net/th/id/OIP.vFI4z4FnOjhlibJz73cCbwHaLH?w=400&c=7&r=0&o=5&pid=1.7" },  
+        // { text: "1. Apple", zone: "avail", order: 0 },
+        // { text: "2. Banana", zone: "avail", order: 1 },
+        // { text: "3. Cherry", zone: "avail", order: 2 },
+        // { text: "4. Date", zone: "avail", order: 3 },
+        // { text: "5. Elderberry", zone: "avail", order: 4 },
+
+        // { text: "6. Fig", zone: "selec", order: 0 },
+        // { text: "7. Grape", zone: "selec", order: 6 },
+
+        // { text: "8. Honeydew", avail: "select2", order: 6 },
+        // { text: "9. Applee eee", zone: "select2", order: 1 },
+        // { text: "10. Bananaa aaa", zone: "select2", order: 3 },
+        // { text: "11. Cherryy yyy", zone: "select2", order: 2 },
+        // { text: "12. Dateeeee", zone: "select2", order: 4 },
+        // { text: "13. Elderberry yyyy", zone: "select2", order: 5 },
+        // { text: "14. Figggg gg", zone: "select2", order: 6 },
+        // { text: "15. Grapee eeee", zone: "select2", order: 7 },
+        // { text: "16. Honeydeww wwww", zone: "select2", order: 8 },     
+        // { text: "17. Qua oc cho" , zone:"selec"} 
+      ],
+    renderFields: { // fields are placed in order
+      list: ["title"],
+      icon: ["img","title"],
+      detail:["title","id","img"] 
+     },
+    detailCols: { 
+       "<400": "80px 0 auto", 
+      // "<700": "1fr 1fr 2fr", 
+      ">400": "80px 40px auto" 
+    },
+     renderItem: (item, zone, viewMode) => {
+          switch (viewMode) {
+            case "list":
+              return `
+                <div class="draggable" draggable="true" data-zone="${zone}" data-id="${item._id}">
+                  <div class="title">${item.title}</div>
+                </div>`;            
+            case "icon":
+              return `
+                <div class="draggable" draggable="true" data-zone="${zone}" data-id="${item._id}">
+                  <img src="${item.img}" alt="${item.title}"/>
+                  <div class="title">${item.title}</div>
+                </div>`;
+            case "detail":
+              return `
+                <div class="draggable" draggable="true" data-zone="${zone}" data-id="${item._id}">   
+                  <div class="title detail_field">${item.title}</div>
+                  <div class="detail_field">${item.id}</div>
+                  <div class="detail_field">${item.img}</div>
+                </div>`;
+            
+            default:
+              return "";
+          }
+        },
+      columns: [
+        {
+          id: "avail",
+          title: "Avalable",
+          view: "detail",          // "list" | "detail" | "icon"
+          listItemWidth: 150,    // 
+          listItemHeight: 20,    // 
+          rowGap: 5,            // 
+          columnGap: 5,         // 
+          height: 650,            // px column height
+          rangeValue: 30// initial slider step
+        },{ id: "selec", title: "Selected", view: "list",listItemWidth: 150, listItemHeight: 20, rowGap: 5, columnGap: 5, height: 400, rangeValue: 30  },{ id: "select2", title: "Selected 2", view: "icon", defaultIconSize: 120, listItemWidth: 150, listItemHeight: 20, rowGap: 5, columnGap: 5, height: 400, rangeValue: 30  }
+      ]
+    };
+
+    demo.addEventListener('dragdrop-box-changed', e => {
+      console.log('Detail:', e.detail);
+    });
+  </script>
+</body>
+</html>

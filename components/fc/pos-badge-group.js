@@ -45,6 +45,7 @@ class POSBadgeGroup extends HTMLElement {
  
 
   render(posList = []) {   
+    this.shadowRoot.innerHTML = "";
     //console.log(posList);
     const styleEl = document.createElement('style');
     styleEl.textContent = `

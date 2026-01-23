@@ -12,8 +12,13 @@
   <link href="./../css/shoelace_customized.css" rel="stylesheet">  <!-- for customized shoelace default value-->      
   <!-- Extended smart-table -->
   <script type="module" src="./../components/smart/extended-smart-table/extended-smart-table.js"></script>
-  <script type="text/javascript" src="./phraseList.js"></script>
+  <script type="module" src="./phraseList.js"></script>
   <style>
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+
     .legend {
       margin-top: 5px;
       user-select: none;   
@@ -35,10 +40,15 @@
 </head>
 <body>
   <extended-smart-table id="extTbl" search="true" pagination="10,20,50,100,all"></extended-smart-table>
-  <div class="legend scrollBar_hidden">
-  </div>
+  <div class="legend scrollBar_hidden"></div>
+  <a-phrase-mobile-editor></a-phrase-mobile-editor>
+
   <script type="module">
     import "./../components/smart/star-rating.js";
+    import "./../components/fc/a-phrase-mobile-editor.js";
+    import Sortable from "./../components/lib/sortableJS/sortable.complete.esm.js";
+    import { tableData } from "./phraseList.js"
+
     import { mapTableData, formatTimestamp, StatusColorData, oldDataBgColor, aPhraseNormalise_NewPhraseTab } from "./../components/smart/smart-table/utils/mapTableData.js";
 
     const legend = document.querySelector('.legend');
@@ -57,6 +67,28 @@
 
 
     const extTbl = document.getElementById("extTbl");
+    const editor = document.querySelector('a-phrase-mobile-editor');
+
+    const theTable = extTbl.shadowRoot.getElementById("tbl").shadowRoot.getElementById("tableBody");
+    const editorChildren = editor.shadowRoot.getElementById("container");
+
+    console.log(editorChildren);
+        console.log(theTable);
+    // Initialize Sortable with multi-drag
+    new Sortable(theTable, {
+      animation: 150,
+      multiDrag: true,
+      selectedClass: "selected",
+      fallbackTolerance: 3,           
+    });
+
+    new Sortable(editorChildren, {
+      animation: 150,
+        multiDrag: true,
+        selectedClass: "selected",
+      fallbackTolerance: 3,           
+    });
+
 
     // Host prepares raw data (no mapTableData here)
     extTbl.data = mapTableData(tableData);
@@ -128,8 +160,8 @@
       const div = document.createElement("div");
       div.className = "actions";
       div.innerHTML = `
-        <button class="btn btn-edit" data-id="${obj.id}">✏️</button>
-        <button class="btn btn-delete" data-id="${obj.id}">🗑️</button>
+        <button class="btn btn-edit" data-id="${obj.phraseID}">✏️</button>
+        <button class="btn btn-delete" data-id="${obj.phraseID}">🗑️</button>
       `;
 
       setTimeout(() => {
@@ -145,7 +177,7 @@
       click: (e, row, obj) => {
         if (e.target.classList.contains("btn-edit")) {
           row.dispatchEvent(new CustomEvent("edit-requested", {
-            detail: { id: obj.id },
+            detail: { id: obj.phraseID },
             bubbles: true,
             composed: true
           }));
@@ -154,7 +186,7 @@
           const msg = "Are you sure you want to delete this row?";
           if (confirm(msg)) {
             row.dispatchEvent(new CustomEvent("delete-requested", {
-              detail: { ids: obj.id },
+              detail: { ids: obj.phraseID },
               bubbles: true,
               composed: true
             }));
@@ -205,12 +237,19 @@
   //   }
   // }
 ]);
+  
+  //   extTbl._sortState = { key:"status", dir:"asc" };
+  //  // extTbl._pageSize = extTbl._raw.length ;
+  //   extTbl.$pageSize.value = "5";
+  //   extTbl._onPageSize({ target : { value : "5"}});
 
-    extTbl._sortState = { key:"status", dir:"asc" };
-    extTbl._pageSize = extTbl._raw.length ;
-    extTbl.$pageSize.value = "all";
-    extTbl._onPageSize({ target : { value : "all"}});
-
+    extTbl.setConfig({
+      sortKey: "status",
+      sortDir: "asc",
+      pageSize: "5",
+      tableMaxHeight: "100px",
+      idKey : "phraseID"
+    })
     //extTbl._runPipeline();
     // Listen to generic events
     // extTbl.addEventListener("interactive-component-changed", e => {
@@ -220,27 +259,35 @@
 
     document.addEventListener('edit-requested', (e) => {
       console.log("edit-requested", e.detail.id);
+      // console.log(tableData);
+      const editItem = tableData.find(item => item.phraseID === e.detail.id);
+      console.log(editItem);
+      editor.setData = editItem;
     })
 
 
     document.addEventListener('highlight-changed', (e) => {
       console.log("highlight-changed", e.detail.id);
+      
     })
 
-    const theTargetID = "phrase-01KE3JYW2F420A1NY6XJANPBXQ";
-    const oldItem = tableData.find( item => item.phraseID === theTargetID);
+
+
+
+    // const theTargetID = "phrase-01KE3JYW2F420A1NY6XJANPBXQ";
+    // const oldItem = tableData.find( item => item.phraseID === theTargetID);
         
-    oldItem.phrase = "oil the wheel";
-    oldItem.defi = [
-      {
-        "pos": "noun",
-        "info": "",
-        "definition": "the part of the human brain or personality believed to produce behaviour based on instinct (= natural reactions and behaviours that are not under your conscious control) or emotion, rather than on reasonable thought or on things you have learned:",
-        "example": "These instinctual animal behaviour patterns are located in what is commonly termed the lizard brain.\nWhy can't I stop scrolling on my phone or eating sweets? I’m at the mercy of my lizard brain."
-      }
-    ];
+    // oldItem.phrase = "oil the wheel";
+    // oldItem.defi = [
+    //   {
+    //     "pos": "noun",
+    //     "info": "",
+    //     "definition": "the part of the human brain or personality believed to produce behaviour based on instinct (= natural reactions and behaviours that are not under your conscious control) or emotion, rather than on reasonable thought or on things you have learned:",
+    //     "example": "These instinctual animal behaviour patterns are located in what is commonly termed the lizard brain.\nWhy can't I stop scrolling on my phone or eating sweets? I’m at the mercy of my lizard brain."
+    //   }
+    // ];
       
-    const normalisedItem = aPhraseNormalise_NewPhraseTab(oldItem);    
+    // const normalisedItem = aPhraseNormalise_NewPhraseTab(oldItem);    
     // console.log(normalisedItem);
     // setTimeout(() => {        
     //     extTbl._updateRowData(theTargetID, normalisedItem);

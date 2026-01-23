@@ -37,7 +37,7 @@ export function transformFinalResults(finalResults, userID, reminderText = "", t
       user_imgIndex: { defaultIndex: 0 },
       user_soundIndex: { defaultIndex: 0 },
       user_note: "",
-      related_phrases: [],
+      connecting_phrases: [],
       reminder_text: reminderText || null,
       tags: tags  || [],    
       createdAt: now.toISOString(),

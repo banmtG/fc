@@ -14,6 +14,7 @@ class SmartIpaInput extends HTMLElement {
     this._onKeyDown = this._onKeyDown.bind(this);
     this._onInput = this._onInput.bind(this);
 
+
     // Prepare template with embedded styles
     const template = document.createElement("template");
 
@@ -87,12 +88,41 @@ class SmartIpaInput extends HTMLElement {
     sl-input::part(input) {
       font-size: 1.3rem;
     }     
+
+    .title {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .titleExtra {
+      margin-right:0;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      row-gap: 1px;   
+      column-gap: 20px;   
+      align-items: center;
+    }
     </style>`;
+
 
     // Include styles and component structure in the template
     template.innerHTML = `${style}
     <smart-dialog esc-close draggable>
-        <div slot="header">IPA (lowercase)</div>
+        <div slot="header">
+          <div class="title">
+            <span style="flex-shrink:0">IPA (lowercase)</span>
+            <div class="titleExtra">
+              <div>
+              <sl-button id="ukipaBtn" class="uk" size="small">UK</sl-button> <span class="uk" id="ukipa"></span>
+              </div>
+              <div>
+              <sl-button id="usipaBtn" class="us" size="small">US</sl-button> <span class="us" id="usipa"></span>
+              </div>
+            </div>
+          </div>
+        </div>        
         <div slot="body" class="body">
             <div class="char-grid"></div>
             <sl-input size="small" id="ipa_input" class="focusable"></sl-input>       
@@ -112,7 +142,7 @@ class SmartIpaInput extends HTMLElement {
 
     // List of IPA characters
     this._ipaCharacters = [
-      "i", "ɪ", "ɛ", "æ", "ɒ", "ɑ", "ʌ", "u", "ʊ", "ə", "ɜ", "ɔ", "iː", "uː", "ɜː", "ɔː", "ɑː", "eː", "ː", "aɪ", "eɪ", "ɔɪ", "aʊ", "əʊ", "ɪə", "eə", "ʊə", "ɪr", "oʊ", "ɛr", "aɪr", "aɪə", "aʊə", "s", "ʃ", "tʃ", "ʒ", "dʒ", "θ", "d", "ð", "n", "ŋ", "ɾ", "t", "t̬", "ɝ", "ɚ", "ɔr", "ˌ", "ˈ", "ʔ", ];
+      "i", "ɪ", "ɛ", "æ", "ɒ", "ɑ", "ʌ", "u", "ʊ", "ə", "ɜ", "ɔ", "iː", "uː", "ɜː", "ɔː", "ɑː", "eː", "ː", "aɪ", "eɪ", "ɔɪ", "aʊ", "əʊ", "ɪə", "eə", "ʊə", "ɪr", "oʊ", "ɛr", "aɪr", "aɪə", "aʊə", "s", "ʃ", "tʃ", "ʒ", "dʒ", "θ", "d", "ð", "n", "ŋ", "ɾ", "t", "t̬", "ɝ", "ɚ", "ɔr", "ˌ", "ˈ", "ʔ","." ];
   }
 
   disconnectedCallback() {
@@ -129,12 +159,21 @@ class SmartIpaInput extends HTMLElement {
       
     // Ensure keyboard handling is detached and stack is updated
     this.unbindKeyEvents();
+    this._abort.abort(); // removes all listeners tied to this signal
     FocusStack.pop(this);
   }
   
 
   connectedCallback() {
     this.render();
+    this._abort = new AbortController();
+    const { signal } = this._abort;
+
+    this._ukipaBtn.addEventListener('click', ()=>this._insertAvailableIPA(this._ukipa.textContent), {signal});
+    this._usipaBtn.addEventListener('click', ()=>this._insertAvailableIPA(this._usipa.textContent), {signal});
+
+
+
     // add EventListeners
     this._smart_dialog.addEventListener("smart-dialog-confirmed", this._confirmHandler);
     this._smart_dialog.addEventListener("smart-dialog-canceled", this._cancelHandler);
@@ -170,6 +209,14 @@ class SmartIpaInput extends HTMLElement {
 
     this._ipa_input = this.shadowRoot.getElementById("ipa_input");
     this._grid = this.shadowRoot.querySelector(".char-grid");
+
+
+    this._ukipaBtn = this.shadowRoot.getElementById("ukipaBtn");
+    this._ukipa = this.shadowRoot.getElementById("ukipa");
+
+    this._usipaBtn = this.shadowRoot.getElementById("usipaBtn");
+    this._usipa = this.shadowRoot.getElementById("usipa");
+
 
     // Build grid of character buttons
     this._ipaCharacters.forEach((char) => {
@@ -234,7 +281,6 @@ class SmartIpaInput extends HTMLElement {
   _onKeyDown(e) {
      // Only handle if this is the active component
     if (FocusStack.peek() !== this) return;
-
     if (["Enter"].includes(e.key)) {
       this._confirmBtn.click(); // mimic confirm Click by endter
     }
@@ -272,7 +318,32 @@ class SmartIpaInput extends HTMLElement {
     }
   }
 
-  open(current_ipa) {
+  _insertAvailableIPA (text) {
+    this._ipa_input.value = text;
+    this._ipa_input.focus();
+  }
+
+  open(entry) {
+
+    const current_ipa = entry.user_ipa;
+    const ukipa = entry.ukipa? entry.ukipa : null;
+    if (ukipa===null) {
+      this._ukipaBtn.style.display = "none";
+      this._ukipa.style.display = "none";
+    } else {
+      this._ukipa.innerText = `${ukipa}`;
+    }
+    const usipa = entry.usipa? entry.usipa : null;
+    if (usipa===null) {
+      this._usipaBtn.style.display = "none";
+      this._usipa.style.display = "none";
+    } else {
+      this._usipa.innerText = `${usipa}`;
+    }
+// this._ukipaBtn
+// this._ukipa
+// this._usipaBtn
+// this._usipa
     // 🔓 Show the dialog by setting its display to 'flex'
     // this.render();
     this._smart_dialog.style.display = "block";

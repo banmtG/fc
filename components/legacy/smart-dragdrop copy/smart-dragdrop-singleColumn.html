@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">  
+
+  <title>Smart Dragdrop – Single Column Demo</title>
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css" />
+  <script type="module"
+          src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace.js"></script>
+  <link rel="stylesheet" href="./smart-dragdrop.css">
+  <script type="text/javascript" src="./../../../Testers/phraseList.js"></script>
+  <style>
+    html,body {
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+      margin:0;
+      padding: 5px;
+    }
+
+    .wrapper {
+      height: 60vh;
+      border: 1px solid black;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <h2>Smart Dragdrop – Single Column Demo</h2>
+
+  <div class="wrapper">
+    <!-- Just mode="single"; columns drive the view -->
+    <smart-dragdrop id="demo" mode="single" layout="auto"></smart-dragdrop>
+  </div>
+
+  <script type="module">
+    import './smart-dragdrop.js';
+
+    const demo = document.getElementById('demo');
+
+    demo.data = {
+     idKey : "phraseID",
+     arr: tableData,
+    //  arr: [
+    //     { text: "1. Apple", zone: "avail", order: 0 },
+    //     { text: "2. Banana", zone: "avail", order: 1 },
+    //     { text: "3. Cherry", zone: "avail", order: 2 },
+    //     { text: "4. Date", zone: "avail", order: 3 },
+    //     { text: "5. Elderberry", zone: "avail", order: 4 },
+
+    //     { text: "6. Fig", zone: "selec", order: 0 },
+    //     { text: "7. Grape", zone: "selec", order: 6 },
+
+    //     { text: "8. Honeydew", avail: "select2", order: 6 },
+    //     { text: "9. Applee eee", zone: "select2", order: 1 },
+    //     { text: "10. Bananaa aaa", zone: "select2", order: 3 },
+    //     { text: "11. Cherryy yyy", zone: "select2", order: 2 },
+    //     { text: "12. Dateeeee", zone: "select2", order: 4 },
+    //     { text: "13. Elderberry yyyy", zone: "select2", order: 5 },
+    //     { text: "14. Figggg gg", zone: "select2", order: 6 },
+    //     { text: "15. Grapee eeee", zone: "select2", order: 7 },
+    //     { text: "16. Honeydeww wwww", zone: "select2", order: 8 },     
+    //     { text: "17. Qua oc cho" , zone:"selec"} 
+    //   ],
+      renderItem: (item, zone) => `
+        <div class="draggable" draggable="true"
+             data-zone="${zone}" data-id="${item._id}">
+          ${item.phrase}
+        </div>`,
+      columns: [
+        {
+          id: "avail",
+          title: "Avalable",
+          view: "list",          // "list" | "detail" | "icon"
+          listItemWidth: 150,    // 
+          listItemHeight: 20,    // 
+          rowGap: 5,            // 
+          columnGap: 5,         // 
+          height: 650,            // px column height
+          rangeValue: 30// initial slider step
+        }
+        // ,{ id: "selec", title: "Selected", view: "list",listItemWidth: 150, listItemHeight: 20, rowGap: 5, columnGap: 5, height: 400, rangeValue: 30  },
+        // ,{ id: "select2", title: "Selected 2", view: "detail", defaultIconSize: 120, listItemWidth: 150, listItemHeight: 20, rowGap: 5, columnGap: 5, height: 400, rangeValue: 30  }
+      ]
+    };
+
+    demo.addEventListener('dragdrop-box-changed', e => {
+      console.log('Detail:', e.detail);
+    });
+  </script>
+</body>
+</html>

@@ -11,7 +11,7 @@ export function createRow(obj, columns, idKey, localIndex, localTotal) {
     cell.className = "cell";
     cell.dataset.key = col.key; // ✅ add data-key attribute
     // console.log(obj.cellBgColor[col.key]);
-    if (obj.cellBgColor[col.key]) cell.style.backgroundColor = obj.cellBgColor[col.key];
+    if (obj.cellBgColor?.[col.key]) cell.style.backgroundColor = obj.cellBgColor[col.key];
 
     if (typeof col.render === "function") {
       const rendered = col.render(obj[col.key], obj, localIndex, localTotal); // pass index + total
@@ -44,29 +44,26 @@ export function createRow(obj, columns, idKey, localIndex, localTotal) {
 
 export function _updateRowUI(component, id, newRowData) {
   const oldRow = component._rowMap.get(id);
-  if (oldRow) {
-    const currentClassName = oldRow.className;
-    const newRow = createRow(
-      newRowData,
-      component._visibleCols,
-      component._idKey,
-      oldRow.dataset.index,
-      oldRow.dataset.total,
-    );
-    oldRow.replaceWith(newRow);    
-    // add highlight animation for newly row 
-    newRow.classList.add("row-highlight"); 
-    newRow.addEventListener("animationend", () => { 
-      newRow.classList.remove("row-highlight"); 
-    }, { once: true }); 
+  if (!oldRow) return;
 
-    setTimeout(() => {
-        newRow.className = currentClassName;
-        component._rowMap.set(id, newRow);   
-    }, 1000);
-    
-  }
+  const newRow = createRow(
+    newRowData,
+    component._visibleCols,
+    component._idKey,
+    oldRow.dataset.index,
+    oldRow.dataset.total,
+  );
+
+  oldRow.replaceWith(newRow);
+  component._rowMap.set(id, newRow);
+
+  // trigger highlight animation
+  newRow.classList.add("row-highlight");
+  newRow.addEventListener("animationend", () => {
+    newRow.classList.remove("row-highlight");
+  }, { once: true });
 }
+
 
 // Utility: apply sort classes to a header cell
 function _applySortState(component, cell, key) {

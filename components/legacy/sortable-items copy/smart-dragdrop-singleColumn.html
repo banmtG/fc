@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Smart Dragdrop – Single Column Demo</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css" />
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace.js"></script>
+  <!-- Include the condensed CSS -->
+  <link rel="stylesheet" href="./smart-dragdrop.css">
+</head>
+<body>
+  <h2>Smart Dragdrop – Single Column Demo</h2>
+
+  <!-- Use the component with mode="single" -->
+  <smart-dragdrop id="demo" mode="single" view="list"></smart-dragdrop>
+
+  <script type="module">
+    import './smart-dragdrop.js';
+
+    const demo = document.getElementById('demo');
+
+    // Simple dataset
+    demo.data = {
+      arr: [
+        { _id: "item1", text: "1. Apple" },
+        { _id: "item2", text: "2. Banaaana" },
+        { _id: "item3", text: "3. Cherry" },
+        { _id: "item4", text: "4. Date" },
+        { _id: "item5", text: "5. Elderberry" },
+        { _id: "item6", text: "6. Fig" },
+        { _id: "item7", text: "7. Grape" },
+        { _id: "item8", text: "8. Honeydew" }
+      ],
+      defaultItems: [], // no preselected items
+      renderItem: (item, zone) => `
+        <div class="draggable" draggable="true" data-zone="${zone}" data-id="${item._id}">
+          ${item.text}
+        </div>
+      `
+    };
+
+    // Listen for changes
+    demo.addEventListener('dragdrop-box-changed', e => {
+      console.log('Selected items:', e.detail.selected);
+      console.log('Selected indices:', e.detail.indexSelected);
+    });
+  </script>
+</body>
+</html>

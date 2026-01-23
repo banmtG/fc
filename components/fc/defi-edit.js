@@ -91,7 +91,7 @@ class DefiEdit extends HTMLElement {
     this.toggle.callbacks ={
       0: () => { 
        // console.log(`toggle value: `,this.toggle.getValue);
-        this.entryData.user_defi.selectD = true;       
+        this.entryData.user_defi.selectDefault = true;       
         this._toggleTitle();
         this.dragdropScreen.classList.toggle('active'); 
         this.manualScreen.classList.toggle('active');
@@ -100,7 +100,7 @@ class DefiEdit extends HTMLElement {
       },
       1: () => { 
      //   console.log(`toggle value: `,this.toggle.getValue);
-        this.entryData.user_defi.selectD = false;
+        this.entryData.user_defi.selectDefault = false;
         this._toggleTitle();
         this.manualScreen.classList.toggle('active');
         this.dragdropScreen.classList.toggle('active'); 
@@ -118,6 +118,7 @@ class DefiEdit extends HTMLElement {
   
 _confirmHandler() {
   //console.log(`defi-edit-dialog-confirmed event emitted`);
+    console.log(this.entryData.user_defi);
     this.dispatchEvent(new CustomEvent('defi-edit-dialog-confirmed', {    
           detail: { user_defi: this.entryData.user_defi },
           bubbles: false,
@@ -140,19 +141,29 @@ _confirmHandler() {
   }
 
     renderDragdropDefiScreen() {
+
+      console.log(this.entryData.defi);
+      if (this.entryData.defi?.length===0) {
+        this.dragdropScreen.innerHTML = `<div style="margin: 10px; display: flex; justify-content:center">No data from dictionary</div>`;
+        return;
+      }
       try {
-      if (!Array.isArray(JSON.parse(this.entryData.defi))) return;
+        if (!Array.isArray(this.entryData.defi)&& this.entryData.defi == []) {
+      
+          return;          
+        }
       } catch (e) {
         return;
       }    
       //console.log(`vaof redner`);
       //this.manualScreen.innerHTML="";
+      console.log('continue after return');
       this.dragdropScreen.replaceChildren();
       this.dragdropScreen.innerHTML = `
       <dragdrop-box></dragdrop-box>`;
 
       const dragdrop_box = this.dragdropScreen.querySelector("dragdrop-box");
-      let arrayObjects = JSON.parse(this.entryData.defi);
+      let arrayObjects = this.entryData.defi;
       
       arrayObjects = arrayObjects.map(item=> {        
         const newPos = parsePOS(item.pos);
@@ -216,13 +227,13 @@ _confirmHandler() {
       //console.log(editor.data);
       editor.addEventListener('item-editor-changed', (e)=> {
        // console.log(e.detail.data);
-        this.entryData.user_defi.user_defi = e.detail.data;
+        this.entryData.user_defi.customized_defi = e.detail.data;
       })
     }
 
     loadInitData(initialValue = {}) {
       this.entryData = initialValue;     
-     // this.toggle.setValue = this.entryData.user_defi.selectD;
+     // this.toggle.setValue = this.entryData.user_defi.selectDefault;
       this.renderDragdropDefiScreen();
       this.renderCustomizeDefiScreen();
       // console.log(`2 screen pre render`);
@@ -234,7 +245,7 @@ _confirmHandler() {
       //console.log(this.entryData);
       // console.log(this.entryData);
 
-      this.toggle.setValue = this.entryData.user_defi.selectD;
+      this.toggle.setValue = this.entryData.user_defi.selectDefault;
      // console.log(this.toggle.getValue);
      // console.log(typeof this.toggle.getValue, this.toggle.getValue);
       // console.log(this.toggle.value);
