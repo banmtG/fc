@@ -17,9 +17,9 @@ class DefiEdit extends HTMLElement {
 
     // Include styles and component structure in the template
     template.innerHTML =`${this.componentCSS}
-      <smart-dialog esc-close draggable>     
+      <smart-dialog esc-close overlay-close draggable>     
         <div slot="header" class="header"> 
-          Definition Editor            
+          <span style="font-size: 1.2rem"><b>Definition Editor</b></span>            
         </div>
         <div slot="body">
         <div class="bodyContainer noScrollable_container">
@@ -142,7 +142,7 @@ _confirmHandler() {
 
     renderDragdropDefiScreen() {
 
-      console.log(this.entryData.defi);
+      // console.log(this.entryData.defi);
       if (this.entryData.defi?.length===0) {
         this.dragdropScreen.innerHTML = `<div style="margin: 10px; display: flex; justify-content:center">No data from dictionary</div>`;
         return;
@@ -157,7 +157,7 @@ _confirmHandler() {
       }    
       //console.log(`vaof redner`);
       //this.manualScreen.innerHTML="";
-      console.log('continue after return');
+      // console.log('continue after return');
       this.dragdropScreen.replaceChildren();
       this.dragdropScreen.innerHTML = `
       <dragdrop-box></dragdrop-box>`;
@@ -246,6 +246,7 @@ _confirmHandler() {
       // console.log(this.entryData);
 
       this.toggle.setValue = this.entryData.user_defi.selectDefault;
+      console.log(this.entryData.user_defi.selectDefault);
      // console.log(this.toggle.getValue);
      // console.log(typeof this.toggle.getValue, this.toggle.getValue);
       // console.log(this.toggle.value);

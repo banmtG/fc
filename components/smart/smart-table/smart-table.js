@@ -368,7 +368,6 @@ _onKeyDown(e) {
   addRow(obj) { addRow(this, obj); }
 
   updateRowUI(id,newRowData) { 
-     console.log(newRowData);
     _updateRowUI(this,id,newRowData) 
   }
 

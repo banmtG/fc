@@ -17,6 +17,7 @@
     body {
       display: flex;
       flex-direction: column;
+      width:100%;     
     }
 
     .legend {
@@ -29,6 +30,7 @@
       gap: 10px;
       overflow-x: scroll;
     }
+
     .legendItems {
       padding: 4px 6px;
       display: flex;
@@ -36,6 +38,31 @@
       align-items: center;
       flex-shrink: 0;
     }
+
+    
+/* scrollbar */
+::-webkit-scrollbar {
+  width: 1px;
+  height: 1px;
+}
+
+::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.3);
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
+}
+
+::-webkit-scrollbar-thumb:window-inactive {
+  background: rgba(255, 255, 255, 0.3);
+}
+
   </style>
 </head>
 <body>
@@ -75,19 +102,19 @@
     console.log(editorChildren);
         console.log(theTable);
     // Initialize Sortable with multi-drag
-    new Sortable(theTable, {
-      animation: 150,
-      multiDrag: true,
-      selectedClass: "selected",
-      fallbackTolerance: 3,           
-    });
+    // new Sortable(theTable, {
+    //   animation: 150,
+    //   multiDrag: true,
+    //   selectedClass: "selected",
+    //   fallbackTolerance: 3,           
+    // });
 
-    new Sortable(editorChildren, {
-      animation: 150,
-        multiDrag: true,
-        selectedClass: "selected",
-      fallbackTolerance: 3,           
-    });
+    // new Sortable(editorChildren, {
+    //   animation: 150,
+    //     multiDrag: true,
+    //     selectedClass: "selected",
+    //   fallbackTolerance: 3,           
+    // });
 
 
     // Host prepares raw data (no mapTableData here)
@@ -246,8 +273,8 @@
     extTbl.setConfig({
       sortKey: "status",
       sortDir: "asc",
-      pageSize: "5",
-      tableMaxHeight: "100px",
+      pageSize: "all",
+      tableMaxHeight: "30vh",
       idKey : "phraseID"
     })
     //extTbl._runPipeline();

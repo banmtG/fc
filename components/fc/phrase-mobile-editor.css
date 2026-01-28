@@ -31,7 +31,7 @@
 
 sl-card {
   height: 80dvh;
-  width: 100dvw;
+  width: 100%;
   overflow-y: scroll;
 }
 

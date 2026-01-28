@@ -29,9 +29,9 @@ export function transformFinalResults(finalResults, userID, reminderText = "", t
       lang: entry.lang || {},
       user_ipa: entry.ukipa || entry.usipa || "",
       user_defi: {
-        selectDefault: false,
+        selectDefault: (entry.defi?.length>0)? true : false,
         customized_defi: [],
-        default_defi: []
+        default_defi: (entry.defi?.length > 1)? [0,1] : (entry.defi?.length > 0) ? [0] : []
       },
       user_translate: entry.lang?.[langCode] || "",
       user_imgIndex: { defaultIndex: 0 },

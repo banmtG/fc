@@ -7,7 +7,7 @@ import { CONFIG } from './../config/config.js';
 import "./../features/auth/components/login-form.js";
 import './../features/auth/components/user-profile-menu.js';
 import '../components/fc/new-phrase-tab.js';
-import './../components/fc/image-picker.js';
+import './../components/smart/image-picker.js';
 
 // import app-controller.js
 import './../core/app-controller.js';

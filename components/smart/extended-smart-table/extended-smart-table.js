@@ -9,7 +9,7 @@ const tpl = document.createElement("template");
 tpl.innerHTML = `
   <link rel="stylesheet" href="${cssUrl}">
   <div class="toolbar">
-    <input class="search-input" type="search" placeholder="Search..." />
+    <sl-input class="search-input" size="small" clearable type="search" placeholder="Search..." ></sl-input>
     <div class="pager">
       <button class="prev">❮</button>
       <button class="next">❯</button>
@@ -87,6 +87,11 @@ export class ExtendedSmartTable extends HTMLElement {
     if (this._raw.length > 0) {
       this._runPipeline();
     }
+    this.setAttribute('tabindex', '-1');
+  }
+
+  focus() {
+      this.$search.focus();
   }
 
   disconnectedCallback() {
@@ -121,7 +126,7 @@ export class ExtendedSmartTable extends HTMLElement {
     this._page = 1;
     // this._runPipeline();
   }
-  
+
   get data() { return this._raw; }
 
 
@@ -185,7 +190,7 @@ export class ExtendedSmartTable extends HTMLElement {
       const hay = this._flattenValues(row).join(" ").toLowerCase();
       return hay;
     } else {
-      console.log(columns);
+      // console.log(columns);
       const hay = columns.map(col => {
         return this._flattenValues(row[col]).join(" ");
       }).join(" ").toLowerCase();
@@ -272,7 +277,6 @@ export class ExtendedSmartTable extends HTMLElement {
     if (idx !== -1) {
       this._raw[idx] = { ...this._raw[idx], ...patch };
     }
-    console.log(this._raw[idx]);
     // No immediate re-render; pipeline runs only on search/sort/pagination
   }
 
@@ -283,7 +287,6 @@ export class ExtendedSmartTable extends HTMLElement {
     if (checkObjectInUI) {
       const sid = String(id);
       const idx = this._raw.findIndex(o => String(o[this._idKey]) === sid);
-      console.log(idx);
       this.$tbl.updateRowUI(id, this._raw[idx]);
     }
   }

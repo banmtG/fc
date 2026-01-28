@@ -205,20 +205,60 @@ export function _moveItems(component, itemIds, newZoneId, startOrder) {
   return moved;
 }
 
+export function _updateItems(component, itemPatches) {
+  console.log(itemPatches);
+  const results = [];
+
+  itemPatches.forEach(itemPatch => {
+    const idx = component.fullData.findIndex(i => i._id === itemPatch._id);
+    if (idx === -1) return;
+    console.log(idx);
+    // Update item with new patch
+    component.fullData[idx] = { ...component.fullData[idx], ...itemPatch };
+    console.log(component.fullData);
+    const updatedItem = component.fullData[idx];
+    // console.log(updatedItem);
+    // Render new markup
+    const view = component.columns.find(column => column.id === updatedItem.zone)?.view;
+    const html = component.renderItem(updatedItem, updatedItem.zone, view);
+    // console.log(html);
+    // Parse into a real element
+    const temp = document.createElement("div");
+    temp.innerHTML = html.trim();
+    const newEl = temp.firstElementChild;
+
+    // Find existing element
+    const targetElement = component.shadowRoot.querySelector(`[data-id="${updatedItem._id}"]`);
+    const classList = targetElement.classList;
+    console.log(classList);
+    if (targetElement && newEl) {
+      targetElement.replaceWith(newEl); // safer than outerHTML
+      newEl.classList.add("selected");
+    }
+
+    results.push(updatedItem);
+  });
+
+  return results;
+}
+
+
+
 
 /**
  * Insert a single item element into the correct position in its zone.
  */
 export function _insertElement(component, item) {
+
   const container = component.shadowRoot.getElementById(`${item.zone}-container`);
   if (!container) return;
 
   // Create the element markup
-  const html = component.renderItem(item, item.zone);
+  const view = component.columns.filter(column=> column.id === item.zone)[0]["view"];
+  const html = component.renderItem(item, item.zone, view);
   const temp = document.createElement("div");
-  temp.innerHTML = html;
+  temp.innerHTML = html
   const newEl = temp.firstElementChild;
-
   // Find the first child whose order is greater than this item's order
   const siblings = Array.from(container.children);
   const target = siblings.find(el => {
@@ -239,6 +279,7 @@ export function _insertElement(component, item) {
  * Remove multiple DOM elements.
  */
 export function _removeElements(component, items) {
+  console.log(items);
   items.forEach(item => {
     const container = component.shadowRoot.getElementById(`${item.zone}-container`);
     if (!container) return;
@@ -295,14 +336,25 @@ export function _computeGridTemplate(dataset, fields, container, font = "12px Ro
     });
   });
 
-  console.log(maxWidths);
+  // console.log(maxWidths);
   // Use container width as denominator
   const containerWidth = container.getBoundingClientRect().width;
-  console.log(containerWidth);
+  // console.log(containerWidth);
   const cols = maxWidths.map(w => {
     const fraction = (w / containerWidth).toFixed(3);
     return `${fraction}fr`;
   });
 
   return cols.join(" ");
+}
+
+export function _getSelectedItems(component) {
+  const results = {};
+  component.columns.forEach(config => {
+    const container = component.shadowRoot.getElementById(`${config.id}-container`);
+    const selected = [...container.querySelectorAll(".draggable.selected")];
+    const result = selected.map(el => el.dataset.id);
+    results[config.id] = result;
+  });
+  return results;
 }

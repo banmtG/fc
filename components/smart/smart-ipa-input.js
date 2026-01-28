@@ -86,13 +86,18 @@ class SmartIpaInput extends HTMLElement {
     }
 
     sl-input::part(input) {
-      font-size: 1.3rem;
+      font-size: 1.6rem;
     }     
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
     .title {
       display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
+      align-item: center;
     }
 
     .titleExtra {
@@ -109,10 +114,10 @@ class SmartIpaInput extends HTMLElement {
 
     // Include styles and component structure in the template
     template.innerHTML = `${style}
-    <smart-dialog esc-close draggable>
+    <smart-dialog esc-close overlay-close draggable>
         <div slot="header">
-          <div class="title">
-            <span style="flex-shrink:0">IPA (lowercase)</span>
+          <div class="header">
+            <span class="title" style="font-size: 1.2rem"><b>IPA</b></span>      
             <div class="titleExtra">
               <div>
               <sl-button id="ukipaBtn" class="uk" size="small">UK</sl-button> <span class="uk" id="ukipa"></span>
@@ -125,8 +130,11 @@ class SmartIpaInput extends HTMLElement {
         </div>        
         <div slot="body" class="body">
             <div class="char-grid"></div>
-            <sl-input size="small" id="ipa_input" class="focusable"></sl-input>       
+            <sl-input size="medium" id="ipa_input" class="focusable"></sl-input>     
         </div>
+        <div slot="footer_extra">
+            <span style="font-size: 0.8rem;"><i>Use lowercase, no number</i></span>
+        </div>    
         <div slot="footer">
             <sl-button size="small" variant="primary" id="confirm" class="focusable">Confirm</sl-button>
             <sl-button size="small" variant="default" id="cancel" class="focusable">Cancel</sl-button>
@@ -142,7 +150,7 @@ class SmartIpaInput extends HTMLElement {
 
     // List of IPA characters
     this._ipaCharacters = [
-      "i", "ɪ", "ɛ", "æ", "ɒ", "ɑ", "ʌ", "u", "ʊ", "ə", "ɜ", "ɔ", "iː", "uː", "ɜː", "ɔː", "ɑː", "eː", "ː", "aɪ", "eɪ", "ɔɪ", "aʊ", "əʊ", "ɪə", "eə", "ʊə", "ɪr", "oʊ", "ɛr", "aɪr", "aɪə", "aʊə", "s", "ʃ", "tʃ", "ʒ", "dʒ", "θ", "d", "ð", "n", "ŋ", "ɾ", "t", "t̬", "ɝ", "ɚ", "ɔr", "ˌ", "ˈ", "ʔ","." ];
+      "i", "ɪ", "ɛ", "æ", "ɒ", "ɑ", "ʌ", "u", "ʊ", "ə", "ɚ", "ɜ", "ɝ", "ɔ", "iː", "uː", "ɜː", "ɔː", "ɑː", "eː", "ː", "aɪ", "eɪ", "ɔɪ", "aʊ", "əʊ", "ɪə", "eə", "ʊə", "ɪr", "oʊ", "ɛr", "aɪr", "aɪə", "aʊə", "s", "ʃ", "tʃ", "ʒ", "dʒ", "θ", "d", "ð", "n", "ŋ", "ɾ", "t", "t̬", "ɔr", "ˌ", "ˈ", "ʔ","." ];
   }
 
   disconnectedCallback() {
@@ -324,13 +332,15 @@ class SmartIpaInput extends HTMLElement {
   }
 
   open(entry) {
-
+    console.log(entry);
     const current_ipa = entry.user_ipa;
     const ukipa = entry.ukipa? entry.ukipa : null;
     if (ukipa===null) {
       this._ukipaBtn.style.display = "none";
       this._ukipa.style.display = "none";
     } else {
+      this._ukipaBtn.style.display = "inline-block";
+      this._ukipa.style.display = "inline-block";
       this._ukipa.innerText = `${ukipa}`;
     }
     const usipa = entry.usipa? entry.usipa : null;
@@ -338,12 +348,11 @@ class SmartIpaInput extends HTMLElement {
       this._usipaBtn.style.display = "none";
       this._usipa.style.display = "none";
     } else {
+      this._usipaBtn.style.display = "inline-block";
+      this._usipa.style.display = "inline-block";
       this._usipa.innerText = `${usipa}`;
     }
-// this._ukipaBtn
-// this._ukipa
-// this._usipaBtn
-// this._usipa
+
     // 🔓 Show the dialog by setting its display to 'flex'
     // this.render();
     this._smart_dialog.style.display = "block";
@@ -366,6 +375,8 @@ class SmartIpaInput extends HTMLElement {
       this._ipa_input.focus();
 
       // 🌟 Make the modal visible by setting its opacity to 1
+      this._smart_dialog._handleSmallScreenPosition();
+
       this._smart_dialog.style.opacity = 1;
       // Register with FocusStack when opened
       FocusStack.push(this);

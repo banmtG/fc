@@ -1,5 +1,7 @@
 import './pos-badge-group.js';
 import './defi-edit.js';
+import './connecting-phrase.js';
+import { getPhraseFromPhraseID } from './../../js/data_services/local_data.js';
 import  { correctPos, getAllUniquePOS, extractFromDefiObjects } from '../../js/utils/dictionary.js';
 import '../smart/smart-ipa-input.js';
 import '../smart/smart-text-input.js';
@@ -10,6 +12,8 @@ class APhraseMobileEditor extends HTMLElement {
     super();
     this.attachShadow({ mode: 'open' });
     this.componentCSS = `<link rel="stylesheet" href=".././components/fc/a-phrase-mobile-editor.css" />`;
+    this._abort = new AbortController();
+
     this.entry = {};
 
     const template = document.createElement('template');
@@ -32,22 +36,22 @@ class APhraseMobileEditor extends HTMLElement {
           <div id="definition"></div>
         </div>
         <sl-divider class="editElement"></sl-divider>
-          <sl-input class="label-on-left" label="Translate" size="small" id="translateEditInput"></sl-input>
+          <sl-input class="label-on-left" label="Translate" size="small" id="translateEditInput" placeholder="Add your own translation"></sl-input>
         <sl-divider class="editElement"></sl-divider>
-          <sl-input class="label-on-left" label="Note" size="small" id="noteEditInput"></sl-input>
+          <sl-input class="label-on-left" label="Note" size="small" id="noteEditInput" placeholder="Add your own note"></sl-input>
+        <sl-divider class="editElement"></sl-divider>          
+        <sl-input class="label-on-left" label="Connect" size="small" id="connectingPhrases" placeholder="Connecting phrases" rows="1" resize="auto"></sl-input>
+        <sl-divider class="editElement"></sl-divider>          
+        <sl-input class="label-on-left" label="Image" size="small" id="image" placeholder="Photo link" rows="1"></sl-input>
         <sl-divider class="editElement"></sl-divider>
-          
-          <combo-input id="comboInput" class="label-on-left" label="Connect" placeholder="Tags: select or add a new tag"></combo-input>
 
-        <sl-divider class="editElement"></sl-divider>
-          <sl-button size="small" id="imageEditBtn" class="editElement">Image</sl-button>
-          <div id="image"></div> 
       </sl-card>
     </div>
     
     <smart-text-input></smart-text-input>  
     <smart-ipa-input></smart-ipa-input>  
     <defi-edit></defi-edit>    
+    <connecting-phrase></connecting-phrase>
 
     `;
    
@@ -72,7 +76,8 @@ class APhraseMobileEditor extends HTMLElement {
   }
 
   disconnectedCallback() {
- 
+     this._abort.abort();
+
   }
 
   // 🔌 Pass in data dynamically using a setter
@@ -80,11 +85,12 @@ class APhraseMobileEditor extends HTMLElement {
     //console.log(value);
     this.entry = entry; 
     this._initAssignBtnFunction();
+    // this._initRender(this.entry).catch(err => console.error(err));
     this._initRender(this.entry);
-
   }
 
-  _initRender(entry) {
+  async _initRender(entry) {
+    // console.log(entry);
     //entry.phrase = entry.returning_phrase? entry.returning_phrase : entry.phrase;
     //this._phrase.innerHTML = entry.returning_phrase? entry.returning_phrase : entry.phrase;
     this._renderPhraseTitle(entry);
@@ -96,11 +102,15 @@ class APhraseMobileEditor extends HTMLElement {
     // this._user_translate.innerHTML = entry.user_translate? entry.user_translate : "";
     this._translateEditInput .value = entry.user_translate? entry.user_translate : "";
     // this._user_note.innerHTML = entry.user_note? entry.user_note : "";
-     this._noteEditInput.value = entry.user_note? entry.user_note : "";
-
+    this._noteEditInput.value = entry.user_note? entry.user_note : "";
+    // console.log(this.entry.connecting_phrases);
+    const valueC = (await getPhraseFromPhraseID(this.entry.connecting_phrases));
+    // console.log(valueC);
+    this._connectingPhrases.value = (await getPhraseFromPhraseID(this.entry.connecting_phrases)).join(', ');
   }
 
   _initAssignBtnFunction() {
+    const { signal } = this._abort;
     const sR = this.shadowRoot;
     // this._phrase = sR.getElementById("phraseEditBtn");    
     this._ipaEditBtn = sR.getElementById("ipaEditBtn");    
@@ -113,24 +123,27 @@ class APhraseMobileEditor extends HTMLElement {
     // this._noteEditBtn = sR.getElementById("noteEditBtn");
     this._noteEditInput = sR.getElementById("noteEditInput");
 
-    this._connectEditBtn = sR.getElementById("connectEditBtn");
+    this._connectingPhrases = sR.getElementById("connectingPhrases");
+    this._connectingPhrases.addEventListener('click', (e) => this._handleConnectingPhraseEdit(), { signal });
+
     this._imageEditBtn = sR.getElementById("imageEditBtn");
 
     this._textEditDialog =  this.shadowRoot.querySelector('smart-text-input');
     this._phraseIPAialog = this.shadowRoot.querySelector('smart-ipa-input');
     this._defiEditDialog = this.shadowRoot.querySelector('defi-edit');
+    this._connectingPhraseDialog = this.shadowRoot.querySelector('connecting-phrase');
 
     this._handlePhraseEdit = this._handlePhraseEdit.bind(this);
-    this._phrase.addEventListener('click',this._handlePhraseEdit);
+    this._phrase.addEventListener('click',this._handlePhraseEdit, { signal });
 
     this._handleIPAEdit = this._handleIPAEdit.bind(this);
-    this._ipaEditBtn.addEventListener('click',this._handleIPAEdit);
+    this._ipaEditBtn.addEventListener('click',this._handleIPAEdit, { signal });
 
     this._handleDefinitionEdit = this._handleDefinitionEdit.bind(this);
 
     this._defiEditDialog.loadInitData(this.entry);    
 
-    this._definitionEditBtn.addEventListener('click',this._handleDefinitionEdit);
+    this._definitionEditBtn.addEventListener('click',this._handleDefinitionEdit ,{ signal });
 
     // this._handleTranslateEdit = this._handleTranslateEdit.bind(this);
     // this._translateEditBtn.addEventListener('click',this._handleTranslateEdit);
@@ -139,22 +152,32 @@ class APhraseMobileEditor extends HTMLElement {
     // this._noteEditBtn.addEventListener('click',this._handleNoteEdit);
 
     this._phraseIPAialog.addEventListener("smart-ipa-input-confirmed", (e) => {
-      //console.log(e.detail);
       this.entry.user_ipa = e.detail.value;
       this._ipa.innerText = this.entry.user_ipa? `/${this.entry.user_ipa}/`: "";   
     });
 
+    this._connectingPhraseDialog.addEventListener("connecting-phrase-updated", async (e) => {
+        console.log(e.detail);
+        this.entry.connecting_phrases = e.detail;
+        this._connectingPhrases.value = (await getPhraseFromPhraseID(this.entry.connecting_phrases)).join(', ');
+    }, { signal });
+
+
     this._defiEditDialog.addEventListener("defi-edit-dialog-confirmed", (e) => {
       this.entry.user_defi = e.detail.user_defi;
       this._definition.innerHTML = this._createDefiDivHtml(this.entry);
-    });
+    }, { signal });
 
     this._textEditDialog.addEventListener("smart-text-input-confirmed", (e) => {
       const key = e.detail.key;
       this.entry[e.detail.key] = e.detail.value;
       this[`_${key}`].innerHTML = this.entry[key];
-    });
+    },{ signal });
 
+  }
+
+  _handleConnectingPhraseEdit() {
+    this._connectingPhraseDialog.open(this.entry);
   }
 
   _handlePhraseEdit() {
@@ -183,7 +206,7 @@ class APhraseMobileEditor extends HTMLElement {
   }
 
   _createDefiDivHtml(entry) {   
-    console.log(entry);
+    // console.log(entry);
 
     let defArray = entry.defi? entry.defi : [];
     if (entry.user_defi?.selectDefault===true) {

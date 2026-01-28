@@ -32,7 +32,11 @@ class SmartTextInput extends HTMLElement {
           align-items:center;     
           justify-content: space-between;
         }
-
+          
+        .title {
+          font-size: 1.2rem;
+          font-weight: bold;
+        }
 
       #phrase-input {
         margin:5px;
@@ -51,7 +55,8 @@ class SmartTextInput extends HTMLElement {
     template.innerHTML = `${style}
         <smart-dialog draggable esc-close>     
             <div slot="header" class="header">
-              <div id="header"></div>          
+              <div id="header" class="title">                    
+              </div>     
             </div>
             <div slot="body">
               <sl-textarea id="phrase-input" resize="none" class="focusable"></sl-textarea>    
@@ -153,7 +158,8 @@ _confirmHandler() {
       ).then(() => {
           // 🎯 Focus the input field once components are ready          
           this._phrase_input.focus();
-          // 🌟 Make the modal visible by setting its opacity to 1          
+          // 🌟 Make the modal visible by setting its opacity to 1     
+          this._smart_dialog._handleSmallScreenPosition();  
           this._smart_dialog.style.opacity = 1;
       });
   }   

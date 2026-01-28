@@ -31,6 +31,9 @@
 </head>
 <body>
   <h2>Smart Dragdrop – Single Column Demo</h2>
+  <button id="selectIDs">Select?</button>
+  <button id="addNew">Add</button>
+  <button id="deleteIDs">Delete</button>
 
   <div class="wrapper">
     <!-- Just mode="single"; columns drive the view -->
@@ -42,13 +45,32 @@
     import { tableData } from "./../../../Testers/phraseList.js";
 
     const demo = document.getElementById('demo');
+    const selectIDsBtn = document.querySelector('#selectIDs');
+    const addNewBtn = document.querySelector('#addNew');
+    const deleteIDsBtn = document.querySelector('#deleteIDs');
+
+    selectIDsBtn.addEventListener('click', (e)=> console.log(demo.getSelectedItems()));
+    addNewBtn.addEventListener('click', (e) => {
+      demo.addItem( 
+        { 
+          id: "item1", 
+          title: "1 Apple", 
+          img: "https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=300&h=300&fit=crop" 
+        },
+        "avail",
+        null
+      );
+    });
+
+    deleteIDsBtn.addEventListener('click', (e)=> {
+      demo.removeItems(demo.getSelectedItems()["avail"]);
+    });
 
     demo.data = {
     //  idKey : "phraseID",
     //  arr: tableData.slice(0,30),
      arr: [
 
-      { id: "item1", title: "1 Apple", img: "https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=300&h=300&fit=crop" },
       { id: "item2", title: "2 Banana", img: "https://tse2.mm.bing.net/th/id/OIP.FZ0pu7WcurIoPGU9JX4ErQHaGu?w=400&c=7&r=0&o=5&pid=1.7" },
       { id: "item3", title: "3 Cherry", img: "https://tse2.mm.bing.net/th/id/OIP.EqqYHX_EkrkJdfwH7uH-TQHaHa?w=400&c=7&r=0&o=5&pid=1.7" },
       { id: "item4", title: "4 Orange", img: "https://tse4.mm.bing.net/th/id/OIP.07Oyb9un-38JIVCzqibMHgHaFS?w=400&c=7&r=0&o=5&pid=1.7" },
@@ -82,11 +104,11 @@
       list: ["title"],
       icon: ["img","title"],
       detail:["title","id","img"] 
-     },
+     },    
     detailCols: { 
        "<400": "80px 0 auto", 
       // "<700": "1fr 1fr 2fr", 
-      ">400": "80px 40px auto" 
+      ">400": "200px 100px auto" 
     },
      renderItem: (item, zone, viewMode) => {
           switch (viewMode) {
@@ -124,8 +146,9 @@
           columnGap: 5,         // 
           height: 650,            // px column height
           rangeValue: 30// initial slider step
-        },{ id: "selec", title: "Selected", view: "list",listItemWidth: 150, listItemHeight: 20, rowGap: 5, columnGap: 5, height: 400, rangeValue: 30  },{ id: "select2", title: "Selected 2", view: "icon", defaultIconSize: 120, listItemWidth: 150, listItemHeight: 20, rowGap: 5, columnGap: 5, height: 400, rangeValue: 30  }
-      ]
+        }
+      ],
+      viewOption: ["list","detail","icon"]
     };
 
     demo.addEventListener('dragdrop-box-changed', e => {

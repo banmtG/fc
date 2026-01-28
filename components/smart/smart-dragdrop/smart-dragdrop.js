@@ -1,11 +1,16 @@
 import { initSelectionLogic, initDragLogic, saveHistory } from './smart-dragdrop-core.js';
 import { normalizeOrders, applyLayout, applyColumnView,
          _addItem, _removeItems, _moveItems,
-         _insertElement, _removeElements, _moveElements,
-        _computeGridTemplate } from './smart-dragdrop-helpers.js';
+         _insertElement, _removeElements, _moveElements, 
+        _computeGridTemplate,
+        _getSelectedItems,
+        _updateItems, } from './smart-dragdrop-helpers.js';
 
 import './../smart-toggle.js';
 import './../smart-button-group.js';
+
+const cssUrl = new URL("./smart-dragdrop.css", import.meta.url);
+
 
 class SmartDragdrop extends HTMLElement {
   constructor() {
@@ -55,14 +60,16 @@ class SmartDragdrop extends HTMLElement {
     }, { signal: this._abort.signal });
   }
 
-  set data({ idKey ="_id", arr, renderFields, detailCols, renderItem, columns = [] }) {
+  set data({ idKey ="_id", arr, renderFields, detailCols, renderItem, columns = [], viewOption }) {
     this.renderItem = renderItem || this._defaultRenderer;
     this._renderFields = renderFields;
     this._detailCols = detailCols;
     this._idKey = idKey;
+    this._viewOption = viewOption? viewOption : ["list","dedail","icon"];
     // console.log(this._idKey);
     // Normalize items with zone + order
     this.fullData = normalizeOrders(arr, columns);
+    console.log(this.fullData);
     this.columns = columns;
 
     // Initialize columnData: group items by zone and sort by order
@@ -78,7 +85,7 @@ class SmartDragdrop extends HTMLElement {
 
     this._renderInit();
     this._renderChange();
-    this._loadExternalStyleSheet_thenTurnOnContent();
+    // this._loadExternalStyleSheet_thenTurnOnContent();
 
     const layout = this.getAttribute("layout") || "auto";
     applyLayout(this.component_container, layout);
@@ -95,7 +102,9 @@ class SmartDragdrop extends HTMLElement {
   // -------------------------------
 
   addItem(item, zoneId, atOrder) {
+    console.log(item, zoneId, atOrder);
     const newItem = _addItem(this, item, zoneId, atOrder);
+    console.log(newItem);
     _insertElement(this, newItem);
     return newItem;
   }
@@ -104,6 +113,14 @@ class SmartDragdrop extends HTMLElement {
     const removed = _removeItems(this, itemIds);
     _removeElements(this, removed);
     return removed;
+  }
+
+  getSelectedItems() {
+    return _getSelectedItems(this);
+  }
+
+  updateItems(itemPatches) { // { id, patchData }
+    return _updateItems(this, itemPatches);
   }
 
   moveItems(itemIds, newZoneId, startOrder) {
@@ -134,9 +151,9 @@ class SmartDragdrop extends HTMLElement {
             <sl-dropdown size="small">
               <sl-icon-button slot="trigger" name="grid-3x3-gap"></sl-icon-button>
               <sl-menu>
-                <sl-menu-item>List</sl-menu-item>
-                <sl-menu-item>Detail</sl-menu-item>
-                <sl-menu-item>Icon</sl-menu-item>
+                ${this._viewOption.includes("list")? `<sl-menu-item>List</sl-menu-item>` : ""}
+                ${this._viewOption.includes("detail")? `<sl-menu-item>Detail</sl-menu-item>` : ""}
+                ${this._viewOption.includes("icon")? `<sl-menu-item>Icon</sl-menu-item>` : ""}
               </sl-menu>
             </sl-dropdown>
           </div>
@@ -150,6 +167,8 @@ class SmartDragdrop extends HTMLElement {
   _renderInit() {
     const template = document.createElement("template");
     template.innerHTML = `
+      <link rel="stylesheet" href="${cssUrl}">
+
       <div id="component-container">
         ${this.columns.map(col => this._createColumn(col)).join("")}
         <div id="lasso"></div>
@@ -170,7 +189,7 @@ class SmartDragdrop extends HTMLElement {
 
   _loadExternalStyleSheet_thenTurnOnContent() {
     const styleLink = document.createElement("link");
-    const path = `./smart-dragdrop.css`;
+    const path = `./smart-dragdrop.css`;    
     styleLink.setAttribute("rel", "stylesheet");
     styleLink.setAttribute("href", path);
     styleLink.setAttribute("type", "text/css");
@@ -258,7 +277,6 @@ class SmartDragdrop extends HTMLElement {
           const size = 50 + step * 2;
           config.rangeValue = step;
           container.style.setProperty("--icon-size", `${size}px`);
-          console.log(this.columns);
         }, { signal: this._abort.signal });
       }
 

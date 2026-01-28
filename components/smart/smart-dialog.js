@@ -145,9 +145,8 @@ class SmartDialog extends HTMLElement {
         }
 
         .header {
-          padding: 0.5rem 1rem;
-          background: #f0f0f0;        
-
+          padding: 0.5rem 0.6rem 0.3rem 0.6rem;
+          background: #f0f0f0;      
           flex: 0 0 auto;
         }
 
@@ -159,8 +158,18 @@ class SmartDialog extends HTMLElement {
         .footer {
           flex: 0 0 auto;
           padding: 5px;
-          background: #f9f9f9;
-          text-align: right;         
+          background: #f9f9f9;        
+          display: flex;
+          flex-direction: row;
+          justify-content: space-between;
+        }
+
+        .footer_extra {
+          margin-left: 0;
+        }
+
+        .footer_button {
+          margin-right: 0;
         }
 
         ::slotted(sl-button) {
@@ -183,13 +192,17 @@ class SmartDialog extends HTMLElement {
       </style>
       <div class="overlay" part="overlay">
         <div class="dialog" part="dialog">        
-          <div class="header" part="header"><slot name="header">Dialog Title</slot></div>
+          <div class="header" part="header">
+            <slot name="header">Dialog Title</slot>
+          </div>
           <div class="body noScrollable_container" part="body">
             <slot name="body">
             </slot>
           </div>
           <div class="footer" part="footer"> 
-            <slot name="footer">
+            <slot class="footer_extra" name="footer_extra"><span></span>
+            </slot>
+            <slot class="footer_button" name="footer">
             </slot>
           </div>
         </div>
@@ -219,12 +232,14 @@ class SmartDialog extends HTMLElement {
   }
 
   _initializeState() {
-    setTimeout(() => {
+    // setTimeout(() => {
+    requestAnimationFrame(() => {    
         this._handleSmallScreenPosition();
-        console.log(`host inform something`);
+        // console.log(`host inform something`);
        // console.log(this._getDeepFocusableElementsRecursively(this._dialog));
-        this._getDeepFocusableElementsRecursively(this._dialog)[0]?.focus();        
-    }, 0);
+        this._getDeepFocusableElementsRecursively(this._dialog)[0]?.focus();       
+    }); 
+    // }, 0);
 
   }
 
@@ -468,9 +483,10 @@ class SmartDialog extends HTMLElement {
           getDeviceType_Robust() === "mobile" ||
           getDeviceType_Robust() === "tablet"
         ) {
+          console.log(`small screen`);
           this._dialog.style.top = `10px`;
         } else {        
-
+          console.log(`big screen`);
         }
       });
       this._dialog.style.opacity = 1;
@@ -600,6 +616,7 @@ class SmartDialog extends HTMLElement {
   }
 
   _onKeyDown(e) { // handle ESCAPE Key
+    console.log(e);
     if (e.key !== 'Escape') return;
     if (e.key === "Escape") {
       let el = this._getDeepActiveElement();

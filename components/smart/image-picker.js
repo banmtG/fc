@@ -3,9 +3,10 @@ class ImagePicker extends HTMLElement {
     super();
     this.attachShadow({ mode: "open" });
 
-    this.componentCSS = `<link rel="stylesheet" href="./components/fc/image-picker.css" />`;
-   
-    this.shadowRoot.innerHTML = `${this.componentCSS}
+    const cssUrl = new URL("./image-picker.css", import.meta.url);
+
+    this.shadowRoot.innerHTML = `
+      <link rel="stylesheet" href="${cssUrl}">
       <div class="container">
         <div class="imagePicker searchTop">
           <sl-input size="small" placeholder="Paste compressed image links..." clearable></sl-input>

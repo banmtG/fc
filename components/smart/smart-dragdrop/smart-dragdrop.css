@@ -4,10 +4,7 @@
   width: 100%;
   margin: 0;
   background: #fff;
-  border: 1px solid #ccc;
   box-sizing: border-box;
-  border-radius: 8px;
-  padding: 5px;
   overflow: hidden;
   color: var(--sl-input-color);
   height: 100%;
@@ -90,16 +87,17 @@
   flex-wrap: nowrap;
   overflow-x: hidden;
 }
+
 .container[data-view="detail"] .draggable {
   display: grid;
   grid-template-columns: var(--grid-cols);
   height: var(--list-item-height, 30px);
-  align-items: center;
   gap: 10px;
   padding: 5px;
   font-size: 1rem;
   background: var(--sl-color-neutral-50);
   flex-shrink: 0;
+
 }
 
 /* Image column
@@ -115,13 +113,14 @@
 .container[data-view="detail"] .draggable .detail_field {
   display: flex;        /* show image in grid */
   flex-direction: row;
-  justify-content: flex-start;
-  align-items: flex-start;
-  overflow-y: scroll;
-  overflow-x: hidden;
+  justify-content: start;
+  align-items: start;
+  line-height: 15px;
+  overflow: hidden;
   padding:0;
   margin:0;
   height: var(--list-item-height, 40px);
+  width:100%;
 }
 
 
@@ -132,6 +131,9 @@
   flex-wrap: wrap;
 }
 .container[data-view="icon"] .draggable {
+  display: flex;
+  position: relative;
+  flex-direction: column;
   width: var(--icon-size, 120px);
   height: var(--icon-size, 120px);
   text-align: center;
@@ -150,6 +152,45 @@
   -webkit-user-drag: none; /* Safari/iOS */ 
   pointer-events: none; /* optional: if you only want the wrapper to handle events */
 }
+/* 
+.container[data-view="icon"] .draggable .corner_BotLeft {  
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  bottom: 0;
+  left: 0;
+}
+
+.container[data-view="icon"] .draggable .corner_BotRight {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  bottom: 0;
+  right: 0;
+} */
+
+.container[data-view="icon"] .draggable .corner_TopLeft {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top:2px;
+  left:2px;
+  border-radius: 5px;
+  opacity: 0.9;
+  background: rgba(255,255,255,0.5);
+}
+.container[data-view="icon"] .draggable .corner_TopRight {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top:2px;
+  right:2px;
+  border-radius: 5px;
+  background: rgba(255,255,255,0.5);
+}
+
 
 .container[data-view="icon"] .draggable .title {
   overflow: hidden;
@@ -182,10 +223,6 @@
 }
 
 .draggable {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   background: var(--sl-color-warning-50);
   margin: 0;
   padding: 0px;
@@ -197,6 +234,7 @@
   overflow: hidden;
   transition: transform 380ms cubic-bezier(0.34, 1.56, 0.64, 1),
               box-shadow 380ms ease;
+  color: #808088;
 }
 
 .draggable.moving { box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
@@ -223,7 +261,7 @@
 
 .selected {
   border: var(--sl-focus-ring-color) var(--sl-input-border-width) solid;
-  box-shadow: 0 0 2px 2px #8ce4ff;
+  box-shadow: 0 0 3px 3px #32bbff;
 }
 
 /* Lasso selection box */

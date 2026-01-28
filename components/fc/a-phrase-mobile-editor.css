@@ -36,13 +36,13 @@
 
 sl-card {
   height: 80dvh;
-  width: 100dvw;
+  width: 100%;
   overflow-y: scroll;
 }
 
 sl-card::part(body) {
   margin: 0px;
-  padding: 10px;
+  padding: 5px;
 }
 
 h2 {
@@ -75,7 +75,7 @@ sl-button::part(label) {
 }
 
 sl-divider {
-  margin: 5px 0px;
+  margin: 1px 0px;
 }
 
 sl-divider .defi {
@@ -184,8 +184,11 @@ sl-details::part(content)::-webkit-scrollbar {
   scroll-snap-align: start;
 }
 
+sl-textarea::part(textarea) {
+  padding: 2px var(--sl-input-spacing-small);
+}
 
-sl-button.multiline::part(base) {
+sl-button.multiline::part(textarea) {
   white-space: normal;   /* allow wrapping */
   text-align: left;    /* optional: center text */
   line-height: 1.1;      /* adjust spacing for readability */
@@ -248,12 +251,13 @@ sl-button.multiline::part(label)::-webkit-scrollbar-thumb:window-inactive {
 }
 
 .label-on-left {
-    --label-width: 3.75rem;
+    --label-width: 4.5rem;
     --gap-width: 1rem;
   }
 
 .label-on-left + .label-on-left {
-  margin-top: var(--sl-spacing-medium);
+  margin-top: calc(var(--sl-spacing-medium));
+
 }
 
 .label-on-left::part(form-control) {
@@ -265,6 +269,7 @@ sl-button.multiline::part(label)::-webkit-scrollbar-thumb:window-inactive {
 
 .label-on-left::part(form-control-label) {
   text-align: right;
+  padding-top:3px;
 }
 
 .label-on-left::part(form-control-help-text) {
