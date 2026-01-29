@@ -11,6 +11,7 @@
 }
 
 #component-container {
+  position: relative;
   overflow: scroll;
   display: flex;
   height: 100%;
@@ -34,8 +35,13 @@
   box-sizing: border-box;
 }
 
+#component-container:focus {
+  outline: none;
+}
+
 /* Base container styles only once */
 .container {
+  position: relative; /* establish positioning context */
   display: flex;
   align-content: flex-start;
   padding: 5px;
@@ -46,6 +52,11 @@
   row-gap: var(--row-gap, 0px);
   column-gap: var(--column-gap, 0px);
 }
+
+.container:focus {
+  outline: none;
+}
+
 
 /* List view */
 .container[data-view="list"] {
@@ -95,9 +106,8 @@
   gap: 10px;
   padding: 5px;
   font-size: 1rem;
-  background: var(--sl-color-neutral-50);
+  /* background: var(--sl-color-neutral-50); */
   flex-shrink: 0;
-
 }
 
 /* Image column
@@ -168,6 +178,17 @@
   bottom: 0;
   right: 0;
 } */
+.container[data-view="icon"] .draggable .spinner {
+  position: absolute;
+  top:0;
+  left:0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width:100%;
+  height:100%;
+  opacity: 0.9;
+}
 
 .container[data-view="icon"] .draggable .corner_TopLeft {
   display: flex;
@@ -261,12 +282,22 @@
 
 .selected {
   border: var(--sl-focus-ring-color) var(--sl-input-border-width) solid;
-  box-shadow: 0 0 3px 3px #32bbff;
+  box-shadow: 0 0 1px 1px #32bbff;
+  
 }
+
+.draggable.highlight {
+  /* outline: 2px solid  rgba(77, 253, 1, 0.6);
+  outline-offset: -2px;
+  box-shadow: 0 0 4px 2px rgba(77, 253, 1, 0.6);
+  border-radius: 4px; */
+  background-color: #cfcfcf;
+}
+
 
 /* Lasso selection box */
 #lasso {
-  position: fixed;
+  position: absolute; /* now relative to .container */  
   border: 1px dashed #1c4c5b;
   background: rgba(28, 76, 91, 0.1);
   pointer-events: none;

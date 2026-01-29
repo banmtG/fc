@@ -212,10 +212,10 @@ export function _updateItems(component, itemPatches) {
   itemPatches.forEach(itemPatch => {
     const idx = component.fullData.findIndex(i => i._id === itemPatch._id);
     if (idx === -1) return;
-    console.log(idx);
+    // console.log(idx);
     // Update item with new patch
     component.fullData[idx] = { ...component.fullData[idx], ...itemPatch };
-    console.log(component.fullData);
+    // console.log(component.fullData);
     const updatedItem = component.fullData[idx];
     // console.log(updatedItem);
     // Render new markup
@@ -235,7 +235,9 @@ export function _updateItems(component, itemPatches) {
       targetElement.replaceWith(newEl); // safer than outerHTML
       newEl.classList.add("selected");
     }
-
+      // Attach lazy loading after batch render
+    const imgs = newEl.querySelectorAll("img[data-src]");
+    imgs.forEach(img => component._enableLazyLoading(img));
     results.push(updatedItem);
   });
 

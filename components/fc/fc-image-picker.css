@@ -1,5 +1,5 @@
 :host {
-  width: 100%;
+  width: 100%;  
   display: block;
 }
 
@@ -10,6 +10,7 @@ smart-dialog {
 .container {
   width: calc(100% - 10px);
   padding: 5px;
+  overflow-y: scroll;
 }
 
 .container_row {  
@@ -56,3 +57,13 @@ extended-smart-table {
 ::-webkit-scrollbar-thumb:window-inactive {
   background: rgba(255, 255, 255, 0.3);
 }
+
+.spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* centers the element */
+  z-index: 10; /* put it above content if needed */
+  display:none;
+}
+

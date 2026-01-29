@@ -13,6 +13,7 @@
 }
 
 #component-container{
+  position: relative;
   display:flex;
   flex-direction: column;
   flex: 1 1 auto;
@@ -123,7 +124,7 @@ button:hover {
 }
 
 #lasso {
-  position: fixed;
+  position: absolute;
   border: 1px dashed #1c4c5b;
   background: rgba(28, 76, 91, 0.1);
   pointer-events: none;

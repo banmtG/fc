@@ -301,8 +301,11 @@ _onPointerDown(e) {
   if (e.pointerType !== "mouse" || e.button !== 0 || e.target.closest("button")) return;
   
   this._isDragging = true;
-  this._startX = e.clientX;
-  this._startY = e.clientY;
+
+  const rect = this._component_content.getBoundingClientRect();
+  this._startX = e.clientX - rect.left;
+  this._startY = e.clientY - rect.top;
+
 
   const lasso = this.shadowRoot.getElementById("lasso");
   lasso.style.left = `${this._startX}px`;
@@ -316,10 +319,15 @@ _onPointerMove(e) {
   if (!this._isDragging) return;
   clearTimeout(this._selectionTimeout);
 
-  const x = Math.min(e.clientX, this._startX);
-  const y = Math.min(e.clientY, this._startY);
-  const w = Math.abs(e.clientX - this._startX);
-  const h = Math.abs(e.clientY - this._startY);
+  const rect = this._component_content.getBoundingClientRect();
+  const currentX = e.clientX - rect.left;
+  const currentY = e.clientY - rect.top;
+
+
+  const x = Math.min(currentX, this._startX);
+  const y = Math.min(currentY, this._startY);
+  const w = Math.abs(currentX - this._startX);
+  const h = Math.abs(currentY - this._startY);
 
   const lasso = this.shadowRoot.getElementById("lasso");
   lasso.style.left = `${x}px`;

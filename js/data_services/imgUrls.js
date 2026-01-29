@@ -1,5 +1,6 @@
 import { getUUID } from './../utils/id.js';
 import Database from './../../core/database.js';
+
 /**
  * Build payload for updateImage.php, including ONLY entries missing imgUrls.
  * - An entry is considered missing if imgUrls is undefined, null, or an empty array.
@@ -183,7 +184,7 @@ function reverseTransform(shortCode) {
  * @param {Array} items - array of { imgID, phraseID, phrase, url, title }
  * @returns {Promise<{success: string[], failed: Array<{id, t, url}>}>}
  */
-export async function downloadAndSaveImages(phraseID, phrase, items) {
+export async function downloadAndSaveImages(component, phraseID, phrase, items) {
   const success = [];
   const failed = [];
   await Database.init(); 
@@ -206,7 +207,6 @@ export async function downloadAndSaveImages(phraseID, phrase, items) {
       const res = await fetch(item.url, { mode: "cors" });
       if (!res.ok) throw new Error("Network error");
       const blob = await res.blob();
-
       // check if this id already exists in blob array
       const existing = record.blob.find(b => b.id === item.id);
       if (existing) {
@@ -243,4 +243,30 @@ export async function removeImageBlobEntry(phraseID, blobIDs) {
   return true;
 }
 
+export async function getImageUrl(phraseID, blobID) {
+  console.log(`vao getImageUrl`);
+  await Database.init();
+  const records = await Database.getImagesByPhrase(phraseID);
+  const record = records[0];
+  console.log(record);
+  if (!record) return null;
 
+  const blobObj = record.blob.find(b => b.id === blobID);
+  if (!blobObj) return null;
+  console.log(blobObj);
+  const url = URL.createObjectURL(blobObj.blob);
+  console.log(url);
+  return url;
+}
+
+export async function normalizeBlobItems(entry) {
+  const cooked = await Promise.all(entry.image.data.map(async item => {
+    if (item.t === "web") {
+      return { ...item, url: item.url };
+    } else {
+      const blobUrl = await getImageUrl(entry.phraseID, item.id); // returns blob:... URL
+      return { ...item, url_blob: blobUrl };
+    }
+  }));
+  return { ...entry, image: { data: cooked } };
+}

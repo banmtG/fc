@@ -1,4 +1,5 @@
 // smart-dragdrop-core.js
+import {getMatrix} from './smart-dragdrop-navigation.js';
 
 // --- History helpers ---
 export function saveHistory(component) {
@@ -26,74 +27,94 @@ export function navigateHistory(component, direction) {
 
 // --- Selection logic ---
 export function initSelectionLogic(component, signal) {
-  // Attach to the overall component container
+  
   const root = component.shadowRoot.getElementById("component-container");
   if (!root) return;
 
-component._handleClickSelection = function (e) {
-  if (component._justLassoed) {
-    component._justLassoed = false;
-    component._isDragging = false;
-    return;
-  }
-
-  const item = e.target.closest('.draggable');
-  if (!item) {
-    component.shadowRoot.querySelectorAll('.draggable.selected')
-      .forEach(el => el.classList.remove('selected'));
-    component.lastSelectedIndex = null;
-    component._isDragging = false;
-    return;
-  }
-
-  const siblings = [...item.parentElement.querySelectorAll('.draggable')];
-  const currentIdx = siblings.indexOf(item);
-
-  // find the config for this column
-  const container = item.closest('[id$="-container"]');
-  const config = component.columns.find(c => `${c.id}-container` === container.id);
-
-  // --- Desktop modifiers take priority ---
-  if (e.shiftKey && component.lastSelectedIndex !== null) {
-    // Range select (desktop)
-    const [min, max] = [component.lastSelectedIndex, currentIdx].sort((a, b) => a - b);
-    for (let i = min; i <= max; i++) {
-      siblings[i]?.classList.add('selected');
+  component._handleClickSelection = function (e) {
+    if (component._justLassoed) {
+      component._justLassoed = false;
+      component._isDragging = false;
+      return;
     }
-  } else if (e.ctrlKey) {
-    // Multi-select individual (desktop)
-    item.classList.toggle('selected');
-  } else {
-    // --- Mobile toggle fallback ---
-    switch (config?.selectionMode) {
-      case 2: // Range select
-        if (component.lastSelectedIndex !== null) {
-          const [min, max] = [component.lastSelectedIndex, currentIdx].sort((a, b) => a - b);
-          for (let i = min; i <= max; i++) {
-            siblings[i]?.classList.add('selected');
+
+    const item = e.target.closest('.draggable');
+    if (!item) {
+      // Clear all highlights and selections
+      component.shadowRoot.querySelectorAll('.draggable.highlight, .draggable.selected')
+        .forEach(el => {
+          el.classList.remove('highlight');
+          el.classList.remove('selected');
+        });
+      component.lastSelectedIndex = null;
+      component._isDragging = false;
+      return;
+    }
+
+    const siblings = [...item.parentElement.querySelectorAll('.draggable')];
+    const currentIdx = siblings.indexOf(item);
+
+    // find the config for this column
+    const container = item.closest('[id$="-container"]');
+    const config = component.columns.find(c => `${c.id}-container` === container.id);
+
+    // --- Desktop modifiers take priority ---
+    if (e.shiftKey && component.lastSelectedIndex !== null) {
+      // Range select
+      const [min, max] = [component.lastSelectedIndex, currentIdx].sort((a, b) => a - b);
+      for (let i = min; i <= max; i++) {
+        siblings[i]?.classList.add('selected');
+      }
+    } else if (e.ctrlKey) {
+      // Multi-select individual
+      item.classList.toggle('selected');
+    } else {
+      // Plain click → highlight only
+      // Clear previous highlight
+      component.shadowRoot.querySelectorAll('.draggable.highlight')
+        .forEach(el => el.classList.remove('highlight'));
+      item.classList.add('highlight');
+      // console.log(item);
+      // console.log(`old matrix`, component._matrix);
+      if (container!==component._activeContainer || component._matrixRecalculate === true) {
+        component._matrix = getMatrix(container, config); 
+        component._matrixRecalculate = false;
+      }
+      // console.log(`new matrix`, component._matrix);
+      const itemsMatrix = component._matrix.flat();
+      // console.log(itemsMatrix);
+      component._highlightIndex = itemsMatrix.findIndex(el => el.classList.contains('highlight'));
+      // console.log(component._highlightIndex);
+      component._activeContainer = container;
+
+      // --- Mobile toggle fallback for selection ---
+      switch (config?.selectionMode) {
+        case 2: // Range select
+          if (component.lastSelectedIndex !== null) {
+            const [min, max] = [component.lastSelectedIndex, currentIdx].sort((a, b) => a - b);
+            for (let i = min; i <= max; i++) {
+              siblings[i]?.classList.add('selected');
+            }
+          } else {
+            item.classList.add('selected');
           }
-        } else {
-          item.classList.add('selected');
-        }
-        break;
+          break;
 
-      case 1: // Multi-select individual
-        item.classList.toggle('selected');
-        break;
+        case 1: // Multi-select individual
+          item.classList.toggle('selected');
+          break;
 
-      default: // Normal
-        component.shadowRoot.querySelectorAll('.draggable.selected')
-          .forEach(el => el.classList.remove('selected'));
-        item.classList.add('selected');
-        break;
+        default: // Normal
+          // component.shadowRoot.querySelectorAll('.draggable.selected')
+          //   .forEach(el => el.classList.remove('selected'));
+          // item.classList.add('selected');
+          break;
+      }
     }
-  }
 
-  component.lastSelectedIndex = currentIdx;
-  component._isDragging = false;
-};
-
-
+    component.lastSelectedIndex = currentIdx;
+    component._isDragging = false;
+  };
 
 
   // component._handleDoubleClickTransfer = function (e) {
@@ -119,23 +140,32 @@ export function initDragLogic(component, element, signal) {
 const DRAG_THRESHOLD = 5;
 
 component._onPointerDown = e => {
-  
-
   if (e.pointerType !== "mouse" || e.button !== 0 || e.target.closest("button")) return;
-  if (e.target.closest(".header")) return; // prevent lasso in header
-  // console.log(`_onPointerDown dragging`, component._isDragging);
+  if (e.target.closest(".header")) return;
+
   const clickedItem = e.target.closest(".draggable");
   if (clickedItem) {
-    console.log(`one single drag`);
-      component._isItemDrag = true;    
-      return;
+    component._isItemDrag = true;
+    return;
   }
 
-  // Record start position but don't set dragging yet
-  component._startX = e.pageX;
-  component._startY = e.pageY;
-  component._lassoContainer = e.target.closest(".container");
-  component._isDragging = false; // pending state
+  const container = component.component_container; // the outer #component-container
+  const rect = container.getBoundingClientRect();
+
+  // Coordinates relative to #component-container
+  component._startX = e.clientX - rect.left;
+  component._startY = e.clientY - rect.top;
+  component._lassoContainer = container;
+  component._isDragging = false;
+
+  const lasso = container.querySelector("#lasso");
+  if (lasso) {
+    lasso.style.display = "block";
+    lasso.style.left = `${component._startX}px`;
+    lasso.style.top = `${component._startY}px`;
+    lasso.style.width = "0px";
+    lasso.style.height = "0px";
+  }
 
   window.addEventListener("pointermove", component._onPointerMove);
   window.addEventListener("pointerup", component._onPointerUp, { once: true });
@@ -148,59 +178,82 @@ component._onPointerMove = e => {
     return;
   }
 
-  const dx = Math.abs(e.pageX - component._startX);
-  const dy = Math.abs(e.pageY - component._startY);
+  const container = component._lassoContainer || component.component_container;
+  if (!container) return;
+
+  const rect = container.getBoundingClientRect();
+  const currentX = e.clientX - rect.left;
+  const currentY = e.clientY - rect.top;
+
+  const dx = Math.abs(currentX - component._startX);
+  const dy = Math.abs(currentY - component._startY);
 
   // Only start lasso if movement exceeds threshold
   if (!component._isDragging && (dx > DRAG_THRESHOLD || dy > DRAG_THRESHOLD)) {
     component._isDragging = true;
 
-    const lasso = component.shadowRoot.getElementById("lasso");
-    Object.assign(lasso.style, {
-      left: `${component._startX}px`,
-      top: `${component._startY}px`,
-      width: "0px",
-      height: "0px",
-      display: "block",
-      position: "absolute"
-    });
+    const lasso = container.querySelector("#lasso") || component.shadowRoot.getElementById("lasso");
+    if (lasso) {
+      Object.assign(lasso.style, {
+        left: `${component._startX}px`,
+        top: `${component._startY}px`,
+        width: "0px",
+        height: "0px",
+        display: "block"
+      });
+    }
   }
 
   if (!component._isDragging) return;
 
   clearTimeout(component._selectionTimeout);
 
-  const x = Math.min(e.pageX, component._startX);
-  const y = Math.min(e.pageY, component._startY);
-  const w = Math.abs(e.pageX - component._startX);
-  const h = Math.abs(e.pageY - component._startY);
+  const x = Math.min(currentX, component._startX);
+  const y = Math.min(currentY, component._startY);
+  const w = Math.abs(currentX - component._startX);
+  const h = Math.abs(currentY - component._startY);
 
-  const lasso = component.shadowRoot.getElementById("lasso");
-  Object.assign(lasso.style, { left: `${x}px`, top: `${y}px`, width: `${w}px`, height: `${h}px` });
+  const lasso = container.querySelector("#lasso") || component.shadowRoot.getElementById("lasso");
+  if (lasso) {
+    Object.assign(lasso.style, {
+      left: `${x}px`,
+      top: `${y}px`,
+      width: `${w}px`,
+      height: `${h}px`
+    });
+  }
 
+  // Selection box in container coordinates
   const box = { left: x, top: y, right: x + w, bottom: y + h };
-  const items = component._lassoContainer
-    ? component._lassoContainer.querySelectorAll(".draggable")
-    : component.shadowRoot.querySelectorAll(".draggable");
+
+  const items = container.querySelectorAll(".draggable");
 
   component._selectionTimeout = setTimeout(() => {
     if (!component._isDragging) return; // guard against ghost selection
 
     items.forEach(item => {
       const rect = item.getBoundingClientRect();
+      // Convert item rect into container-relative coordinates
       const itemBox = {
-        left: rect.left + window.scrollX,
-        right: rect.right + window.scrollX,
-        top: rect.top + window.scrollY,
-        bottom: rect.bottom + window.scrollY
+        left: rect.left - container.getBoundingClientRect().left,
+        right: rect.right - container.getBoundingClientRect().left,
+        top: rect.top - container.getBoundingClientRect().top,
+        bottom: rect.bottom - container.getBoundingClientRect().top
       };
+
       const xOverlap = Math.max(0, Math.min(itemBox.right, box.right) - Math.max(itemBox.left, box.left));
       const yOverlap = Math.max(0, Math.min(itemBox.bottom, box.bottom) - Math.max(itemBox.top, box.top));
       const coverage = (xOverlap * yOverlap) / ((itemBox.right - itemBox.left) * (itemBox.bottom - itemBox.top));
-      if (coverage >= 0.3) item.classList.add("selected");
+
+      if (coverage >= 0.3) {
+        item.classList.add("selected");
+      } else {
+        item.classList.remove("selected");
+      }
     });
   }, 0);
 };
+
 
 component._onPointerUp = e => {
   const wasDragging = component._isDragging;
@@ -305,6 +358,7 @@ component._onDragOver = e => {
   // If dragged items are not yet in this container, append them here
   component._draggedItems.forEach(el => {
     if (el.parentElement !== container) {
+      component._matrixRecalculate = true;
       component._lastElToDifferentContainer.push(el);
       for (const child of el.children) {
         if (!child.classList.contains("title")) {
@@ -391,6 +445,7 @@ component._onDragEnd = () => {
   component.lastSelectedIndex = null;
   // Sync + render
   syncContainers(component);
+
   resetLasso(component);
   component._renderChange();
 };
