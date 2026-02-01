@@ -1,5 +1,5 @@
 import {getULID} from './../utils/id.js';
-
+import {normalizeUrlsDataFromServer} from './imgUrls.js';
 /**
  * Transform raw searchDict results into phrases + soundBlob structures
  * @param {Array} finalResults - raw array from searchDict.php
@@ -23,9 +23,15 @@ export function transformFinalResults(finalResults, userID, reminderText = "", t
       returning_phrase: entry.returning_phrase || "",
       ukipa: entry.ukipa || "",
       usipa: entry.usipa || "",
-      soundUrls: entry.soundUrls || [],
+      // soundUrls: entry.soundUrls || [],
+      // imgUrls: entry.imgUrls || [],
       defi: entry.defi || [],
-      imgUrls: entry.imgUrls || [],
+      image: { 
+        data: normalizeUrlsDataFromServer(entry.phrase,entry.imgUrls) 
+      },
+      sound: {
+        data: normalizeUrlsDataFromServer(entry.phrase,entry.soundUrls), 
+      },      
       lang: entry.lang || {},
       user_ipa: entry.ukipa || entry.usipa || "",
       user_defi: {
@@ -34,8 +40,6 @@ export function transformFinalResults(finalResults, userID, reminderText = "", t
         default_defi: (entry.defi?.length > 1)? [0,1] : (entry.defi?.length > 0) ? [0] : []
       },
       user_translate: entry.lang?.[langCode] || "",
-      user_imgIndex: { defaultIndex: 0 },
-      user_soundIndex: { defaultIndex: 0 },
       user_note: "",
       connecting_phrases: [],
       reminder_text: reminderText || null,

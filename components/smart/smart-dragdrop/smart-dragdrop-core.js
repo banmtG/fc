@@ -50,6 +50,7 @@ export function initSelectionLogic(component, signal) {
       component._isDragging = false;
       return;
     }
+    
 
     const siblings = [...item.parentElement.querySelectorAll('.draggable')];
     const currentIdx = siblings.indexOf(item);
@@ -71,9 +72,13 @@ export function initSelectionLogic(component, signal) {
     } else {
       // Plain click → highlight only
       // Clear previous highlight
-      component.shadowRoot.querySelectorAll('.draggable.highlight')
-        .forEach(el => el.classList.remove('highlight'));
+      component.shadowRoot.querySelectorAll('.draggable')
+        .forEach(el => { 
+          el.classList.remove('highlight');
+          if (config?.selectionMode!==1) el.classList.remove('selected');
+        });
       item.classList.add('highlight');
+
       // console.log(item);
       // console.log(`old matrix`, component._matrix);
       if (container!==component._activeContainer || component._matrixRecalculate === true) {
@@ -278,7 +283,6 @@ component._onPointerUp = e => {
   if (wasDragging) {
     component._justLassoed = true; // mark that lasso happened
     const selectedItems = component.shadowRoot.querySelectorAll(".draggable.selected");
-    console.log("Selected items at pointerUp:", selectedItems);
   } else {
     // If no drag happened, treat as click
     // component._handleClickSelection?.(e);
@@ -296,7 +300,6 @@ element.addEventListener("pointerdown", component._onPointerDown, { signal });
 
 // Drag start
 component._onDragStart = e => {
-  console.log(e);
   let target = e.target; 
   if (target.nodeType === Node.TEXT_NODE) { 
     target = target.parentElement; 
@@ -496,12 +499,12 @@ export function syncContainers(component) {
   saveHistory(component);
 
   // Emit event with updated data + orders
-  component.dispatchEvent(new CustomEvent("dragdrop-box-changed", {
+  component.dispatchEvent(new CustomEvent("smart-dragdrop-changed", {
     detail: {
       columnData: component.columnData,
       orders: extractOrdersByIdKey(component, component._idKey) // e.g. phraseID → order
     },
-    bubbles: true,
+    bubbles: false,
     composed: true
   }));
 }

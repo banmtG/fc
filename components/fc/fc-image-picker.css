@@ -8,24 +8,37 @@ smart-dialog {
 }
 
 .container {
+  display: flex;  
+  flex-direction: column;
   width: calc(100% - 10px);
   padding: 5px;
   overflow-y: scroll;
+  overflow-x: hidden;
 }
 
 .container_row {  
   display:grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   gap: 5px;
   margin: 5px 0;
 }
 
 .smartDragdrop_buttons {
   display:grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns:  1fr 1fr 1fr 1fr 1fr;
   gap: 5px;
-  margin: 5px 0;
+  margin: 5px 0;  
 }
+
+.icon_button sl-button::part(base) {
+  font-size: 1.2rem;
+}
+
+.container_row sl-input,
+.container_row sl-button {
+  min-width: 0; /* allow shrinking inside grid */
+}
+
 
 .container_row sl-input {
   flex-shrink: 0;

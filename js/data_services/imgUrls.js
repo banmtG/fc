@@ -1,5 +1,7 @@
 import { getUUID } from './../utils/id.js';
+import { processImage } from "./../imageProcessor/imageProcessor.js"; // your pipeline helper
 import Database from './../../core/database.js';
+
 
 /**
  * Build payload for updateImage.php, including ONLY entries missing imgUrls.
@@ -129,9 +131,10 @@ export async function checkImage(url, { mode = "head", timeout = 3000 } = {}) {
 
 
 
-export function normalizeImageDataFromServer(phrase,arr) {
+export function normalizeUrlsDataFromServer(phrase,arr) {
   const result = [];  
-  arr.forEach(url => {    
+
+  arr?.forEach(url => {    
     if (url.includes("http")) {
       result.push( {
         id: `${phrase.slice(0,phrase.length<8? phrase.length : 8)}_${getUUID(6)}`,
@@ -152,10 +155,11 @@ export function normalizeImageDataFromServer(phrase,arr) {
 
 
 function reverseTransform(shortCode) {
+  try {
   const [style, payload] = shortCode.split(":"); // Split into style and identifier
 
   // Match expected pattern: e.g., "tse1_OIP.abc123"
-  const match = payload.match(/^(tse\d+)_([A-Z]{3})\.([A-Za-z0-9%._\-]+)/);
+  const match = payload?.match(/^(tse\d+)_([A-Z]{3})\.([A-Za-z0-9%._\-]+)/);
   if (!match) throw new Error("Invalid short code format");
 
   const tse = match[1];   // tse server identifier
@@ -173,28 +177,37 @@ function reverseTransform(shortCode) {
   } else {
     throw new Error("Unknown style type in short code"); // Error handling
   }
+  } catch (e) {
+    console.log(e);
+  }
+
 }
 
 
-/**ok
- * Download an image from a URL and save it into IndexedDB.
- * Falls back by returning failed items if fetch fails (e.g. CORS).
+
+/**
+ * Download an image from a URL, reduce it (resize/convert/compress),
+ * and save into IndexedDB.
  *
  * @param {IDBDatabaseHelper} dbHelper - your helper instance with saveImageBlob()
- * @param {Array} items - array of { imgID, phraseID, phrase, url, title }
- * @returns {Promise<{success: string[], failed: Array<{id, t, url}>}>}
+ * @param {string} phraseID
+ * @param {string} phrase
+ * @param {Array} items - array of { id, phraseID, phrase, url, title }
+ * @returns {Promise<{success: Array, failed: Array}>}
  */
 export async function downloadAndSaveImages(component, phraseID, phrase, items) {
   const success = [];
   const failed = [];
-  await Database.init(); 
+
+  await Database.init();
+
   // Step 1: check if we already have a record for this phrase
   const existingRecords = await Database.getImagesByPhrase(phraseID);
   let record = existingRecords[0]; // assume one per phraseID
 
   if (!record) {
     record = {
-      imgID: `${phrase.slice(0,phrase.length<10? phrase.length : 10)}_${getUUID(10)}`,
+      imgID: `${phrase.slice(0, phrase.length < 10 ? phrase.length : 10)}_${getUUID(10)}`,
       phraseID,
       phrase,
       blob: []
@@ -206,17 +219,25 @@ export async function downloadAndSaveImages(component, phraseID, phrase, items) 
     try {
       const res = await fetch(item.url, { mode: "cors" });
       if (!res.ok) throw new Error("Network error");
-      const blob = await res.blob();
+      const rawBlob = await res.blob();
+
+      // 🔑 Run through pipeline BEFORE saving
+      const { blob: reducedBlob, meta } = await processImage(rawBlob, {
+        maxWidth: 1200,
+        quality: 85,
+        convert: true // or false depending on your needs
+      });
+
       // check if this id already exists in blob array
       const existing = record.blob.find(b => b.id === item.id);
       if (existing) {
-        existing.blob = blob; // update existing blob
+        existing.blob = reducedBlob; // update existing blob with reduced version
       } else {
-        record.blob.push({ id: item.id, blob });
+        record.blob.push({ id: item.id, blob: reducedBlob });
       }
 
       await Database.saveImageBlob(record);
-      success.push(item);
+      success.push({ ...item, meta });
     } catch (err) {
       failed.push(item);
     }
@@ -225,37 +246,36 @@ export async function downloadAndSaveImages(component, phraseID, phrase, items) 
   return { success, failed };
 }
 
+
 export async function removeImageBlobEntry(phraseID, blobIDs) {
-  await Database.init();
-
-  const records = await Database.getImagesByPhrase(phraseID);
-  if (!records || !records.length) return false;
-
-  const record = records[0];
-
-  // Build a Set for O(1) lookups
-  const removeSet = new Set(blobIDs);
-  // Filter once
-  console.log(removeSet);
-  record.blob = record.blob.filter(b => !removeSet.has(b.id));
-  console.log(record);
-  await Database.saveImageBlob(record);
-  return true;
+  try {
+    await Database.init();
+    const records = await Database.getImagesByPhrase(phraseID);
+    if (!records || !records.length) return false;
+    const record = records[0];
+    // Build a Set for O(1) lookups
+    const removeSet = new Set(blobIDs);
+    // Filter once
+    // console.log(removeSet);
+    record.blob = record.blob.filter(b => !removeSet.has(b.id));
+    // console.log(record);
+    await Database.saveImageBlob(record);
+    return true;
+  } catch (e) {
+    return `Error: ${e}`;
+  }
+  
 }
 
 export async function getImageUrl(phraseID, blobID) {
-  console.log(`vao getImageUrl`);
   await Database.init();
   const records = await Database.getImagesByPhrase(phraseID);
   const record = records[0];
-  console.log(record);
   if (!record) return null;
 
   const blobObj = record.blob.find(b => b.id === blobID);
   if (!blobObj) return null;
-  console.log(blobObj);
   const url = URL.createObjectURL(blobObj.blob);
-  console.log(url);
   return url;
 }
 

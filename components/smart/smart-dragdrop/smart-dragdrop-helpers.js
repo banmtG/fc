@@ -1,6 +1,6 @@
 // smart-dragdrop-helpers.js
 import { getTextWidth } from './../../../js/utils/fontToWidth.js';      
-
+import {getULID} from './../../../js/utils/id.js';
 
 /**
  * Normalize items: assign zone + order consistently.
@@ -117,12 +117,11 @@ export function applyColumnView(container, config, triggerIcon, range) {
  * @param {number} atOrder - exact order position
  */
 export function _addItem(component, item, zoneId, atOrder) {
-  const arr = component.fullData;
 
   // Default zone: first column if zoneId not provided
   const effectiveZoneId = zoneId || (component.columns[0] ? component.columns[0].id : null);
 
-  const zoneItems = arr.filter(i => i.zone === effectiveZoneId);
+  const zoneItems = component.fullData.filter(i => i.zone === effectiveZoneId);
 
   // Default to append if atOrder not provided
   const order = typeof atOrder === "number" ? atOrder : zoneItems.length;
@@ -139,25 +138,22 @@ export function _addItem(component, item, zoneId, atOrder) {
     order
   };
 
-  arr.push(newItem);
+  component.fullData.push(newItem);  
   return newItem;
 }
 
 
 /**
- * Remove multiple items by id.
+ * Remove multiple items by id. in data only
  */
 export function _removeItems(component, itemIds) {
-  const arr = component.fullData;
+  // const arr = component.fullData;
   const removed = [];
-
   itemIds.forEach(itemId => {
-    const item = arr.find(i => i._id === itemId);
-    if (!item) return;
-
+    const item = component.fullData.find(i => i._id === itemId);
+    if (!item) { console.log(`fail to find item`, itemId); return; } 
     const zoneId = item.zone;
     const order = item.order;
-
     // Remove
     component.fullData = component.fullData.filter(i => i._id !== itemId);
 
@@ -168,7 +164,6 @@ export function _removeItems(component, itemIds) {
 
     removed.push(item);
   });
-
   return removed;
 }
 
@@ -206,41 +201,39 @@ export function _moveItems(component, itemIds, newZoneId, startOrder) {
 }
 
 export function _updateItems(component, itemPatches) {
-  console.log(itemPatches);
-  const results = [];
 
+  const results = [];
   itemPatches.forEach(itemPatch => {
     const idx = component.fullData.findIndex(i => i._id === itemPatch._id);
     if (idx === -1) return;
-    // console.log(idx);
     // Update item with new patch
     component.fullData[idx] = { ...component.fullData[idx], ...itemPatch };
-    // console.log(component.fullData);
     const updatedItem = component.fullData[idx];
-    // console.log(updatedItem);
-    // Render new markup
+    // Render new markup using renderITEM directly
     const view = component.columns.find(column => column.id === updatedItem.zone)?.view;
     const html = component.renderItem(updatedItem, updatedItem.zone, view);
-    // console.log(html);
     // Parse into a real element
     const temp = document.createElement("div");
     temp.innerHTML = html.trim();
     const newEl = temp.firstElementChild;
-
     // Find existing element
     const targetElement = component.shadowRoot.querySelector(`[data-id="${updatedItem._id}"]`);
     const classList = targetElement.classList;
-    console.log(classList);
+
+    // replace the old ELEMENT with new element and reapply CLASS
     if (targetElement && newEl) {
       targetElement.replaceWith(newEl); // safer than outerHTML
-      newEl.classList.add("selected");
+      classList.forEach(cl=> newEl.classList.add(cl));
     }
-      // Attach lazy loading after batch render
+
+      // Attach lazy loading after batch render for the newly created Elements
     const imgs = newEl.querySelectorAll("img[data-src]");
-    imgs.forEach(img => component._enableLazyLoading(img));
+    imgs.forEach(img => component._enableLazyLoading(img));    
+
     results.push(updatedItem);
   });
-
+    // sync with ColumnData
+    _convertFullDataToColumnData(component);
   return results;
 }
 
@@ -274,6 +267,9 @@ export function _insertElement(component, item) {
   } else {
     container.appendChild(newEl);
   }
+
+  const imgs = newEl.querySelectorAll("img[data-src]");
+  imgs.forEach(img => component._enableLazyLoading(img));    
 }
 
 
@@ -281,12 +277,14 @@ export function _insertElement(component, item) {
  * Remove multiple DOM elements.
  */
 export function _removeElements(component, items) {
-  console.log(items);
   items.forEach(item => {
     const container = component.shadowRoot.getElementById(`${item.zone}-container`);
     if (!container) return;
     const el = container.querySelector(`[data-id="${item._id}"]`);
-    if (el) container.removeChild(el);
+    if (el) { 
+      container.removeChild(el);
+    } else { 
+    }
   });
 }
 
@@ -320,7 +318,7 @@ export function _moveElements(component, items) {
 }
 
 function generateInternalId(prefix = "item") {
-  return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+  return `${prefix}-${getULID(36)}}`;
 }
 
 
@@ -359,4 +357,58 @@ export function _getSelectedItems(component) {
     results[config.id] = result;
   });
   return results;
+}
+
+export function _getHighlight(component) {
+  const result = component.shadowRoot.querySelector(".draggable.highlight")?.dataset.id;  
+  return result? result : null;
+}
+
+export function _setHighlight(component, itemId = null) {
+  const items = Array.from(component.shadowRoot.querySelectorAll('.draggable'));
+  console.log(items);
+  if (items.length === 0) return;
+  // Case 1: no itemId and no highlight yet → highlight first item
+  if (!itemId && component._highlightIndex == null) {
+    console.log(`case 1`);
+    component._highlightIndex = 0;
+    items[0].classList.add('highlight');
+    component._activeContainer = items[0].closest('.container');
+    component._activeContainer?.focus();
+    return;
+  }
+  // Case 2: itemId is provided → highlight that item
+  if (itemId) {
+    console.log(`case 2`);
+    const highlightIndex = items.findIndex(el => el.dataset.id === itemId || el.data?.id === itemId);
+    console.log(highlightIndex);
+    if (highlightIndex === -1) return; // item not found
+
+    items.forEach(item => item.classList.remove('highlight'));
+    component._highlightIndex = highlightIndex;
+    items[highlightIndex].classList.add('highlight');
+    component._activeContainer = items[highlightIndex].closest('.container');
+    component._activeContainer?.focus();
+    return;
+  }
+  // Case 3: no itemId but highlightIndex already exists → reapply highlight
+  if (component._highlightIndex != null) {
+    console.log(`case 3`);
+    items.forEach(item => item.classList.remove('highlight'));
+    const idx = component._highlightIndex;
+    if (items[idx]) {
+      items[idx].classList.add('highlight');
+      component._activeContainer = items[idx].closest('.container');
+      component._activeContainer?.focus();
+    }
+  }
+}
+
+
+export function _convertFullDataToColumnData(component) {
+  component.columns.forEach(config => {
+    component.columnData[config.id] = component.fullData
+      .filter(item => item.zone === config.id)
+      .sort((a, b) => a.order - b.order);
+  });
 }

@@ -58,17 +58,56 @@ export function getMatrix(container, config) {
       matrix[i] = [item];
     });
   }
-  console.log(matrix);
+  // console.log(matrix);
   return matrix;
 }
 
 
 export function _handleKeydown(component, e) {
-  // const activeContainer = component.component_container.querySelector('.container[data-view]');
-  // console.log(e.target);
-  // const activecontainer = e.target.closest('.container');
-  // console.log(activecontainer);
-  // console.log(activeContainer);
+  
+  // Ctrl + A (or Cmd + A on macOS)
+  const externalEventKeys = ["Delete", " ", "Enter","Escape"]; 
+  if (externalEventKeys.includes(e.key)) { 
+      // console.log(e.key);
+      component.dispatchEvent(new CustomEvent("smart-dragdrop-externalEventKeys-pressed", {
+        detail: e.key,
+        bubbles: true,
+        composed: true
+      }));
+    return;   
+  }// exit for any other key
+
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "a") {
+    e.preventDefault(); // prevent browser "select all"    
+    component._activeContainer.querySelectorAll(".draggable").forEach(item => {
+       item.classList.add("selected");
+    });  
+    return;
+  }
+
+  // // Delete key
+  // if (e.key === "Delete") {
+  //   e.preventDefault();
+  //   console.log(`Delete press`);
+  //   component.dispatchEvent(new CustomEvent("smart-dragdrop-items-delete-request", {
+  //     detail: null,
+  //     bubbles: true,
+  //     composed: true
+  //   }));
+  //   return;
+  // }
+
+  // // Enter key
+  // if (e.key === "Shift") {
+  //   e.preventDefault();
+  //   // this._handleToggleUse(); // your custom function
+  //   return;
+  // }
+
+  const arrowKeys = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"]; 
+  if (!arrowKeys.includes(e.key)) { return; }// exit for any other key
+  e.preventDefault();
+
   const activeContainer = component._activeContainer;
   if (!activeContainer) return;
 
@@ -205,6 +244,7 @@ export function _handleKeydown(component, e) {
   items[component._highlightIndex].classList.remove('highlight');
   newItem.classList.add('highlight');
   newItem.scrollIntoView({ block: "nearest", inline: "nearest" });
-
   component._highlightIndex = items.findIndex(el => el.classList.contains('highlight'));
 }
+
+

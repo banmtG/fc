@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Image Compressor</title>
+<style>
+  body { font-family: sans-serif }
+  img { max-width: 300px; margin-top: 10px }
+</style>
+</head>
+
+<body>
+
+<h3>Image Compressor</h3>
+
+<input type="file" id="file" accept="image/*">
+<br><br>
+
+Quality:
+<input type="range" id="quality" min="10" max="95" value="75">
+
+<button id="go">Compress</button>
+
+<p id="info"></p>
+
+<img id="preview">
+<br>
+<a id="download" download="compressed.jpg">Download</a>
+
+<script type="module">
+
+import decode from "./../js/lib/jSquash/decode.js";
+import encode from "./../js/lib/jSquash/encode.js";
+
+const input = document.getElementById("file");
+const btn = document.getElementById("go");
+const quality = document.getElementById("quality");
+const info = document.getElementById("info");
+const preview = document.getElementById("preview");
+const download = document.getElementById("download");
+
+let file;
+
+input.onchange = e => file = e.target.files[0];
+
+btn.onclick = async () => {
+
+  if (!file) return alert("Select image");
+
+  const originalSize = file.size;
+
+  const buffer = await file.arrayBuffer();
+
+  // Decode
+  const imageData = await decode(buffer);
+
+  // Encode (compress)
+  const compressed = await encode(imageData, {
+    quality: Number(quality.value)
+  });
+
+  const compressedSize = compressed.byteLength;
+
+  // Display info
+  info.innerHTML = `
+    Original: ${(originalSize/1024).toFixed(1)} KB<br>
+    Compressed: ${(compressedSize/1024).toFixed(1)} KB<br>
+    Reduction: ${(100 - compressedSize/originalSize*100).toFixed(1)} %
+  `;
+
+  const blob = new Blob([compressed], { type: "image/jpeg" });
+
+  const url = URL.createObjectURL(blob);
+
+  preview.src = url;
+  download.href = url;
+};
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,33 @@
+<input type="file" id="file" accept="image/*">
+<img id="preview">
+<p id="info"></p>
+<a id="download">Download</a>
+
+<script type="module">
+import { processImage } from "./../js/imageProcessor/imageProcessor.js";
+
+const input = document.getElementById("file");
+const preview = document.getElementById("preview");
+const info = document.getElementById("info");
+const download = document.getElementById("download");
+
+input.onchange = async e => {
+  const file = e.target.files[0];
+
+  const { blob, meta } = await processImage(file, {
+    maxWidth: 800,
+    quality: 95,
+    convert: true // try true to force JPEG conversion
+  });
+
+  info.innerHTML = `
+    Original: ${meta.original.type}, ${(meta.original.size/1024).toFixed(1)} KB, ${meta.original.width}×${meta.original.height}<br>
+    Processed: ${meta.processed.type}, ${(meta.processed.size/1024).toFixed(1)} KB, ${meta.processed.width}×${meta.processed.height}
+  `;
+
+  const url = URL.createObjectURL(blob);
+  preview.src = url;
+  download.href = url;
+  download.download = "compressed" + (meta.processed.type === "image/png" ? ".png" : ".jpg");
+};
+</script>

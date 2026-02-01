@@ -1,6 +1,7 @@
 import './pos-badge-group.js';
 import './defi-edit.js';
 import './connecting-phrase.js';
+import './fc-image-picker.js';
 import { getPhraseFromPhraseID } from './../../js/data_services/local_data.js';
 import  { correctPos, getAllUniquePOS, extractFromDefiObjects } from '../../js/utils/dictionary.js';
 import '../smart/smart-ipa-input.js';
@@ -13,11 +14,8 @@ class APhraseMobileEditor extends HTMLElement {
     this.attachShadow({ mode: 'open' });
     this.componentCSS = `<link rel="stylesheet" href=".././components/fc/a-phrase-mobile-editor.css" />`;
     this._abort = new AbortController();
-
     this.entry = {};
-
     const template = document.createElement('template');
-
     template.innerHTML = `${this.componentCSS}
     <div class="noScroll_container">
       <sl-card class="card-basic" id="container">
@@ -42,9 +40,8 @@ class APhraseMobileEditor extends HTMLElement {
         <sl-divider class="editElement"></sl-divider>          
         <sl-input class="label-on-left" label="Connect" size="small" id="connectingPhrases" placeholder="Connecting phrases" rows="1" resize="auto"></sl-input>
         <sl-divider class="editElement"></sl-divider>          
-        <sl-input class="label-on-left" label="Image" size="small" id="image" placeholder="Photo link" rows="1"></sl-input>
+        <sl-input class="label-on-left" label="Image" size="small" id="imageInput" placeholder="Photo link" rows="1"></sl-input>
         <sl-divider class="editElement"></sl-divider>
-
       </sl-card>
     </div>
     
@@ -52,7 +49,7 @@ class APhraseMobileEditor extends HTMLElement {
     <smart-ipa-input></smart-ipa-input>  
     <defi-edit></defi-edit>    
     <connecting-phrase></connecting-phrase>
-
+    <fc-image-picker></fc-image-picker>
     `;
    
     // Attach to shadow DOM
@@ -68,6 +65,8 @@ class APhraseMobileEditor extends HTMLElement {
     this._user_note= sR.getElementById("note");     
     this._connect= sR.getElementById("connect"); 
     this._image= sR.getElementById("image");  
+
+    this._initAssignBtnFunction();
   }
 
 
@@ -84,7 +83,6 @@ class APhraseMobileEditor extends HTMLElement {
   set setData(entry) {
     //console.log(value);
     this.entry = entry; 
-    this._initAssignBtnFunction();
     // this._initRender(this.entry).catch(err => console.error(err));
     this._initRender(this.entry);
   }
@@ -99,6 +97,7 @@ class APhraseMobileEditor extends HTMLElement {
     this._posBadgeGroup.pos = allRawPos;
     this._ipa.innerText = entry.user_ipa? `/${entry.user_ipa}/`: "";    
     this._definition.innerHTML = this._createDefiDivHtml(entry);
+    this._defiEditDialog.loadInitData(this.entry);    
     // this._user_translate.innerHTML = entry.user_translate? entry.user_translate : "";
     this._translateEditInput .value = entry.user_translate? entry.user_translate : "";
     // this._user_note.innerHTML = entry.user_note? entry.user_note : "";
@@ -126,12 +125,16 @@ class APhraseMobileEditor extends HTMLElement {
     this._connectingPhrases = sR.getElementById("connectingPhrases");
     this._connectingPhrases.addEventListener('click', (e) => this._handleConnectingPhraseEdit(), { signal });
 
+    this._fcImagePickerInput = sR.getElementById("imageInput");
+    this._fcImagePickerInput.addEventListener('click', (e) => this._handleFcImagePicker(), { signal });
+
     this._imageEditBtn = sR.getElementById("imageEditBtn");
 
     this._textEditDialog =  this.shadowRoot.querySelector('smart-text-input');
     this._phraseIPAialog = this.shadowRoot.querySelector('smart-ipa-input');
     this._defiEditDialog = this.shadowRoot.querySelector('defi-edit');
     this._connectingPhraseDialog = this.shadowRoot.querySelector('connecting-phrase');
+    this._fcImagePickerInput =  this.shadowRoot.querySelector('imageInput');
 
     this._handlePhraseEdit = this._handlePhraseEdit.bind(this);
     this._phrase.addEventListener('click',this._handlePhraseEdit, { signal });
@@ -141,15 +144,18 @@ class APhraseMobileEditor extends HTMLElement {
 
     this._handleDefinitionEdit = this._handleDefinitionEdit.bind(this);
 
-    this._defiEditDialog.loadInitData(this.entry);    
-
     this._definitionEditBtn.addEventListener('click',this._handleDefinitionEdit ,{ signal });
+
+    this._fcImagePicker = this.shadowRoot.querySelector('fc-image-picker');
+    this._fcImagePicker.init();
+
 
     // this._handleTranslateEdit = this._handleTranslateEdit.bind(this);
     // this._translateEditBtn.addEventListener('click',this._handleTranslateEdit);
 
     // this._handleNoteEdit = this._handleNoteEdit.bind(this);
     // this._noteEditBtn.addEventListener('click',this._handleNoteEdit);
+
 
     this._phraseIPAialog.addEventListener("smart-ipa-input-confirmed", (e) => {
       this.entry.user_ipa = e.detail.value;
@@ -172,8 +178,19 @@ class APhraseMobileEditor extends HTMLElement {
       const key = e.detail.key;
       this.entry[e.detail.key] = e.detail.value;
       this[`_${key}`].innerHTML = this.entry[key];
-    },{ signal });
+    }, { signal });
+  }
 
+  _handleFcImagePicker(e) {
+    // console.log(`vao _handleFcImagePicker`);
+    // this._fcImagePicker = document.createElement('fc-image-picker');
+    // this.shadowRoot.appendChild(this._fcImagePicker);
+    // this._fcImagePicker.addEventListener("fc-image-picker-confirmed", (e) => {
+    //   this.entry = e.detail;
+    //   this._fcImagePicker.remove();      
+    // }, { signal: this._abort.signal });
+    // this._fcImagePicker.init();
+    this._fcImagePicker.open(this.entry);
   }
 
   _handleConnectingPhraseEdit() {

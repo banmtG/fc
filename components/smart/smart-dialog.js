@@ -616,7 +616,6 @@ class SmartDialog extends HTMLElement {
   }
 
   _onKeyDown(e) { // handle ESCAPE Key
-    console.log(e);
     if (e.key !== 'Escape') return;
     if (e.key === "Escape") {
       let el = this._getDeepActiveElement();

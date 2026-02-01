@@ -12,208 +12,179 @@
 <body>
   <fc-image-picker id="fip"></fc-image-picker>
   <script type="module">
-import { normalizeImageDataFromServer } from "./../js/data_services/imgUrls.js";
- const fip = document.getElementById('fip'); 
+import { normalizeUrlsDataFromServer } from "./../js/data_services/imgUrls.js";
 
-  console.log(fip);
+ const fip = document.getElementById('fip'); 
+      fip.addEventListener('fc-image-picker-confirmed', (e)=> {
+        console.log(e.detail);
+      })
   const entry = {
     phraseID: "phrase-01KFS99CSZ4PNS0BYJQ1SFQPSY",   
     phrase: "scuff",
-    image: { "select": [],
-            "data": [
-    {
-        "id": "scuff_0d35bc",
-        "pick": true,
-        "source": "compact",
-        "t": "web",
-        "url": "https://tse3.mm.bing.net/th/id/OIP.2EpSH3U0ZCwSVsk_z2OvWQHaEK?w=400&c=7&r=0&o=5&pid=1.7"
-    },
-    {
-        "id": "scuff_f477ec",
-        "pick": true,
-        "source": "compact",
-        "t": "web",
-        "url": "https://tse4.mm.bing.net/th/id/OIP.2N1YeUFvw1Sao60Ln-sIxQHaE8?w=400&c=7&r=0&o=5&pid=1.7"
-    },
-    {
-        "id": "scuff_658a53",
-        "source": "compact",
-        "t": "web",
-        "url": "https://tse4.mm.bing.net/th/id/OIP.NOGMiVoeHmzRbXvx6OTraAHaFj?w=400&c=7&r=0&o=5&pid=1.7"
-    },
-    {
-        "id": "scuff_51e4ef",
-        "source": "compact",
-        "t": "web",
-        "url": "https://tse2.mm.bing.net/th/id/OIP.er60lA1CRk_HO6oGAFT6IwHaEK?w=400&c=7&r=0&o=5&pid=1.7"
-    },
-    {
-        "id": "scuff_9e6a78",
-        "source": "compact",
-        "t": "web",
-        "url": "https://tse4.mm.bing.net/th/id/OIP.gn3xFfcy9OadCxaqsAYZTgHaFZ?w=400&c=7&r=0&o=5&pid=1.7"
-    },
-    {
-        "id": "scuff_3d3d72",
-        "pick": true,
-        "source": "compact",
-        "t": "web",
-        "url": "https://tse4.mm.bing.net/th/id/OIP.cEZjANUTTfSiIte52ysPaAAAAA?w=400&c=7&r=0&o=5&pid=1.7"
-    },
-    {
-        "id": "scuff_010f5a",
-        "source": "compact",
-        "t": "web",
-        "url": "https://tse4.mm.bing.net/th/id/OIP.6uR2j-W0OPg2wojv9FEzRQHaFj?w=400&c=7&r=0&o=5&pid=1.7"
-    },
-    {
-        "id": "scuff_381ebc",
-        "source": "compact",
-        "t": "web",
-        "url": "https://tse4.mm.bing.net/th/id/OIP.iUWG1Mf0eqIyClFL_DE1UwHaJ4?w=400&c=7&r=0&o=5&pid=1.7"
-    },
-    {
-        "id": "scuff_aa9c89",
-        "source": "compact",
-        "t": "web",
-        "url": "https://tse3.mm.bing.net/th/id/OIP.ClB8JDff-ubJdnZj1H7fCwHaFj?w=400&c=7&r=0&o=5&pid=1.7"
-    },
-    {
-        "id": "scuff_3f9621",
-        "source": "compact",
-        "t": "web",
-        "url": "https://tse1.mm.bing.net/th/id/OIP.dNUqazoNLnyx8U9tLWPVSgHaHs?w=400&c=7&r=0&o=5&pid=1.7"
-    },
-    {
-        "id": "scuff_4911ae",
-        "source": "compact",
-        "t": "web",
-        "url": "https://tse4.mm.bing.net/th/id/OIP.K9YPTwmnNPKwkZe3NrSFTwHaJP?w=400&c=7&r=0&o=5&pid=1.7"
-    },
-    {
-        "id": "scuff_11ad39",
-        "t": "web",
-        "url": "https://static0.gamerantimages.com/wordpress/wp-content/uploads/2024/01/scuf-envision-pro.jpg"
-    },
-    {
-        "id": "scuff_5a231f",
-        "t": "web",
-        "url": "https://www.windowscentral.com/sites/wpcentral.com/files/styles/large_wm_brb/public/field/image/2017/01/scuf-elite-3.jpg?itok=LpxLCbA6"
-    },
-    {
-        "id": "scuff_1fee81",
-        "t": "web",
-        "url": "https://www.corsair.com/wp-content/uploads/2023/10/GENi_PRImagery_HeroImage_1200x675.png"
-    },
-    {
-        "id": "scuff_73ce63",
-        "t": "web",
-        "url": "https://pbs.twimg.com/media/CbsXE_WUsAAzYEe.jpg"
-    },
-    {
-        "id": "scuff_3af211",
-        "t": "web",
-        "url": "http://www.alistdaily.com/wp-content/uploads/2017/04/Scuf-Gaming1.jpg"
-    },
-    {
-        "id": "scuff_905e8c",
-        "t": "web",
-        "url": "https://s-media-cache-ak0.pinimg.com/736x/1c/b8/9b/1cb89b605e38457817a9a6b0d83c4ff9.jpg"
-    },
-    {
-        "id": "scuff_a28c50",
-        "t": "web",
-        "url": "https://static0.gamerantimages.com/wordpress/wp-content/uploads/2023/03/scuffpro.jpg"
-    },
-    {
-        "id": "scuff_bb6d1c",
-        "t": "web",
-        "url": "https://www.thespruce.com/thmb/zkb9rFlQIsedSmnaYXeplsocL-E=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/how-to-remove-scuff-marks-4686428-05-15f909ddca4047e6beadc01ad5eef744.jpg"
-    },
-    {
-        "id": "scuff_394a5a",
-        "t": "web",
-        "url": "https://preview.redd.it/any-ideas-on-getting-rid-of-scuff-in-boots-v0-wlseqhbwoa5a1.jpg?auto=webp&s=95ae176cbb6ce538faeb2d4ed67282affeae1ab6"
-    },
-    {
-        "id": "scuff_ee7ea1",
-        "t": "web",
-        "url": "https://preview.redd.it/mu4aj6fyz3b21.jpg?auto=webp&s=d393fd1704a571364bc70dc18e71ea1bb6c46dfb"
-    },
-    {
-        "id": "scuff_724fbc",
-        "t": "web",
-        "url": "https://www.allamericanpaintingplus.com/wp-content/uploads/2019/02/all-american-painting-plus-ask-painter-how-to-prevent-remove-scuff-marks-1.jpg"
-    },
-    {
-        "id": "scuff_d492aa",
-        "t": "web",
-        "url": "https://i.ytimg.com/vi/iamZLthlfG0/maxresdefault.jpg"
-    },
-    {
-        "id": "scuff_569a21",
-        "t": "web",
-        "url": "https://www.mathiouservices.com.au/wp-content/uploads/2021/08/5-ways-to-fix-scuff-marks-on-painted-walls-600x450.jpg"
-    },
-    {
-        "id": "scuff_1ce624",
-        "t": "web",
-        "url": "https://i.ytimg.com/vi/pXKskd-e5Xw/maxresdefault.jpg"
-    },
-    {
-        "id": "scuff_0d596c",
-        "t": "web",
-        "url": "https://i.ytimg.com/vi/7zzq5f8x5f4/maxresdefault.jpg"
-    },
-    {
-        "id": "scuff_4fc7cc",
-        "t": "web",
-        "url": "https://i.ytimg.com/vi/MgOO2K57CS4/maxresdefault.jpg"
-    },
-    {
-        "id": "scuff_ff07f7",
-        "t": "web",
-        "url": "https://www.carpaintrepairinfo.com/wp-content/uploads/2010/06/scuff_marks1.jpg"
-    },
-    {
-        "id": "scuff_2046e9",
-        "t": "web",
-        "url": "https://images.squarespace-cdn.com/content/v1/5bd6439d348cd927a51f5554/1564020236559-XLQSKKF9EEX83EOY31JC/public.jpeg"
-    },
-    {
-        "id": "scuff_071802",
-        "t": "web",
-        "url": "https://i.ytimg.com/vi/nzH6DvUSH18/maxresdefault.jpg"
-    },
-    {
-        "id": "scuff_f50810",
-        "t": "web",
-        "url": "https://www.thedetailingmafia.com/assets/images/pages/thumbnails/howtoremovecarpaintscuff.png"
-    },
-    {
-        "id": "scuff_0feac6",
-        "pick": true,
-        "t": "web",
-        "url": "https://images.unsplash.com/photo-1459478309853-2c33a60058e7?ixlib=rb-4.1.0&q=85&fm=jpg&crop=entropy&cs=srgb&dl=jeremy-thomas-O6N9RV2rzX8-unsplash.jpg"
-    }
-]
-          },
+    image: { data: [
+        {
+            "id": "scuff_0d35bc",
+            "pick": true,
+            "source": "compact",
+            "t": "blob",
+            "url": "https://tse3.mm.bing.net/th/id/OIP.2EpSH3U0ZCwSVsk_z2OvWQHaEK?w=400&c=7&r=0&o=5&pid=1.7"
+        },
+        {
+            "id": "scuff_f477ec",
+            "pick": true,
+            "source": "compact",
+            "t": "web",
+            "url": "https://tse4.mm.bing.net/th/id/OIP.2N1YeUFvw1Sao60Ln-sIxQHaE8?w=400&c=7&r=0&o=5&pid=1.7"
+        },
+        {
+            "id": "scuff_658a53",
+            "source": "compact",
+            "t": "web",
+            "url": "https://tse4.mm.bing.net/th/id/OIP.NOGMiVoeHmzRbXvx6OTraAHaFj?w=400&c=7&r=0&o=5&pid=1.7"
+        },
+        {
+            "id": "scuff_51e4ef",
+            "source": "compact",
+            "t": "web",
+            "url": "https://tse2.mm.bing.net/th/id/OIP.er60lA1CRk_HO6oGAFT6IwHaEK?w=400&c=7&r=0&o=5&pid=1.7"
+        },
+        {
+            "id": "scuff_9e6a78",
+            "source": "compact",
+            "t": "web",
+            "url": "https://tse4.mm.bing.net/th/id/OIP.gn3xFfcy9OadCxaqsAYZTgHaFZ?w=400&c=7&r=0&o=5&pid=1.7"
+        },
+        {
+            "id": "scuff_3d3d72",
+            "pick": true,
+            "source": "compact",
+            "t": "web",
+            "url": "https://tse4.mm.bing.net/th/id/OIP.cEZjANUTTfSiIte52ysPaAAAAA?w=400&c=7&r=0&o=5&pid=1.7"
+        },
+        {
+            "id": "scuff_010f5a",
+            "source": "compact",
+            "t": "web",
+            "url": "https://tse4.mm.bing.net/th/id/OIP.6uR2j-W0OPg2wojv9FEzRQHaFj?w=400&c=7&r=0&o=5&pid=1.7"
+        },
+        {
+            "id": "scuff_381ebc",
+            "source": "compact",
+            "t": "web",
+            "url": "https://tse4.mm.bing.net/th/id/OIP.iUWG1Mf0eqIyClFL_DE1UwHaJ4?w=400&c=7&r=0&o=5&pid=1.7"
+        },
+        {
+            "id": "scuff_aa9c89",
+            "source": "compact",
+            "t": "web",
+            "url": "https://tse3.mm.bing.net/th/id/OIP.ClB8JDff-ubJdnZj1H7fCwHaFj?w=400&c=7&r=0&o=5&pid=1.7"
+        },
+        {
+            "id": "scuff_3f9621",
+            "source": "compact",
+            "t": "web",
+            "url": "https://tse1.mm.bing.net/th/id/OIP.dNUqazoNLnyx8U9tLWPVSgHaHs?w=400&c=7&r=0&o=5&pid=1.7"
+        },
+        {
+            "id": "scuff_4911ae",
+            "source": "compact",
+            "t": "web",
+            "url": "https://tse4.mm.bing.net/th/id/OIP.K9YPTwmnNPKwkZe3NrSFTwHaJP?w=400&c=7&r=0&o=5&pid=1.7"
+        },
+        {
+            "id": "scuff_11ad39",
+            "t": "web",
+            "url": "https://static0.gamerantimages.com/wordpress/wp-content/uploads/2024/01/scuf-envision-pro.jpg"
+        },
+        {
+            "id": "scuff_5a231f",
+            "t": "web",
+            "url": "https://www.windowscentral.com/sites/wpcentral.com/files/styles/large_wm_brb/public/field/image/2017/01/scuf-elite-3.jpg?itok=LpxLCbA6"
+        },
+        {
+            "id": "scuff_1fee81",
+            "t": "web",
+            "url": "https://www.corsair.com/wp-content/uploads/2023/10/GENi_PRImagery_HeroImage_1200x675.png"
+        },
+        {
+            "id": "scuff_73ce63",
+            "t": "web",
+            "url": "https://pbs.twimg.com/media/CbsXE_WUsAAzYEe.jpg"
+        },
+        {
+            "id": "scuff_3af211",
+            "t": "web",
+            "url": "http://www.alistdaily.com/wp-content/uploads/2017/04/Scuf-Gaming1.jpg"
+        },
+        {
+            "id": "scuff_905e8c",
+            "t": "web",
+            "url": "https://s-media-cache-ak0.pinimg.com/736x/1c/b8/9b/1cb89b605e38457817a9a6b0d83c4ff9.jpg"
+        },
+        {
+            "id": "scuff_a28c50",
+            "t": "web",
+            "url": "https://static0.gamerantimages.com/wordpress/wp-content/uploads/2023/03/scuffpro.jpg"
+        },
+        {
+            "id": "scuff_bb6d1c",
+            "t": "web",
+            "url": "https://www.thespruce.com/thmb/zkb9rFlQIsedSmnaYXeplsocL-E=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/how-to-remove-scuff-marks-4686428-05-15f909ddca4047e6beadc01ad5eef744.jpg"
+        },
+        {
+            "id": "scuff_394a5a",
+            "t": "web",
+            "url": "https://preview.redd.it/any-ideas-on-getting-rid-of-scuff-in-boots-v0-wlseqhbwoa5a1.jpg?auto=webp&s=95ae176cbb6ce538faeb2d4ed67282affeae1ab6"
+        },
+        {
+            "id": "scuff_ee7ea1",
+            "t": "web",
+            "url": "https://preview.redd.it/mu4aj6fyz3b21.jpg?auto=webp&s=d393fd1704a571364bc70dc18e71ea1bb6c46dfb"
+        },
+        {
+            "id": "scuff_724fbc",
+            "t": "web",
+            "url": "https://www.allamericanpaintingplus.com/wp-content/uploads/2019/02/all-american-painting-plus-ask-painter-how-to-prevent-remove-scuff-marks-1.jpg"
+        },
+        {
+            "id": "scuff_d492aa",
+            "t": "web",
+            "url": "https://i.ytimg.com/vi/iamZLthlfG0/maxresdefault.jpg"
+        },
+        {
+            "id": "scuff_569a21",
+            "t": "web",
+            "url": "https://www.mathiouservices.com.au/wp-content/uploads/2021/08/5-ways-to-fix-scuff-marks-on-painted-walls-600x450.jpg"
+        },
+        {
+            "id": "scuff_1ce624",
+            "t": "web",
+            "url": "https://i.ytimg.com/vi/pXKskd-e5Xw/maxresdefault.jpg"
+        },
+        {
+            "id": "scuff_0d596c",
+            "t": "web",
+            "url": "https://i.ytimg.com/vi/7zzq5f8x5f4/maxresdefault.jpg"
+        },
+        {
+            "id": "scuff_4fc7cc",
+            "t": "web",
+            "url": "https://i.ytimg.com/vi/MgOO2K57CS4/maxresdefault.jpg"
+        },
+        {
+            "id": "scuff_0feac6",
+            "pick": true,
+            "t": "web",
+            "url": "https://images.unsplash.com/photo-1459478309853-2c33a60058e7?ixlib=rb-4.1.0&q=85&fm=jpg&crop=entropy&cs=srgb&dl=jeremy-thomas-O6N9RV2rzX8-unsplash.jpg"
+        }
+    ]},
     updatedAt: "2026-01-23T09:43:57.976Z"
   };
-
-
-  console.log(entry.image.data.length);
-  // console.log(entry.phrase);
-  // console.log(entry.imgUrls);
-  // entry.image = { select: [],
-  //   data: normalizeImageDataFromServer(entry.phrase, entry.imgUrls)
-  // };
-  // console.log(entry.image);
-  // entry.imgUrls = null;
 
   window.addEventListener("DOMContentLoaded", () => runAfterDOMLoaded());
 
   function runAfterDOMLoaded() {
+    fip.init();
     fip.open(entry);
   }
  

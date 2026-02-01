@@ -1,8 +1,11 @@
 import '../smart/smart-dialog.js';
 import './../smart/smart-dragdrop/smart-dragdrop.js';
-import { checkImagesAlive, downloadAndSaveImages, removeImageBlobEntry, normalizeBlobItems, getImageUrl  } from './../../js/data_services/imgUrls.js';
+import { downloadAndSaveImages, removeImageBlobEntry, normalizeBlobItems, getImageUrl, normalizeUrlsDataFromServer  } from './../../js/data_services/imgUrls.js';
 import { NotificationManagerInstance } from './../../core/notification-manager.js';
 import { confirmDialog } from './../../core/confirmDialog.js';
+import { copyTextToClipboard } from './../../js/utils/clipboard.js';
+import { verifyUrl, normalizeUrl } from './../../js/utils/urls.js';
+import { processImage } from './../../js/imageProcessor/imageProcessor.js';
 
 const cssUrl = new URL("./fc-image-picker.css", import.meta.url);
 
@@ -10,7 +13,7 @@ const cssUrl = new URL("./fc-image-picker.css", import.meta.url);
 const template = document.createElement("template");
 template.innerHTML = `
   <link rel="stylesheet" href="${cssUrl}">
-  <smart-dialog esc-close overlay-close draggable>
+  <smart-dialog esc-close overlay-close draggable resizable>
     <div slot="header">
 
         <div class="title">
@@ -19,25 +22,29 @@ template.innerHTML = `
       </div>        
       <div slot="body" class="body">
           <div class="container">
-              <div class="container_row">
-                <sl-input size="small" placeholder="Urls or text to fetch..."></sl-input><sl-button size="small">✚</sl-button></sl-input><sl-button size="small">🔍</sl-button>
+              <div class="container_row icon_button">
+                <sl-input id="urlTextInput" size="medium" placeholder="Urls or text to fetch..."></sl-input>
+                <sl-button id="addBtn" size="medium">✚</sl-button>
+                <sl-button id="fetchBtn" size="medium">🔍</sl-button>
               </div>
               <smart-dragdrop></smart-dragdrop>
-              <div class="smartDragdrop_buttons">
-                <sl-button size="small" id="deleteBtn">⛔ Del</sl-button>
-                <sl-button size="small" id="downloadBtn">🌍➜💾 Local</sl-button>
-                <sl-button size="small" id="extractLinksBtn">⛓️ Get Urls</sl-button>
-                <sl-button size="small" id="useBtn">📌 Use</sl-button>
+              <div class="smartDragdrop_buttons icon_button">                
+                <sl-tooltip content="Add local photos"><sl-button size="medium" id="localPhotoBtn">📂</sl-button></sl-tooltip>
+                <sl-tooltip content="Download to use offline"><sl-button size="medium" id="downloadBtn">🌍➜💾</sl-button></sl-tooltip>
+                <sl-tooltip content="Delete"><sl-button size="medium" id="deleteBtn">🗑</sl-button></sl-tooltip>
+                <sl-tooltip content="Extract links"><sl-button size="medium" id="extractLinksBtn">⛏️</sl-button></sl-tooltip>
+                <sl-tooltip content="Pick to use in card view"><sl-button size="medium" id="useBtn">📌</sl-button></sl-tooltip>
+                <input type="file" id="localPhotoInput" style="display:none" multiple accept="image/*"> 
               </div>
               <div class="spinner"><sl-spinner style="font-size: 50px; --track-width: 10px;"></sl-spinner></div>
           </div>
       </div>
       <div slot="footer">
-          <sl-button size="small" variant="primary" id="confirm" class="focusable">Confirm</sl-button>
-          <sl-button size="small" variant="default" id="cancel" class="focusable">Cancel</sl-button>
+          <sl-button size="medium" variant="primary" id="confirm" class="focusable">Confirm</sl-button>
+          <sl-button size="medium" variant="default" id="cancel" class="focusable">Cancel</sl-button>
       </div>   
     </smart-dialog>
-`;
+`;// capture="environment" to use camera
 
 class FCImagePicker extends HTMLElement {
   constructor() {
@@ -53,29 +60,16 @@ class FCImagePicker extends HTMLElement {
     this.shadowRoot.appendChild(template.content.cloneNode(true));
   }
 
-  async open(entry) {
-    this._entry = entry;    
-
-    requestAnimationFrame(() => {   
-      if (this._smart_dialog) { 
-        this._smart_dialog.style.display = "block"; 
-      }
-    });
-    this._entry = await normalizeBlobItems(entry);
-
-    console.log(this._entry);
-    // this._imageArray = this._entry.image.data;
- 
-    this._smartDragDrop.data = {
-     arr: this._entry.image.data, 
+  async init() { 
+    this._smartDragDrop.setupColumns = {
+    arr: [], 
      renderFields: {     
-      list: ["title"],  
+      // list: ["title"],  
       icon: ["url","title"],
-      detail:["title","url"] 
+      // detail:["title","url"] 
      },
     detailCols: { 
-       "<400": "30px auto", 
-       ">400": "30px auto" 
+       "<400": "30px auto", ">400": "30px auto" 
     },
     // <img data-src="${item.url}" alt="${item.id}" url_blob/>
         // <img data-src="${item.t==="web"? item.url : getImageUrl(this._entry.phraseID, item.id)}" alt="${item.id}" />
@@ -107,10 +101,10 @@ class FCImagePicker extends HTMLElement {
       columns: [
         {
           id: "1",
-          title: "🌍 Online + 💾",
-          view: "list",          // "list" | "detail" | "icon"
+          title: "🌍 Web + 💾",
+          view: "icon",          // "list" | "detail" | "icon"
           listItemWidth: 120,    // 
-          listItemHeight: 20,    // 
+          listItemHeight: 25,    // 
           rowGap: 5,            // 
           columnGap: 5,         // 
           height: 450,           // px column height
@@ -126,40 +120,301 @@ class FCImagePicker extends HTMLElement {
         //   columnGap: 5,         // 
         //   // height: 300,            // px column height
         //   rangeValue: 40// initial slider step
-        // },
-        // {
-        //   id: "3",
-        //   title: "🌍 Online + 💾",
-        //   view: "icon",          // "list" | "detail" | "icon"
-        //   listItemWidth: 120,    // 
-        //   listItemHeight: 20,    // 
-        //   rowGap: 5,            // 
-        //   columnGap: 5,         // 
-        //   // height: 300,            // px column height
-        //   rangeValue: 40// initial slider step
         // }
       ],
-      viewOption: ["icon","detail","list"]
+      viewOption: ["icon"] // "detail","list"
     };
+  }
 
-
-    // console.log(this._entry);
-    // Spinner.show();
-    // const { aliveItems, totalAlive, totalCompactAlive } = await checkImagesAlive(this._entry.image.data);
-    // Spinner.hide();
-    // this._imageArray = aliveItems;
-    // console.log(totalAlive);
-    // console.log(totalCompactAlive);
-    // console.log(this._imageArray);
-
-
-    this._imageArray = this._smartDragDrop.fullData;
+  async open(entry) {
+    // console.log(`vao fc-image-picker open`);
+    this._entry = await normalizeBlobItems(entry);
+    this._smartDragDrop.data = {
+      arr : this._entry.image.data,      
+    }
+        // this._imageArray = this._smartDragDrop.fullData;
+    requestAnimationFrame(() => {   
+      if (this._smart_dialog) { 
+        this._smart_dialog.style.display = "block"; 
+        // this._urlTextInput.focus();
+        this._smartDragDrop.focus();
+        this._smartDragDrop.setHighlight("phrase-01KGB9FAVBNFDF0WGKPXGYEQSPZV24D45B6F");
+      } 
+    });
   }
   
   get data() { return this._entry }
 
+  connectedCallback() {
+    const { signal } = this._abort;
+    this._smart_dialog = this.shadowRoot.querySelector('smart-dialog');
+    this._container = this.shadowRoot.querySelector('.container');    
+    this._smartDragDrop = this.shadowRoot.querySelector('smart-dragdrop');
+    this._smartDragDrop.setAttribute('tabindex', '0');// make it focusable
+
+    this._spinner = this.shadowRoot.querySelector('.spinner');
+
+    this._urlTextInput =  this.shadowRoot.querySelector('#urlTextInput');
+    this._addBtn =  this.shadowRoot.querySelector('#addBtn');
+    this._fetchBtn =  this.shadowRoot.querySelector('#fetchBtn');
+    this._deleteBtn = this.shadowRoot.querySelector('#deleteBtn');
+    this._downloadBtn= this.shadowRoot.querySelector('#downloadBtn');
+    this._extractLinksBtn= this.shadowRoot.querySelector('#extractLinksBtn');
+    this._useBtn= this.shadowRoot.querySelector('#useBtn');
+    this._localPhotoBtn = this.shadowRoot.querySelector('#localPhotoBtn');
+    this._localPhotoInput = this.shadowRoot.querySelector('#localPhotoInput');
+
+    this._addBtn.addEventListener('click', ()=>this._handleAdd(), { signal });
+    this._fetchBtn.addEventListener('click', ()=>this._handleFetch(), { signal });
+    this._smartDragDrop.addEventListener('smart-dragdrop-externalEventKeys-pressed',e =>this._handleKeydown(e), { signal });
+    this._deleteBtn.addEventListener('click', ()=>this._handleDelete(), { signal });
+    this._downloadBtn.addEventListener('click', ()=>this._handleDownload(), { signal });
+    this._extractLinksBtn.addEventListener('click', ()=> this._handleExtractLinks(), { signal });
+    this._useBtn.addEventListener('click', ()=>this._handleToggleUse(), { signal });    
+    
+
+    this._localPhotoBtn.addEventListener("click", () => this._localPhotoInput.click(), { signal });
+    this._localPhotoInput.addEventListener("change", () => this._handleGetLocalPhotos(), { signal });
+      
+        // add EventListeners
+    this._smart_dialog.addEventListener("smart-dialog-confirmed", () => this._confirmHandler(), { signal });
+    this._smart_dialog.addEventListener("smart-dialog-canceled", () => this._cancelHandler(), { signal });
+  }
+
+  async _handleGetLocalPhotos() {
+    const files = Array.from(this._localPhotoInput.files || []);
+    if (files.length === 0) return;
+
+    const newUrls = [];
+    const metaList = [];
+
+      // show loading Spinner for await
+     this.showWorkingSpinner();
+
+    // Process each file asynchronously
+    for (const file of files) {
+      const { blob, meta } = await processImage(file, {
+        maxWidth: 1200,
+        quality: 85,
+        convert: true // or false depending on your needs
+      });
+
+      metaList.push(meta);
+
+      // Create local object URL from processed blob
+      newUrls.push(URL.createObjectURL(blob));
+    }
+
+    // Normalize and add to drag‑drop
+    const items = normalizeUrlsDataFromServer(this._entry.phrase, newUrls);
+    items.forEach(item => {
+      this._smartDragDrop.addItem(item, "1", 0);
+    });
+    this._smartDragDrop.updateColumnData();
+
+    // Show notification
+    NotificationManagerInstance.show({
+      label: `${items.length} item(s) have been newly added!`,
+      icon: "stars",
+      color: "--sl-color-success-500",
+      timer: 4000
+    });
+
+    // show loading Spinner for await
+    this.hideWorkingSpinner();
+    // Optional: log compression stats
+    console.table(metaList);
+  }
+
+
+  async _handleAdd() {
+    const urlStrings = this._urlTextInput.value.split(',');
+    const urls = [];
+    await urlStrings.forEach(async urlString=> { 
+      const normalisedString = normalizeUrl(urlString);
+      const checkResult = await verifyUrl(normalisedString); 
+      if (checkResult.valid) urls.push(normalisedString);
+    });
+    const items = normalizeUrlsDataFromServer(this._entry.phrase, urls);
+    items.forEach(item=> {
+      this._smartDragDrop.addItem(item, "1", 0);
+    });
+    this._smartDragDrop.updateColumnData();
+    // this._imageArray = this._smartDragDrop.fullData;
+
+    NotificationManagerInstance.show({ 
+      label: `${items.length} item(s) have been newly added!`,
+      icon: 'stars',
+      color: '--sl-color-success-500',
+      timer: 4000
+    });   
+  }
+
+
+  async _handleExtractLinks() {
+    const targetIDs = this.getRealTargetIDs();
+    if (!targetIDs) return; // nothing to work on
+    const results = targetIDs.map(id => { 
+      const obj = this._smartDragDrop.fullData.find(obj => obj._id === id);
+      if (!obj) return;
+      if (obj.t==="web") { 
+        return obj.url;
+      } else return obj.url_blob;      
+    });
+    copyTextToClipboard(results.join(',\n'));
+    NotificationManagerInstance.show({ 
+      label: `${results.length} link(s) has been copied to clipboard`,
+      icon: 'stars',
+      color: '--sl-color-success-500',
+      timer: 4000
+    })
+  }
+
+  _handleKeydown(e) {
+    console.log(e);
+    const key = e.detail;
+    if (key==="Delete") this._handleDelete();
+    if (key==="Enter") this._handleToggleUse();   
+    if (key==="Escape") this._cancelHandler();
+  }
+
+  _handleSelectAll() {
+    this._smartDragDrop.shadowRoot.querySelectorAll(".draggable").forEach(item => {
+       item.classList.add("selected");
+    });  
+  
+  }
+
+  _handleToggleUse() {
+    const targetIDs = this.getRealTargetIDs();
+    if (!targetIDs) return; // nothing to work on
+
+    const itemPatches = targetIDs.map(id => { 
+      const obj = this._smartDragDrop.fullData.find(obj => obj._id === id);
+      if (!obj) return;
+      return  { _id: id, pick: obj.pick===true? false : true } 
+    });
+    // Combine update Data and UI
+    this._smartDragDrop.updateItems(itemPatches);
+    // sync data in smartDragDrop and this parent data
+    // this._imageArray = this._smartDragDrop.fullData;
+
+    NotificationManagerInstance.show({ 
+      label: `${targetIDs.length} item(s) has been updated`,
+      icon: 'stars',
+      color: '--sl-color-success-500',
+      timer: 4000
+    })
+  }
+
+
+async _handleDownload() {
+    const targetIDs = this.getRealTargetIDs();
+    if (!targetIDs) return; // nothing to work on
+    const cookedArray = [];
+    targetIDs.forEach(id => {            
+        const idx =  this._smartDragDrop.fullData.findIndex(i => i._id === id);
+        if (idx === -1) return;
+        const item =  this._smartDragDrop.fullData[idx];
+        cookedArray.push(item);
+    });
+    // show loading Spinner for await
+    this.showWorkingSpinner();
+
+    const { success, failed } = await downloadAndSaveImages(this,this._entry.phraseID,this._entry.phrase, cookedArray);
+    // console.log(success);
+
+    // prepare patchedItems with blob-ready URL
+    let totalSize = 0;
+    const patchedItems = await Promise.all(success.map(async item=> { 
+        totalSize = totalSize + item.meta.processed.size;
+        return { ...item, t:"blob", url_blob: await getImageUrl(this._entry.phraseID,item.id)} 
+      })
+    );
+
+    this._smartDragDrop.updateItems(patchedItems);   
+    this.hideWorkingSpinner();
+    
+    if (success.length>0) NotificationManagerInstance.show({ 
+      label: `${success.length} item(s) (${(totalSize/1024/1024).toFixed(2)}MB) has been downloaded!`,
+      icon: 'stars',
+      color: '--sl-color-success-500',
+      timer: 4000
+    })
+
+    if (failed.length>0) NotificationManagerInstance.show({ 
+      label: `${failed.length} items cannot be downloaded!`,
+      icon: 'exclamation-square',
+      color: '--sl-color-warning-500',
+      timer: 4000
+    })
+
+  }
+
+  showWorkingSpinner() {
+    this._spinner.style.display = "block";
+  }
+
+  hideWorkingSpinner() {
+    this._spinner.style.display = "none";
+  }
+
+  getRealTargetIDs() {
+    const highlightID = this._smartDragDrop.getHighlight();    
+    const objectSelectedIDs = this._smartDragDrop.getSelectedItems();
+    const selectedIDs = Object.values(objectSelectedIDs).flat();
+    if (!highlightID&&selectedIDs.length<=0) return;
+    let targetIDs = [];
+    if (selectedIDs.length>0) { 
+      targetIDs = [...selectedIDs];
+    } else targetIDs = [highlightID];
+    return targetIDs;
+  }
+
+  async _handleDelete() {   
+    const targetIDs = this.getRealTargetIDs();
+    if (!targetIDs) return; // nothing to work on
+    const confirmed = await confirmDialog.show("⛔ Confirmation dialog",`Delete ${targetIDs.length} ${targetIDs.length>1? "items" : "item"}?`);
+    if (!confirmed) return;
+    // proceed with deletion    
+    const blobArray= [];
+    targetIDs.forEach(id => {            
+        const idx = this._smartDragDrop.fullData.findIndex(i => i._id === id);
+        if (idx === -1) return;
+        const item = this._smartDragDrop.fullData[idx];
+        blobArray.push(item.id);
+    });
+
+    // Remove Blob data    
+    const result = await removeImageBlobEntry(this._entry.phraseID,blobArray);
+    
+     // Combine remove javascript Data and UI
+    this._smartDragDrop.removeItems(targetIDs);   
+    if (result===true) {      
+      NotificationManagerInstance.show({ 
+        label: `${targetIDs.length} item(s) has been deleted`,
+        icon: 'stars',
+        color: '--sl-color-success-500',
+        timer: 4000
+      });
+    } else {
+      NotificationManagerInstance.show({ 
+        label: `${result}`,
+        icon: 'exclamation-square',
+        color: '--sl-color-warning-500',
+        timer: 4000
+      })
+    }
+    // sync data with this component
+    // this._imageArray = this._smartDragDrop.fullData;        
+  }
+
+  disconnectedCallback() {
+    this._abort.abort();   
+  }
+  
   exportImageData() {
-    const exportArray = this._imageArray.map(item => {
+    const exportArray = this._smartDragDrop.fullData.map(item => { //this._imageArray
      return {
       id: item.id,   
       t: item.t,
@@ -171,173 +426,27 @@ class FCImagePicker extends HTMLElement {
     return exportArray;
   }
   
-  connectedCallback() {
-    const { signal } = this._abort;
-    this._smart_dialog = this.shadowRoot.querySelector('smart-dialog');
-    this._container = this.shadowRoot.querySelector('.container');    
-    this._smartDragDrop = this.shadowRoot.querySelector('smart-dragdrop');
-    this._smartDragDrop.setAttribute('tabindex', '0');// make it focusable
-
-    this._spinner = this.shadowRoot.querySelector('.spinner');
-
-    this._deleteBtn= this.shadowRoot.querySelector('#deleteBtn');
-    this._downloadBtn= this.shadowRoot.querySelector('#downloadBtn');
-    this._extractLinksBtn= this.shadowRoot.querySelector('#extractLinksBtn');
-    this._useBtn= this.shadowRoot.querySelector('#useBtn');
-
-    this._smartDragDrop.addEventListener('keydown',e =>this._handleKeydown(e), { signal });
-    this._deleteBtn.addEventListener('click', ()=>this._handleDelete(), { signal });
-    this._downloadBtn.addEventListener('click', ()=>this._handleDownload(), { signal });
-    this._useBtn.addEventListener('click', ()=>this._handleToggleUse(), { signal });    
-
-        // add EventListeners
-    this._smart_dialog.addEventListener("smart-dialog-confirmed", () => this._confirmHandler(), { signal });
-    this._smart_dialog.addEventListener("smart-dialog-canceled", () => this._cancelHandler(), { signal });
-  }
-
-_handleKeydown(e) {
-  // e.stopPropagation();
-  // const now = Date.now(); 
-  // if (now - this._lastKeyTime < 200) return; // ignore if <200ms since last 
-  // this._lastKeyTime = now;
-
-  // Ctrl + A (or Cmd + A on macOS)
-  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "a") {
-    e.preventDefault(); // prevent browser "select all"
-    this._handleSelectAll(); // your custom function
-    return;
-  }
-
-  // Delete key
-  if (e.key === "Delete") {
-    e.preventDefault();
-    this._handleDelete(); // your custom function
-    return;
-  }
-
-  // Enter key
-  if (e.key === " ") {
-    e.preventDefault();
-    this._handleToggleUse(); // your custom function
-    return;
-  }
-}
-
-  _handleSelectAll() {
-    console.log(this._smartDragDrop.fullData);
-    this._smartDragDrop.shadowRoot.querySelectorAll(".draggable").forEach(item => {
-       item.classList.add("selected");
-    });  
-  
-  }
-
-  _handleToggleUse() {
-    const selectedIDs = this._smartDragDrop.getSelectedItems()['1'];
-    const itemPatches = selectedIDs.map(id => { 
-      const obj = this._imageArray.find(obj => obj._id === id);
-      if (!obj) return;
-      return  { _id: id, pick: obj.pick===true? false : true } 
-    });
-    this._smartDragDrop.updateItems(itemPatches);
-    this._imageArray = this._smartDragDrop.fullData;
-    console.log(this._imageArray.length);
-    console.log(this._imageArray);
-    console.log(this.exportImageData());
-  }
-
-  async _handleDownload() {
-    const selectedIDs = this._smartDragDrop.getSelectedItems()['1'];
-    this._imageArray = this._smartDragDrop.fullData;
-    const cookedArray = [];
-    selectedIDs.forEach(id => {            
-        const idx = this._imageArray.findIndex(i => i._id === id);
-        if (idx === -1) return;
-        const item = this._imageArray[idx];
-        cookedArray.push(item);
-    });
-    this.showDownloadingUI();
-    const { success, failed } = await downloadAndSaveImages(this,this._entry.phraseID,this._entry.phrase, cookedArray);
-    
-    console.log(success);
-    const patchedItems = await Promise.all(success.map(async item=> { 
-      return { ...item, t:"blob", url_blob: await getImageUrl(this._entry.phraseID,item.id)} 
-    })
-    );
-    this.hideDownloadingUI();
-    this._smartDragDrop.updateItems(patchedItems);
-    console.log(failed);       
-    if (failed.length>0) NotificationManagerInstance.show({ 
-      label: `${failed.length} items cannot be downloaded!`,
-      icon: 'exclamation-square',
-      color: '--sl-color-warning-500',
-      timer: 4000
-    })
-  }
-
-  showDownloadingUI() {
-    console.log(`vao show`);
-    this._spinner.style.display = "block";
-  }
-
-  hideDownloadingUI() {
-    console.log(`none show`);
-    this._spinner.style.display = "none";
-  }
-
-  async _handleDelete() {   
-    const selectedIDs = this._smartDragDrop.getSelectedItems()['1'];  
-    if (selectedIDs.length<=0) return;
-    // const confirmed = window.confirm(`Delete "${selectedIDs.length} items"?`);
-    // if (!confirmed) return;
-
-    const confirmed = await confirmDialog.show("⛔ Confirmation dialog",`Delete ${selectedIDs.length} ${selectedIDs.length>1? "items" : "item"}?`);
-    if (!confirmed) return;
-
-// proceed with deletion
-
-    
-    this._imageArray = this._smartDragDrop.fullData;    
-    const blobArray= [];
-    selectedIDs.forEach(id => {            
-        const idx = this._imageArray.findIndex(i => i._id === id);
-        if (idx === -1) return;
-        const item = this._imageArray[idx];
-        blobArray.push(item.id);
-    });
-    this._smartDragDrop.removeItems(selectedIDs);
-    console.log(blobArray);
-    const result = await removeImageBlobEntry(this._entry.phraseID,blobArray);
-    this._imageArray = this._smartDragDrop.fullData;    
-    console.log(this._imageArray);
-    console.log(result);
-  }
-
-  disconnectedCallback() {
-    this._abort.abort();   
-  }
-
-  _confirmHandler() {
-    const nodeLinked = this._tableBody.querySelectorAll('.linked');
-    this._result = [];
-    nodeLinked.forEach(el => { this._result.push(el.dataset.id); });
-    this._entry.connecting_phrases = this._result;
+  _confirmHandler() {   
+    this._entry.updateAt = new Date().toISOString();
+    this._entry.image.data = this.exportImageData();
     this.dispatchEvent(
-      new CustomEvent('connecting-phrase-updated', { 
-        detail: this._result, 
+      new CustomEvent('fc-image-picker-confirmed', { 
+        detail: this._entry, 
         bubbles: false,
         composed: true,
       }));   
     this._smart_dialog.style.display = "none";
+    // this.remove();    
   }
 
   _cancelHandler() {
     this.dispatchEvent(
-      new CustomEvent('connecting-phrase-cancelled', { 
-        detail: this._connecting_phraseID, 
+      new CustomEvent('fc-image-picker-cancelled', {        
         bubbles: false,
         composed: true,
       }));   
     this._smart_dialog.style.display = "none";
+    // this.remove();
   }
 }
 

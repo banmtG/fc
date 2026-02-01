@@ -3,9 +3,10 @@ import { normalizeOrders, applyLayout, applyColumnView,
          _addItem, _removeItems, _moveItems,
          _insertElement, _removeElements, _moveElements, 
         _computeGridTemplate,
-        _getSelectedItems,
-        _updateItems, } from './smart-dragdrop-helpers.js';
-import {getMatrix, _handleKeydown } from './smart-dragdrop-navigation.js';
+        _getSelectedItems, _getHighlight, _setHighlight,
+        _updateItems, 
+        _convertFullDataToColumnData } from './smart-dragdrop-helpers.js';
+import { getMatrix, _handleKeydown } from './smart-dragdrop-navigation.js';
 import './../smart-toggle.js';
 import './../smart-button-group.js';
 
@@ -59,26 +60,21 @@ class SmartDragdrop extends HTMLElement {
       }    
     }, { signal: this._abort.signal });
   }
-
-  set data({ idKey ="_id", arr, renderFields, detailCols, renderItem, columns = [], viewOption }) {
+  
+  set setupColumns({ idKey ="_id", arr = [], renderFields, detailCols, renderItem, columns = [], viewOption }) {
     this.renderItem = renderItem || this._defaultRenderer;
     this._renderFields = renderFields;
     this._detailCols = detailCols;
     this._idKey = idKey;
     this._viewOption = viewOption? viewOption : ["list","dedail","icon"];
-    // console.log(this._idKey);
     // Normalize items with zone + order
     this.fullData = normalizeOrders(arr, columns);
     // console.log(this.fullData);
     this.columns = columns;
-
     // Initialize columnData: group items by zone and sort by order
     this.columnData = {};
-    this.columns.forEach(config => {
-      this.columnData[config.id] = this.fullData
-        .filter(item => item.zone === config.id)
-        .sort((a, b) => a.order - b.order);
-    });
+
+    _convertFullDataToColumnData(this); // prepare each column data
 
     // console.log(this.columns);
     saveHistory(this);
@@ -86,26 +82,24 @@ class SmartDragdrop extends HTMLElement {
     this._renderInit();
     this._renderChange();
 
-    // Set initial highlight 
-    // const firstItem = this.component_container.querySelector('.draggable'); 
-    // console.log(firstItem);
-    // if (firstItem) { 
-    //   firstItem.classList.add('highlight'); 
-    //   firstItem.setAttribute('tabindex', '0'); 
-    //   firstItem.focus(); 
-    // }
-
     this._highlightIndex = 0;
-    // this._loadExternalStyleSheet_thenTurnOnContent();
 
     const layout = this.getAttribute("layout") || "auto";
     applyLayout(this.component_container, layout);
-
     initDragLogic(this, this.shadowRoot.getElementById("component-container"), this._abort.signal);
     initSelectionLogic(this, this._abort.signal);
-
     this._bindSelectModeControls();
     this._bindViewControls();
+  }
+
+
+  set data({ arr }) {   
+    this.fullData = normalizeOrders(arr, this.columns);
+    this.columnData = {};
+    _convertFullDataToColumnData(this); // prepare each column data
+    saveHistory(this);
+    this._renderChange();
+    this._highlightIndex = 0;
   }
 
   // -------------------------------
@@ -120,14 +114,30 @@ class SmartDragdrop extends HTMLElement {
     return newItem;
   }
 
+  updateColumnData() {
+    _convertFullDataToColumnData(this);
+  }
+
   removeItems(itemIds) {
-    const removed = _removeItems(this, itemIds);
+    //1. remove Data
+    const removed = _removeItems(this, itemIds); // remove Data
+    //2. remove Elements using those IDs
     _removeElements(this, removed);
+
+    _convertFullDataToColumnData(this);
     return removed;
   }
 
   getSelectedItems() {
     return _getSelectedItems(this);
+  }
+
+  getHighlight() {
+    return _getHighlight(this);
+  }
+
+  setHighlight(itemId) {
+    _setHighlight(this,itemId);
   }
 
   updateItems(itemPatches) { // { id, patchData }
@@ -179,7 +189,6 @@ class SmartDragdrop extends HTMLElement {
     const template = document.createElement("template");
     template.innerHTML = `
       <link rel="stylesheet" href="${cssUrl}">
-
       <div id="component-container">
         ${this.columns.map(col => this._createColumn(col)).join("")}
         <div id="lasso"></div>
@@ -188,12 +197,11 @@ class SmartDragdrop extends HTMLElement {
     this.component_container = this.shadowRoot.getElementById("component-container");
     this.component_container.addEventListener('keydown', e => this.handleKeydown(e),  { signal: this._abort.signal });
     this.component_container.setAttribute('tabindex', '0');
-
   }
 
   handleKeydown(e) {
     e.stopPropagation();
-    console.log(e);
+    // console.log(e);
     _handleKeydown(this,e);
   }
 
@@ -213,12 +221,8 @@ class SmartDragdrop extends HTMLElement {
 
   _enableLazyLoading(imgEl) {
     const url = imgEl.getAttribute("data-src");
-
     // Find closest draggable parent
-    const parent = imgEl.closest(".draggable");
-    const zone = parent?.getAttribute("data-zone");
-    const itemId = parent?.getAttribute("data-id");
-
+    const parent = imgEl.closest(".draggable");    
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -232,14 +236,13 @@ class SmartDragdrop extends HTMLElement {
 
           imgEl.onload = () => {
             clearTimeout(timer);
-            parent.querySelector('.spinner').remove();
+            parent.querySelector('.spinner')?.remove();
             // this._markAlive(itemId, zone);
             observer.unobserve(imgEl);
           };
           imgEl.onerror = () => {
             clearTimeout(timer);
-             parent.querySelector('.spinner')?.remove();
-
+            parent.querySelector('.spinner')?.remove();            
             imgEl.replaceWith(document.createTextNode(`❌ Broken ${imgEl.dataset.src}`));
             // this._markBroken(itemId, zone);
             observer.unobserve(imgEl);
@@ -326,15 +329,11 @@ class SmartDragdrop extends HTMLElement {
           
           applyColumnView(container, config, triggerIcon, range);
           this._renderChange();
-          if (config.view==="detail") this._applyDetailGridColumns(container, this._detailCols);
-          // if (config.view==="detail") this._calculateDetailGridColumn(this.columnData[config.id],container,config.view,this._renderFields);
-          //console.log(this.columnData[config.id]);
+          if (config.view==="detail") this._applyDetailGridColumns(container, this._detailCols);       
           requestAnimationFrame(()=>{
             this._matrix = getMatrix(container,config);
-            // console.log(this._matrix);
             container.focus();       // refocus to container
           });
-
           
         }, { signal: this._abort.signal });
       });
@@ -360,22 +359,11 @@ class SmartDragdrop extends HTMLElement {
           container.style.setProperty("--icon-size", `${size}px`);
           requestAnimationFrame(()=>{
              this._matrix  = getMatrix(container,config);
-            // console.log( this._matrix );
             container.focus();       // refocus to container 
-
-          });
-          
-          //   const wrapper = rangeEl.closest('.column-wrapper');
-
-        //   if (wrapper) {
-        //     const container = wrapper.querySelector('.container');
-            
-        //   }
-        // }  
+          });      
 
         }, { signal: this._abort.signal });
       }
-        
       // initial calculating Matrix
       requestAnimationFrame(()=>{
         this._matrix  = getMatrix(container,config);
