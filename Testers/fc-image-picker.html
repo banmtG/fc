@@ -200,6 +200,7 @@
         body: JSON.stringify({ items })
       });
 
+      console.log(data);
       // ✅ Emit result back to the originating component
       origin.dispatchEvent(new CustomEvent('fc-image-picker-fetched', {
         detail: { data }
