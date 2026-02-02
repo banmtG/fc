@@ -364,13 +364,11 @@ export function _getHighlight(component) {
   return result? result : null;
 }
 
-export function _setHighlight(component, itemId = null) {
+export function _setHighlight(component, itemId = null) { // itemId = "scuff_0d35bc"
   const items = Array.from(component.shadowRoot.querySelectorAll('.draggable'));
-  console.log(items);
   if (items.length === 0) return;
   // Case 1: no itemId and no highlight yet → highlight first item
   if (!itemId && component._highlightIndex == null) {
-    console.log(`case 1`);
     component._highlightIndex = 0;
     items[0].classList.add('highlight');
     component._activeContainer = items[0].closest('.container');
@@ -379,21 +377,21 @@ export function _setHighlight(component, itemId = null) {
   }
   // Case 2: itemId is provided → highlight that item
   if (itemId) {
-    console.log(`case 2`);
-    const highlightIndex = items.findIndex(el => el.dataset.id === itemId || el.data?.id === itemId);
-    console.log(highlightIndex);
+    const targetItem = component.fullData.find(obj => obj.id === itemId);
+    if (!targetItem) return;
+    const highlightIndex = items.findIndex(el => el.dataset.id === targetItem._id);
     if (highlightIndex === -1) return; // item not found
-
     items.forEach(item => item.classList.remove('highlight'));
     component._highlightIndex = highlightIndex;
     items[highlightIndex].classList.add('highlight');
     component._activeContainer = items[highlightIndex].closest('.container');
     component._activeContainer?.focus();
+    items[highlightIndex].scrollIntoView({ block: "nearest", inline: "nearest" });
+
     return;
   }
   // Case 3: no itemId but highlightIndex already exists → reapply highlight
   if (component._highlightIndex != null) {
-    console.log(`case 3`);
     items.forEach(item => item.classList.remove('highlight'));
     const idx = component._highlightIndex;
     if (items[idx]) {

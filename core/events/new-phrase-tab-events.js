@@ -7,13 +7,32 @@ import LocalStorage from '../local-storage.js';
 
 export function registerNewPhraseTabEvents(controller) {
      // new-phrase-tab events
+    document.addEventListener('fc-image-picker-fetch-requested', async (e) => {
+      console.log(e);
+      const { payload, origin } = e.detail;
+
+      const data = await AuthManager.callApi(CONFIG.API_SEARCH_IMAGE, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ payload })
+      });
+
+      // ✅ Emit result back to the originating component
+      origin.dispatchEvent(new CustomEvent('fc-image-picker-fetched', {
+        detail: { data }
+      }));
+
+      console.log('emit images-fetched event to', origin.tagName);
+    });
+
     document.addEventListener('phrases-fetch', async (e) => {
       const { batch, origin } = e.detail;
+      const targetLang = "th";
 
       const data = await AuthManager.callApi(CONFIG.API_SEARCH_DICT, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ batch })
+        body: JSON.stringify({ batch, targetLang })
       });
 
       // ✅ Emit result back to the originating component

@@ -12,7 +12,9 @@
 <body>
   <fc-image-picker id="fip"></fc-image-picker>
   <script type="module">
-import { normalizeUrlsDataFromServer } from "./../js/data_services/imgUrls.js";
+  import { AuthManager } from './../features/auth/manager/auth-manager.js';
+  import { CONFIG } from './../config/config.js';
+
 
  const fip = document.getElementById('fip'); 
       fip.addEventListener('fc-image-picker-confirmed', (e)=> {
@@ -187,6 +189,24 @@ import { normalizeUrlsDataFromServer } from "./../js/data_services/imgUrls.js";
     fip.init();
     fip.open(entry);
   }
+
+   document.addEventListener('fc-image-picker-fetch-requested', async (e) => {
+      console.log(e);
+      const { items, origin } = e.detail;
+
+      const data = await AuthManager.callApi(CONFIG.API_SEARCH_IMG, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items })
+      });
+
+      // ✅ Emit result back to the originating component
+      origin.dispatchEvent(new CustomEvent('fc-image-picker-fetched', {
+        detail: { data }
+      }));
+
+      console.log('emit images-fetched event to', origin.tagName);
+    });
  
 
   </script>

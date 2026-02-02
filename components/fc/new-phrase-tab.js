@@ -3,7 +3,7 @@
 import '../smart/advanced-combobox/advanced-combobox.js';
 import './../smart/typeahead-input.js';
 import { NotificationManagerInstance } from './../../core/notification-manager.js';
-import {buildUpdateImagePayload, chunkArray} from './../../js/data_services/imgUrls.js';
+import { buildUpdateImagePayload, chunkArray} from './../../js/data_services/imgUrls.js';
 import { CONFIG } from '../../config/config.js';
 import { AuthManager } from './../../features/auth/manager/auth-manager.js';
 import { transformFinalResults } from './../../js/data_services/phrases.js';
@@ -147,22 +147,22 @@ class NewPhraseTab extends HTMLElement {
     const activeUser = LocalStorage.get('activeUser');
     const reminderText = this.reminderText.value;
     const tags = this.tagSelection.value;
-    const { phrases, soundBlobs } = transformFinalResults(data, activeUser, reminderText, tags,'es');
+    const { phrases, soundBlobs } = transformFinalResults(data, activeUser, reminderText, tags, 'es');
     console.log(`phrases`,phrases);
     console.log(`soundBlobs`,soundBlobs);
     // Example usage:
-    const payload = buildUpdateImagePayload(phrases);
-    const batches = chunkArray(payload.items, 20);
-    console.log(payload);
-    console.log(batches);
-    for (const batch of batches) {
-       const data = await AuthManager.callApi(CONFIG.API_UPDATE_IMGURL, {
-        method: 'POST', 
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: batch })
-      });
-      console.log(data);
-    }
+    // const payload = buildUpdateImagePayload(phrases);
+    // const batches = chunkArray(payload.items, 20);
+    // console.log(payload);
+    // console.log(batches);
+    // for (const batch of batches) {
+    //    const data = await AuthManager.callApi(CONFIG.API_UPDATE_IMGURL, {
+    //     method: 'POST', 
+    //     headers: { 'Content-Type': 'application/json' },
+    //     body: JSON.stringify({ items: batch })
+    //   });
+    //   console.log(data);
+    // }
 
     this.output.textContent = JSON.stringify(phrases, null, 2);
 }
@@ -175,9 +175,9 @@ class NewPhraseTab extends HTMLElement {
       // 🔹 Use NotificationManager instead of local notifier
       NotificationManagerInstance.show({
         label: 'Nothing to fetch!',
-        icon: 'check',
-        color: '--sl-color-warning-600',
-        timer: 1500
+        icon: 'exclamation-octagon',
+        color: '--sl-color-warning-400',
+        timer: 3000
       });
       return;
     }

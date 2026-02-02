@@ -158,15 +158,21 @@ class MyApp extends HTMLElement {
       const input = this.shadowRoot.querySelector("#searchBatchInput").value;
       const batch = input.split(",").map(p => p.trim()).filter(Boolean);
 
+      const items = batch.map(p=> { return {
+        phrase:p,
+        query: "aspire the desire",
+        defi: false,        
+      }
+      })
       if (batch.length === 0) {
         alert("Please enter at least one phrase.");
         return;
       }
 
-      const data = await AuthManager.callApi(CONFIG.API_SEARCH_DICT, {
+      const data = await AuthManager.callApi(CONFIG.API_SEARCH_IMG, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ batch })
+        body: JSON.stringify({ items })
       });
 
       output.textContent = JSON.stringify(data, null, 2);

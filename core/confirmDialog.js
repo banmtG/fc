@@ -44,6 +44,7 @@ class ConfirmDialog {
         border: none;
         border-radius: 8px;   
         width: 75%;
+        max-width: 500px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         padding: 0;
         color: #3F3F46;

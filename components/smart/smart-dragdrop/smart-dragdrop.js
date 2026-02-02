@@ -7,8 +7,12 @@ import { normalizeOrders, applyLayout, applyColumnView,
         _updateItems, 
         _convertFullDataToColumnData } from './smart-dragdrop-helpers.js';
 import { getMatrix, _handleKeydown } from './smart-dragdrop-navigation.js';
+
+import { _autoSetRangeValue } from './smart-dragdrop-screen.js';
 import './../smart-toggle.js';
 import './../smart-button-group.js';
+import { getDeviceType_Robust } from './../../../js/utils/deviceUtils_ex.js';
+
 
 const cssUrl = new URL("./smart-dragdrop.css", import.meta.url);
 
@@ -67,6 +71,7 @@ class SmartDragdrop extends HTMLElement {
     this._detailCols = detailCols;
     this._idKey = idKey;
     this._viewOption = viewOption? viewOption : ["list","dedail","icon"];
+
     // Normalize items with zone + order
     this.fullData = normalizeOrders(arr, columns);
     // console.log(this.fullData);
@@ -83,6 +88,13 @@ class SmartDragdrop extends HTMLElement {
     this._renderChange();
 
     this._highlightIndex = 0;
+
+    // hide view Option if there is only 1 option
+    if (this._viewOption.length===1) this._viewOptionDropdown.style.display = "none";
+    // hide Multi selection mode on desktop:
+    console.log(getDeviceType_Robust());
+    if (getDeviceType_Robust() === "mobile" || getDeviceType_Robust() === "tablet") {} else 
+    this._selectionMode.style.display = "none";
 
     const layout = this.getAttribute("layout") || "auto";
     applyLayout(this.component_container, layout);
@@ -164,12 +176,14 @@ class SmartDragdrop extends HTMLElement {
       <div class="column-wrapper" style="max-height:${height || 'auto'}px">
         <div class="header">
           <span>${title}</span>
-          <sl-range min="10" max="125" step="1" tooltip="bottom"></sl-range>
+          <sl-range min="20" max="225" step="1" tooltip="bottom"></sl-range>
           <div class="header_right">
-            <div id="selectionMode" class="mode-toggle" data-mode="0">
-              <sl-icon></sl-icon>
-            </div>
-            <sl-dropdown size="small">
+            <sl-tooltip content="Multi-selection mode">
+              <div id="selectionMode" class="mode-toggle" data-mode="0">
+                <sl-icon></sl-icon>
+              </div>
+            </sl-tooltip>
+            <sl-dropdown id="viewOptionDropdown" size="small">
               <sl-icon-button slot="trigger" name="grid-3x3-gap"></sl-icon-button>
               <sl-menu>
                 ${this._viewOption.includes("list")? `<sl-menu-item>List</sl-menu-item>` : ""}
@@ -181,7 +195,7 @@ class SmartDragdrop extends HTMLElement {
         </div>
         <div id="${id}-container" class="container ${id}-container"
              data-view="${view}" 
-             style="--icon-size:${defaultIconSize || 120}px"></div>
+             style="--icon-size:${defaultIconSize || 120}px; height:${height || 'auto'}px"></div>
       </div>`;
   }
 
@@ -197,6 +211,12 @@ class SmartDragdrop extends HTMLElement {
     this.component_container = this.shadowRoot.getElementById("component-container");
     this.component_container.addEventListener('keydown', e => this.handleKeydown(e),  { signal: this._abort.signal });
     this.component_container.setAttribute('tabindex', '0');
+    this._viewOptionDropdown = this.shadowRoot.querySelector('#viewOptionDropdown');
+    this._selectionMode = this.shadowRoot.querySelector("#selectionMode");
+  }
+
+  autoSetRangeValue() {
+    _autoSetRangeValue(this)
   }
 
   handleKeydown(e) {
@@ -217,6 +237,7 @@ class SmartDragdrop extends HTMLElement {
     // Attach lazy loading after batch render
     const imgs = this.shadowRoot.querySelectorAll("img[data-src]");
     imgs.forEach(img => this._enableLazyLoading(img));
+    
   }
 
   _enableLazyLoading(imgEl) {
@@ -356,6 +377,7 @@ class SmartDragdrop extends HTMLElement {
           const step = e.target.value;
           const size = 50 + step * 2;
           config.rangeValue = step;
+          config._rangeChanged = true; // flag to stop auto layout
           container.style.setProperty("--icon-size", `${size}px`);
           requestAnimationFrame(()=>{
              this._matrix  = getMatrix(container,config);

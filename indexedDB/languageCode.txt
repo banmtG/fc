@@ -1,0 +1,33 @@
+// | Language             | Code           |
+// | -------------------- | -------------- |
+// | English              | en             |
+// | Mandarin Chinese     | zh             |
+// | Hindi                | hi             |
+// | Spanish              | es             |
+// | French               | fr             |
+// | Arabic               | ar             |
+// | Bengali              | bn             |
+// | Russian              | ru             |
+// | Portuguese           | pt             |
+// | Urdu                 | ur             |
+// | Indonesian           | id             |
+// | German               | de             |
+// | Japanese             | ja             |
+// | Marathi              | mr             |
+// | Telugu               | te             |
+// | Turkish              | tr             |
+// | Korean               | ko             |
+// | Vietnamese           | vi             |
+// | Tamil                | ta             |
+// | Italian              | it             |
+// | Thai                 | th             |
+// | Gujarati             | gu             |
+// | Polish               | pl             |
+// | Ukrainian            | uk             |
+// | Romanian             | ro             |
+// | Dutch                | nl             |
+// | Persian (Farsi)      | fa             |
+// | Malay                | ms             |
+// | Cantonese (zh-yue)\* | zh-CN or zh-TW |
+// | Khmer (Cambodian)    | km             |
+// | Lao (Laotian)        | lo             |

@@ -1,6 +1,6 @@
 import '../smart/smart-dialog.js';
 import './../smart/smart-dragdrop/smart-dragdrop.js';
-import { downloadAndSaveImages, removeImageBlobEntry, normalizeBlobItems, getImageUrl, normalizeUrlsDataFromServer  } from './../../js/data_services/imgUrls.js';
+import { downloadAndSaveImages, removeImageBlobEntry, normalizeBlobItems, getImageUrl, normalizeUrlsDataFromServer, reverseTransform  } from './../../js/data_services/imgUrls.js';
 import { NotificationManagerInstance } from './../../core/notification-manager.js';
 import { confirmDialog } from './../../core/confirmDialog.js';
 import { copyTextToClipboard } from './../../js/utils/clipboard.js';
@@ -13,7 +13,7 @@ const cssUrl = new URL("./fc-image-picker.css", import.meta.url);
 const template = document.createElement("template");
 template.innerHTML = `
   <link rel="stylesheet" href="${cssUrl}">
-  <smart-dialog esc-close overlay-close draggable resizable>
+  <smart-dialog esc-close draggable resizable>
     <div slot="header">
 
         <div class="title">
@@ -23,11 +23,11 @@ template.innerHTML = `
       <div slot="body" class="body">
           <div class="container">
               <div class="container_row icon_button">
-                <sl-input id="urlTextInput" size="medium" placeholder="Urls or text to fetch..."></sl-input>
-                <sl-button id="addBtn" size="medium">✚</sl-button>
-                <sl-button id="fetchBtn" size="medium">🔍</sl-button>
+                <sl-input id="urlTextInput" class="focusable"  size="medium" placeholder="Urls or text to fetch..."></sl-input>
+                <sl-button id="addBtn" class="focusable" size="medium">✚</sl-button>
+                <sl-button id="fetchBtn" class="focusable" size="medium">🔍</sl-button>
               </div>
-              <smart-dragdrop></smart-dragdrop>
+              <smart-dragdrop class="focusable" ></smart-dragdrop>
               <div class="smartDragdrop_buttons icon_button">                
                 <sl-tooltip content="Add local photos"><sl-button size="medium" id="localPhotoBtn">📂</sl-button></sl-tooltip>
                 <sl-tooltip content="Download to use offline"><sl-button size="medium" id="downloadBtn">🌍➜💾</sl-button></sl-tooltip>
@@ -107,18 +107,18 @@ class FCImagePicker extends HTMLElement {
           listItemHeight: 25,    // 
           rowGap: 5,            // 
           columnGap: 5,         // 
-          height: 450,           // px column height
+          //height:350,           // px column height
           rangeValue: 40// initial slider step
         },
         //  {
         //   id: "2",
-        //   title: "🌍 Online + 💾",
-        //   view: "list",          // "list" | "detail" | "icon"
+        //   title: "🌍 Web + 💾",
+        //   view: "icon",          // "list" | "detail" | "icon"
         //   listItemWidth: 120,    // 
         //   listItemHeight: 20,    // 
         //   rowGap: 5,            // 
         //   columnGap: 5,         // 
-        //   // height: 300,            // px column height
+        //   height: 400,            // px column height
         //   rangeValue: 40// initial slider step
         // }
       ],
@@ -135,12 +135,12 @@ class FCImagePicker extends HTMLElement {
         // this._imageArray = this._smartDragDrop.fullData;
     requestAnimationFrame(() => {   
       if (this._smart_dialog) { 
-        this._smart_dialog.style.display = "block"; 
-        // this._urlTextInput.focus();
-        this._smartDragDrop.focus();
-        this._smartDragDrop.setHighlight("phrase-01KGB9FAVBNFDF0WGKPXGYEQSPZV24D45B6F");
+        this._smart_dialog.style.display = "block";    
+        this._smartDragDrop.autoSetRangeValue();     
+        this._smartDragDrop.setHighlight(); // set highlight and focus to 1st item in dragdrop
       } 
     });
+  
   }
   
   get data() { return this._entry }
@@ -157,11 +157,13 @@ class FCImagePicker extends HTMLElement {
     this._urlTextInput =  this.shadowRoot.querySelector('#urlTextInput');
     this._addBtn =  this.shadowRoot.querySelector('#addBtn');
     this._fetchBtn =  this.shadowRoot.querySelector('#fetchBtn');
+
     this._deleteBtn = this.shadowRoot.querySelector('#deleteBtn');
     this._downloadBtn= this.shadowRoot.querySelector('#downloadBtn');
     this._extractLinksBtn= this.shadowRoot.querySelector('#extractLinksBtn');
     this._useBtn= this.shadowRoot.querySelector('#useBtn');
     this._localPhotoBtn = this.shadowRoot.querySelector('#localPhotoBtn');
+
     this._localPhotoInput = this.shadowRoot.querySelector('#localPhotoInput');
 
     this._addBtn.addEventListener('click', ()=>this._handleAdd(), { signal });
@@ -172,6 +174,7 @@ class FCImagePicker extends HTMLElement {
     this._extractLinksBtn.addEventListener('click', ()=> this._handleExtractLinks(), { signal });
     this._useBtn.addEventListener('click', ()=>this._handleToggleUse(), { signal });    
     
+    this.addEventListener('fc-image-picker-fetched',(e)=> this._onImageFetched(e), { signal });    
 
     this._localPhotoBtn.addEventListener("click", () => this._localPhotoInput.click(), { signal });
     this._localPhotoInput.addEventListener("change", () => this._handleGetLocalPhotos(), { signal });
@@ -200,7 +203,6 @@ class FCImagePicker extends HTMLElement {
       });
 
       metaList.push(meta);
-
       // Create local object URL from processed blob
       newUrls.push(URL.createObjectURL(blob));
     }
@@ -226,29 +228,105 @@ class FCImagePicker extends HTMLElement {
     console.table(metaList);
   }
 
+  async _handleFetch() {
+    console.log(this._smartDragDrop.fullData);
+    const query = this._urlTextInput.value;
+    console.log(this._entry.defi?.length>0);
+    const items = [{
+      phrase: this._entry.phrase,
+      query,
+      defi: false,
+      noLiveUrls: null,      
+    }];
+    console.log(items);
+    this.dispatchEvent(
+      new CustomEvent('fc-image-picker-fetch-requested', { 
+        detail: { items, origin: this },
+        bubbles: true,
+        composed: true,
+      }));  
+  }
+
+  async _onImageFetched(e) {   
+    console.log(e.detail.data.results);
+    const theTargetOject = e.detail.data.results[0];
+    console.log(theTargetOject);
+    let finalUrls = [];
+    let fullLinksNode2 = [];
+    if (Array.isArray(theTargetOject.node1)) finalUrls = [...finalUrls,...theTargetOject.node1];
+    if (Array.isArray(theTargetOject.node2gas)) {
+      fullLinksNode2 = theTargetOject.node2gas.map(link=> reverseTransform(link));
+      finalUrls = [...finalUrls,...fullLinksNode2];
+    }
+    console.log(finalUrls);
+    await this.addUrlsToSmartDragDrop(this._entry.phrase, finalUrls, this._smartDragDrop);
+    this._urlTextInput.value = "";
+  }
 
   async _handleAdd() {
-    const urlStrings = this._urlTextInput.value.split(',');
-    const urls = [];
-    await urlStrings.forEach(async urlString=> { 
-      const normalisedString = normalizeUrl(urlString);
-      const checkResult = await verifyUrl(normalisedString); 
-      if (checkResult.valid) urls.push(normalisedString);
-    });
-    const items = normalizeUrlsDataFromServer(this._entry.phrase, urls);
-    items.forEach(item=> {
-      this._smartDragDrop.addItem(item, "1", 0);
-    });
-    this._smartDragDrop.updateColumnData();
-    // this._imageArray = this._smartDragDrop.fullData;
-
-    NotificationManagerInstance.show({ 
-      label: `${items.length} item(s) have been newly added!`,
-      icon: 'stars',
-      color: '--sl-color-success-500',
-      timer: 4000
-    });   
+    const rawUrls = this._urlTextInput.value.split(',').map(s => s.trim()).filter(Boolean);
+    await this.addUrlsToSmartDragDrop(this._entry.phrase, rawUrls, this._smartDragDrop);
+    this._urlTextInput.value = "";
   }
+
+  /**
+ * Modular function to add URLs into smartDragDrop.
+ * - Normalizes and verifies each URL
+ * - Avoids duplicates already present in smartDragDrop.fullData
+ * - Adds new items and updates column data
+ */
+async addUrlsToSmartDragDrop(entryPhrase, rawUrls, smartDragDrop) {
+  // Normalize and verify URLs
+  const verifiedUrls = [];
+  for (const raw of rawUrls) {
+    const normalised = normalizeUrl(raw);
+    const checkResult = await verifyUrl(normalised);
+    if (checkResult.valid) {
+      verifiedUrls.push(normalised);
+    }
+  }
+
+  if (verifiedUrls.length === 0) {
+    NotificationManagerInstance.show({
+      label: `Please enter valid urls.`,
+      icon: 'exclamation-square',
+      color: '--sl-color-warning-500',
+      timer: 4000
+    });
+    return;
+  }
+
+  // Deduplicate: collect existing URLs from smartDragDrop
+  const existingUrls = new Set(
+    (smartDragDrop.fullData || []).map(item => item.url)
+  );
+
+  const newUrls = verifiedUrls.filter(u => !existingUrls.has(u));
+
+  if (newUrls.length === 0) {
+    NotificationManagerInstance.show({
+      label: `No new urls to add (duplicates skipped).`,
+      icon: 'exclamation-square',
+      color: '--sl-color-warning-500',
+      timer: 4000
+    });
+    return;
+  }
+
+  // Build items and add them
+  const items = normalizeUrlsDataFromServer(entryPhrase, newUrls);
+  items.forEach(item => {
+    smartDragDrop.addItem(item, "1", 0);
+  });
+  smartDragDrop.updateColumnData();
+
+  NotificationManagerInstance.show({
+    label: `${items.length} item(s) have been newly added!`,
+    icon: 'stars',
+    color: '--sl-color-success-500',
+    timer: 4000
+  });
+}
 
 
   async _handleExtractLinks() {
@@ -271,7 +349,6 @@ class FCImagePicker extends HTMLElement {
   }
 
   _handleKeydown(e) {
-    console.log(e);
     const key = e.detail;
     if (key==="Delete") this._handleDelete();
     if (key==="Enter") this._handleToggleUse();   
@@ -387,24 +464,17 @@ async _handleDownload() {
 
     // Remove Blob data    
     const result = await removeImageBlobEntry(this._entry.phraseID,blobArray);
-    
+
      // Combine remove javascript Data and UI
-    this._smartDragDrop.removeItems(targetIDs);   
-    if (result===true) {      
-      NotificationManagerInstance.show({ 
+    this._smartDragDrop.removeItems(targetIDs);     
+        
+    NotificationManagerInstance.show({ 
         label: `${targetIDs.length} item(s) has been deleted`,
         icon: 'stars',
         color: '--sl-color-success-500',
         timer: 4000
       });
-    } else {
-      NotificationManagerInstance.show({ 
-        label: `${result}`,
-        icon: 'exclamation-square',
-        color: '--sl-color-warning-500',
-        timer: 4000
-      })
-    }
+    
     // sync data with this component
     // this._imageArray = this._smartDragDrop.fullData;        
   }

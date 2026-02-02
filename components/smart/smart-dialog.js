@@ -483,10 +483,10 @@ class SmartDialog extends HTMLElement {
           getDeviceType_Robust() === "mobile" ||
           getDeviceType_Robust() === "tablet"
         ) {
-          console.log(`small screen`);
+          // console.log(`small screen`);
           this._dialog.style.top = `10px`;
         } else {        
-          console.log(`big screen`);
+          // console.log(`big screen`);
         }
       });
       this._dialog.style.opacity = 1;

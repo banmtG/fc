@@ -154,7 +154,7 @@ export function normalizeUrlsDataFromServer(phrase,arr) {
 }
 
 
-function reverseTransform(shortCode) {
+export function reverseTransform(shortCode) {
   try {
   const [style, payload] = shortCode.split(":"); // Split into style and identifier
 
