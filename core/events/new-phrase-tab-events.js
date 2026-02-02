@@ -17,6 +17,7 @@ export function registerNewPhraseTabEvents(controller) {
         body: JSON.stringify({ payload })
       });
 
+      console.log(data);
       // ✅ Emit result back to the originating component
       origin.dispatchEvent(new CustomEvent('fc-image-picker-fetched', {
         detail: { data }
