@@ -15,7 +15,6 @@ template.innerHTML = `
   <link rel="stylesheet" href="${cssUrl}">
   <smart-dialog esc-close draggable resizable>
     <div slot="header">
-
         <div class="title">
           <span style="font-size: 1.2rem"><b>Image picker</b></span>
         </div>
@@ -107,7 +106,7 @@ class FCImagePicker extends HTMLElement {
           listItemHeight: 25,    // 
           rowGap: 5,            // 
           columnGap: 5,         // 
-          height:300,           // px column height
+          //height:400,           // px column height
           rangeValue: 40// initial slider step
         },
         //  {
