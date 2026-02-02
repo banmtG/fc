@@ -107,7 +107,7 @@ class FCImagePicker extends HTMLElement {
           listItemHeight: 25,    // 
           rowGap: 5,            // 
           columnGap: 5,         // 
-          //height:350,           // px column height
+          height:300,           // px column height
           rangeValue: 40// initial slider step
         },
         //  {
