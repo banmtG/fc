@@ -9,18 +9,21 @@ export function registerNewPhraseTabEvents(controller) {
      // new-phrase-tab events
     document.addEventListener('fc-image-picker-fetch-requested', async (e) => {
       console.log(e);
-      const { payload, origin } = e.detail;
+      const { items, origin } = e.detail;
 
-      const data = await AuthManager.callApi(CONFIG.API_SEARCH_IMAGE, {
+      const result = await AuthManager.callApi(CONFIG.API_SEARCH_IMG, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ payload })
+        body: JSON.stringify({ items })
       });
 
-      console.log(data);
+      console.log(result);
+      // console.log(result.detail.data.results);
+      const theTargetOject = result.detail.data.results[0];
+      console.log(theTargetOject);
       // ✅ Emit result back to the originating component
       origin.dispatchEvent(new CustomEvent('fc-image-picker-fetched', {
-        detail: { data }
+        detail: { theTargetOject }
       }));
 
       console.log('emit images-fetched event to', origin.tagName);

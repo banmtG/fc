@@ -50,6 +50,7 @@ class APhraseMobileEditor extends HTMLElement {
     <defi-edit></defi-edit>    
     <connecting-phrase></connecting-phrase>
     <fc-image-picker></fc-image-picker>
+
     `;
    
     // Attach to shadow DOM
@@ -103,9 +104,9 @@ class APhraseMobileEditor extends HTMLElement {
     // this._user_note.innerHTML = entry.user_note? entry.user_note : "";
     this._noteEditInput.value = entry.user_note? entry.user_note : "";
     // console.log(this.entry.connecting_phrases);
-    const valueC = (await getPhraseFromPhraseID(this.entry.connecting_phrases));
+    const valueC = (await getPhraseFromPhraseID(this.entry.connecting_phrases.map(item=>item.id)));
     // console.log(valueC);
-    this._connectingPhrases.value = (await getPhraseFromPhraseID(this.entry.connecting_phrases)).join(', ');
+    this._connectingPhrases.value = (await getPhraseFromPhraseID(this.entry.connecting_phrases.map(item=>item.id))).join(', ');
   }
 
   _initAssignBtnFunction() {
@@ -148,7 +149,10 @@ class APhraseMobileEditor extends HTMLElement {
 
     this._fcImagePicker = this.shadowRoot.querySelector('fc-image-picker');
     this._fcImagePicker.init();
-
+    this._fcImagePicker.addEventListener("fc-image-picker-confirmed", (e) => {
+      this.entry = e.detail.data;
+      // this._ipa.innerText = this.entry.user_ipa? `/${this.entry.user_ipa}/`: "";   
+    });
 
     // this._handleTranslateEdit = this._handleTranslateEdit.bind(this);
     // this._translateEditBtn.addEventListener('click',this._handleTranslateEdit);
@@ -165,7 +169,7 @@ class APhraseMobileEditor extends HTMLElement {
     this._connectingPhraseDialog.addEventListener("connecting-phrase-updated", async (e) => {
         console.log(e.detail);
         this.entry.connecting_phrases = e.detail;
-        this._connectingPhrases.value = (await getPhraseFromPhraseID(this.entry.connecting_phrases)).join(', ');
+        this._connectingPhrases.value = (await getPhraseFromPhraseID(this.entry.connecting_phrases.map(item=>item.id))).join(', ');
     }, { signal });
 
 
@@ -182,14 +186,6 @@ class APhraseMobileEditor extends HTMLElement {
   }
 
   _handleFcImagePicker(e) {
-    // console.log(`vao _handleFcImagePicker`);
-    // this._fcImagePicker = document.createElement('fc-image-picker');
-    // this.shadowRoot.appendChild(this._fcImagePicker);
-    // this._fcImagePicker.addEventListener("fc-image-picker-confirmed", (e) => {
-    //   this.entry = e.detail;
-    //   this._fcImagePicker.remove();      
-    // }, { signal: this._abort.signal });
-    // this._fcImagePicker.init();
     this._fcImagePicker.open(this.entry);
   }
 

@@ -3,7 +3,9 @@ import { tableData } from './../../Testers/phraseList.js';
 import Sortable from './../lib/sortableJS/sortable.complete.esm.js';
 import Fuse from "./../lib/fuse/fuse.mjs";    
 import './../smart/smart-dialog.js';
+import {CONFIG} from './../../config/config.js';
 
+const typeColorMap = Object.fromEntries(CONFIG.RELATED_TYPE.map(ct => [ct.type, ct.bg]));
 const cssUrl = new URL("./connecting-phrase.css", import.meta.url);
 
 // Define a template once
@@ -14,14 +16,17 @@ template.innerHTML = `
   <smart-dialog esc-close overlay-close draggable>
       <div slot="header">
           <div class="title">
-            <span style="font-size: 1.2rem"><b>Connecting phrases</b></span>
+            <span style="font-size: 1.2rem"><b>Related phrases</b></span>
           </div>
         </div>        
         <div slot="body" class="body">
             <div class="container">
-              <extended-smart-table id="smart-table" search="true" pagination="3,all"></extended-smart-table>        
+              <extended-smart-table id="smart-table" search="true" pagination="3,all">
+              </extended-smart-table>
               <span id="entryPhrase"></span>
               <span id="suggestedConnectPhrases"></span>
+
+              <div class="legendBoard"></div>
             </div>
         </div>
         <div slot="footer">
@@ -51,6 +56,7 @@ class ConnectingPhrase extends HTMLElement {
     this._loadPhrasesFromDataBase();    
     this._hydrateSuggestedContainer();
     this._hydrateTable();
+    
     requestAnimationFrame(() => {   
       if (this._smart_dialog) { 
         this._smart_dialog.style.display = "block";
@@ -67,7 +73,8 @@ class ConnectingPhrase extends HTMLElement {
         return { phrase: item.phrase, phraseID: item.phraseID }     
     });       
     this._suggested_ConnectingPhrases = this._findRelatedPhrases(this._entry.phrase, this._unConnecting_phrases_forFuseSearch);
-    this._connecting_phraseID = this._entry.connecting_phrases? this._entry.connecting_phrases : [];    
+    this._connecting_phraseID = this._entry.connecting_phrases? this._entry.connecting_phrases.map(item=> item.id) : [];    
+    this._connecting_phrases_map = this._entry.connecting_phrases? this._entry.connecting_phrases : [];  
   }
 
   _aPhraseNormalise(item) {
@@ -93,9 +100,17 @@ class ConnectingPhrase extends HTMLElement {
     // console.log(this._theOrder);
     return rawData.map((item) => {
       const order = this._connecting_phraseID.indexOf(item.phraseID);
+      const foundObj = this._connecting_phrases_map.find(obj=>obj.id===item.phraseID);
+      if (foundObj) { console.log(foundObj);
+        console.log(foundObj["type"]);
+  
+      }
+      let connectingType = foundObj? foundObj['type'] : null;
+            
       return { ...this._aPhraseNormalise(item), 
         linked: (order>-1)? true : false,
-        theOrder: (order>-1)? order : MaxOrder
+        theOrder: (order>-1)? order : MaxOrder,
+        connectingType: connectingType
       };
     });
   }
@@ -149,7 +164,7 @@ _hydrateSuggestedContainer() {
     }
   });
   if (this._suggested_ConnectingPhrases.length>1) {
-    console.log(this._suggested_ConnectingPhrases);
+    // console.log(this._suggested_ConnectingPhrases);
     this._entryPhrase.innerHTML = `<i>Similar to <b>${this._entry.phrase}</b>? Double tap to connect!</i>`;
   } else {   console.log(this._suggested_ConnectingPhrases);
     
@@ -160,16 +175,24 @@ _hydrateSuggestedContainer() {
     const target = e.target.closest(".suggest_phrase"); 
     const targetID = target.dataset.phraseID;
     this._removeWithAnimation(target);    
-    this._connecting_phraseID.push(targetID);    
-    this._updateTablewithConnectingPhrase(targetID, true);
+    this._connecting_phraseID.push(targetID);   
+    this._connecting_phrases_map.push({id: targetID , type: "R"});   
+    this._updateTablewithConnectingPhrase(targetID, true, "R");
   }
 
-  _updateTablewithConnectingPhrase(targetID, flag) {    
-    this._smartTable._updateRowData(targetID, { linked: flag, theOrder: this._theOrder });
+  _updateTablewithConnectingPhrase(targetID, linkFlag, connectingType, changeOrder = true) {
+    this._smartTable._updateRowData(targetID, { 
+      linked: linkFlag, 
+      ...(changeOrder? { theOrder: this._theOrder } : {}),
+      connectingType: connectingType 
+    });
+    
     this._smartTable._runPipeline();
     this._smartTable.updateRowUI(targetID);
-    if (flag===true) this._theOrder++;
-    if (flag===false) this._theOrder--;
+    console.log(changeOrder);
+
+    if (changeOrder&&linkFlag===true) this._theOrder++;
+    if (changeOrder&&linkFlag===false) this._theOrder--;
   }
 
   _removeWithAnimation(el) {
@@ -216,7 +239,7 @@ _hydrateSuggestedContainer() {
     sortable: false,
     label: "",
     width_set: {       
-      value: "50px",      // fit content width
+      value: "40px",      // fit content width
       resizable: false
     },
     interactive: true,
@@ -226,7 +249,7 @@ _hydrateSuggestedContainer() {
         div.className = "actions";
         div.style.background = "rgba(0,0,0,0)";
         div.innerHTML = 
-        obj.linked? `<button style="border: none; color: #AB9DB7; background:none;" class="btn btn-unlink" data-id="${obj.phraseID}">✂</button> ` : `<button style="border: none; color: #AB9DB7; background:none;" class="btn btn-link" data-id="${obj.phraseID}">🔗</button>`;
+        obj.linked? `<button style="border: none; color: #AB9DB7; background:none;" class="btn btn-unlink" data-id="${obj.phraseID}">✂️</button> ` : `<button style="border: none; color: #AB9DB7; background:none;" class="btn btn-link" data-id="${obj.phraseID}">🔗</button>`;
         requestAnimationFrame(() => {        
           if (div.parentNode) {    
               div.parentNode.style.padding = "0px";
@@ -254,6 +277,44 @@ _hydrateSuggestedContainer() {
         }
       }
     }
+  },
+  {
+    key: "connectingType",
+    sortable: false,
+    label: "",
+    width_set: {       
+      value: "40px",      // fit content width
+      resizable: false
+    },
+    interactive: true,
+    render: (_, obj) => {
+      if (obj.connectingType !== null) {
+        const div = document.createElement("div");
+        const color = typeColorMap[obj.connectingType] || "#ccc"; // fallback
+        div.innerHTML = `
+          <div style="display:flex; cursor:pointer; justify-content:center;
+          align-items:center; border-radius:20px; width:30px; height:25px;
+          background:${color}">${obj.connectingType}</div>`;
+        return div;
+      }
+    },
+    events: {
+      click: (e, row, obj) => {
+
+         if (obj.connectingType!==null) {
+
+
+        // if (e.target.classList.contains("btn-link")) {
+          row.dispatchEvent(new CustomEvent("connectingType-altered", {
+            detail: { id: obj.phraseID },
+            bubbles: true,
+            composed: true
+          }));
+                // }
+           console.log(obj.phraseID);
+         }
+      }
+    }
   }
 ]);
 
@@ -261,7 +322,7 @@ _hydrateSuggestedContainer() {
       sortKey: "theOrder",
       sortDir: "asc",
       pageSize: "all",
-      tableMaxHeight: "25vh",
+      tableMaxHeight: "35vh",
       columnToSearch: ["phrase","user_translate","defi","user_defi"],
       idKey: "phraseID",
       cellPading: "4px 6px"
@@ -276,9 +337,9 @@ _hydrateSuggestedContainer() {
     this._entryPhrase = this.shadowRoot.querySelector('#entryPhrase');
     this._smartTable = this.shadowRoot.querySelector('extended-smart-table');
     this._tableBody = this._smartTable.shadowRoot.getElementById("tbl").shadowRoot.getElementById("tableBody");
+    this._legendBoard = this.shadowRoot.querySelector('.legendBoard');
 
-
-
+    this._renderLengend();
     // add EventListeners
     this._smart_dialog.addEventListener("smart-dialog-confirmed", () => this._confirmHandler(), { signal });
     this._smart_dialog.addEventListener("smart-dialog-canceled", () => this._cancelHandler(), { signal });
@@ -291,19 +352,42 @@ _hydrateSuggestedContainer() {
     } , { signal });
     this._smartTable.addEventListener('link-requested', (e) => {     
       this._connecting_phraseID.push(e.detail.id);
-      this._updateTablewithConnectingPhrase(e.detail.id, true);
+      this._updateTablewithConnectingPhrase(e.detail.id, true, "R");
       this._hydrateSuggestedContainer();
+      this._connecting_phrases_map.push({id: e.detail.id , type: "R"});
     },{ signal });
     this._smartTable.addEventListener('unlink-requested', (e) => {
       this._connecting_phraseID = this._connecting_phraseID.filter(id=> {
         return id !== e.detail.id; // must return booleans
       });
-      this._updateTablewithConnectingPhrase(e.detail.id, false);
+
+      this._connecting_phrases_map = this._connecting_phrases_map.filter(obj=> 
+         obj.id !== e.detail.id );
+
+      this._updateTablewithConnectingPhrase(e.detail.id, false, null);
       this._hydrateSuggestedContainer();
     }, { signal });
 
+   this._smartTable.addEventListener('connectingType-altered', (e) => {    
+      const targetID = e.detail.id;
+      const targetObject = this._connecting_phrases_map.find(obj => obj.id === targetID);
+      const currentType = targetObject?.type;
+
+      // Find current index in RELATED_TYPE
+      const idx = CONFIG.RELATED_TYPE.findIndex(ct => ct.type === currentType);
+
+      // Next index (wrap around)
+      const nextIdx = (idx + 1) % CONFIG.RELATED_TYPE.length;
+      const targetType = CONFIG.RELATED_TYPE[nextIdx].type;
+
+      targetObject.type = targetType;
+      this._updateTablewithConnectingPhrase(targetID, true, targetType, false);
+      this._hydrateSuggestedContainer();
+    }, { signal });
+
+
  
-    new Sortable(this._tableBody, {
+    this._sortable = new Sortable(this._tableBody, {
       animation: 150,      
       scroll: true,             // Enable scrolling
       scrollSensitivity: 40,    // Pixels from edge to start scroll
@@ -312,6 +396,29 @@ _hydrateSuggestedContainer() {
       delay: 250,               // time in ms to hold before drag starts
       delayOnTouchOnly: true,   // only apply delay on touch devices
       touchStartThreshold: 5,   // px of movement before drag starts 
+      onEnd: (evt) => {
+        console.log(this._connecting_phrases_map);
+        // Get final order of IDs
+        const newOrder = Array.from(this._tableBody.querySelectorAll(".linked")).map(el => el.dataset.id);
+        // Step 1: Create a lookup map for order 
+        const orderMap = new Map(newOrder.map((id, index) => [id, index])); 
+        // Step 2: Sort the array based on the order map 
+        const sorted = this._connecting_phrases_map.sort((a, b) => orderMap.get(a.id) - orderMap.get(b.id)); 
+        // Step 3: Add theOrder key based on index 
+        this._connecting_phrases_map = sorted.map((obj, index) => ({ ...obj, theOrder: index }));
+           console.log("Final order of IDs:", newOrder);
+              console.log("Final order of IDs:", this._connecting_phrases_map);
+        this._connecting_phrases_map.forEach(item=> {
+          const targetID=item.id;
+          this._smartTable._updateRowData(targetID, { 
+          linked: true, 
+          theOrder: item.theOrder,
+          connectingType: item.type
+          });   
+        })
+            // this._smartTable._runPipeline();
+                
+      },
     });
   }
 
@@ -328,14 +435,43 @@ _hydrateSuggestedContainer() {
     this._suggestedConnectPhrasesDiv = null;
   }
 
+  _renderLengend() {
+      // Assuming this._legendBoard is already set
+      this._legendBoard.innerHTML = ""; // clear old content if needed
+
+      CONFIG.RELATED_TYPE.forEach(item => {
+        const wrapper = document.createElement("div");
+        wrapper.style.display = "flex";
+        wrapper.style.alignItems = "center";
+        wrapper.style.margin = "4px";
+
+        // color box
+        const colorBox = document.createElement("div");
+        colorBox.style.width = "20px";
+        colorBox.style.height = "20px";
+        colorBox.style.borderRadius = "4px";
+        colorBox.style.background = item.bg;
+        colorBox.style.marginRight = "8px";
+
+        // legend text
+        const text = document.createElement("span");
+        text.textContent = item.legend;
+
+        wrapper.appendChild(colorBox);
+        wrapper.appendChild(text);
+
+        this._legendBoard.appendChild(wrapper);
+      });
+  }
+
   _confirmHandler() {
-    const nodeLinked = this._tableBody.querySelectorAll('.linked');
-    this._result = [];
-    nodeLinked.forEach(el => { this._result.push(el.dataset.id); });
-    this._entry.connecting_phrases = this._result;
+    //const nodeLinked = this._tableBody.querySelectorAll('.linked');
+    //this._result = [];
+    //nodeLinked.forEach(el => { this._result.push(el.dataset.id); });
+    //this._entry.connecting_phrases = this._result;
     this.dispatchEvent(
       new CustomEvent('connecting-phrase-updated', { 
-        detail: this._result, 
+        detail: this._connecting_phrases_map.map(item=> {return { id: item.id, type: item.type }}), 
         bubbles: false,
         composed: true,
       }));   
@@ -344,8 +480,7 @@ _hydrateSuggestedContainer() {
 
   _cancelHandler() {
     this.dispatchEvent(
-      new CustomEvent('connecting-phrase-cancelled', { 
-        detail: this._connecting_phraseID, 
+      new CustomEvent('connecting-phrase-cancelled', {         
         bubbles: false,
         composed: true,
       }));   

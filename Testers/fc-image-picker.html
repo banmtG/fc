@@ -194,16 +194,19 @@
       console.log(e);
       const { items, origin } = e.detail;
 
-      const data = await AuthManager.callApi(CONFIG.API_SEARCH_IMG, {
+      const result = await AuthManager.callApi(CONFIG.API_SEARCH_IMG, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ items })
       });
 
-      console.log(data);
+      console.log(result);
+      // console.log(result.detail.data.results);
+      const theTargetOject = result.data[0];
+      console.log(theTargetOject);
       // ✅ Emit result back to the originating component
       origin.dispatchEvent(new CustomEvent('fc-image-picker-fetched', {
-        detail: { data }
+        detail: { theTargetOject }
       }));
 
       console.log('emit images-fetched event to', origin.tagName);

@@ -7,5 +7,10 @@ export const CONFIG = {
   API_LOGOUT: "https://php.adapps.download/apps/fc/api/auth/logout.php",
   API_LOGIN: "https://php.adapps.download/apps/fc/api/auth/login.php",
   QUOTA_GUEST: 100,
-  TOKEN_EXPIRY: 900 // seconds
+  TOKEN_EXPIRY: 900, // seconds
+  RELATED_TYPE: [ 
+    { type: "S" , bg: "#86FFB7" , legend: "Synonym"},
+    { type: "A" , bg: "#FFD17C" , legend: "Antonym"},
+    { type: "R" , bg: "#DEDEDE" , legend: "Related"},
+  ]
 };
