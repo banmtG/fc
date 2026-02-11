@@ -2,11 +2,13 @@ import './pos-badge-group.js';
 import './defi-edit.js';
 import './connecting-phrase.js';
 import './fc-image-picker.js';
-import { getPhraseFromPhraseID } from './../../js/data_services/local_data.js';
+import { getPhraseFromPhraseID, enrichRelatedPhrases, createChips } from './../../js/data_services/related_phrases.js';
 import  { correctPos, getAllUniquePOS, extractFromDefiObjects } from '../../js/utils/dictionary.js';
 import '../smart/smart-ipa-input.js';
 import '../smart/smart-text-input.js';
-import  './../smart/advanced-combobox/combo-input.js';
+import './../smart/advanced-combobox/advanced-combobox.js';
+import './../smart/typeahead-input.js';
+import { getImageUrl } from './../../js/data_services/imgUrls.js';
 
 class APhraseMobileEditor extends HTMLElement {
   constructor() {
@@ -19,30 +21,63 @@ class APhraseMobileEditor extends HTMLElement {
     template.innerHTML = `${this.componentCSS}
     <div class="noScroll_container">
       <sl-card class="card-basic" id="container">
-        <div style="margin: 0px 0; display: flex; gap:0.5rem; align-items: ">
-          <sl-button size="small" id="phrase" style="width: 100%;" class="multiline editElement"></sl-button>
-         
+        <sl-button id="phrase" style="width: 100%;" class="multiline editElement"></sl-button>         
+        <div class="lineInfo">
+          <sl-button-group label="Alignment">
+            <sl-button size="small" id="definitionEditBtn" class="editElement">Definition
+              <sl-icon style="font-size:20px;" name="patch-exclamation-fill" slot="suffix"></sl-icon>
+            </sl-button>
+            <sl-button size="small" id="ipaEditBtn" class="editElement">IPA
+                <sl-icon style="font-size:20px;" name="patch-exclamation-fill" slot="suffix"></sl-icon>
+            </sl-button>           
+            <sl-button size="small" id="soundEditBtn" class="editElement">🔊    
+             <sl-icon style="font-size:20px;" name="patch-exclamation-fill" slot="suffix"></sl-icon>           
+            </sl-button>
+            
+          </sl-button-group>   
+          <sl-dropdown placement="top-start" class="rating">
+              <sl-button size="small" slot="trigger" caret id="ratingButton">1 <sl-icon name="star-fill" label="Add to favorites"></sl-icon></sl-button>
+              <sl-menu id="ratingMenu">
+                <sl-menu-item>1 <sl-icon name="star-fill" label="Add to favorites"></sl-icon></sl-menu-item>
+                <sl-menu-item>2 <sl-icon name="star-fill" label="Add to favorites"></sl-icon></sl-menu-item>
+                <sl-menu-item>3 <sl-icon name="star-fill" label="Add to favorites"></sl-icon></sl-menu-item>
+                <sl-menu-item>4 <sl-icon name="star-fill" label="Add to favorites"></sl-icon></sl-menu-item>
+                <sl-menu-item>5 <sl-icon name="star-fill" label="Add to favorites"></sl-icon></sl-menu-item>
+              </sl-menu>
+            </sl-dropdown>
         </div>
-        <sl-divider class="editElement"></sl-divider>  
-          <sl-button size="small" id="ipaEditBtn" class="editElement">IPA</sl-button>
-          <span id="ipa"></span>
-          <sl-button size="small" id="soundEditBtn" class="editElement">🔊</sl-button> 
-          <pos-badge-group id="posBadgeGroup"></pos-badge-group>
-        <sl-divider class="editElement"></sl-divider>     
-        <div style="display:flex; gap:5px; flex-direction:column;">
-          <sl-button size="small" id="definitionEditBtn" class="editElement">Definition</sl-button>
-          <div id="definition"></div>
+
+
+ <div id="definition"></div>
+        <div class="gridInfo">
+            <div class="gridInfo-title gridInfo-item">Translate</div>
+            <sl-input class="gridInfo-item" size="small" id="translateEditInput" placeholder="Add your own translation"></sl-input>
+
+            <span class="gridInfo-title gridInfo-item">Note</span>
+            <sl-input class="gridInfo-item" size="small" id="noteEditInput" placeholder="Add your own note"></sl-input>           
+
+            <span class="gridInfo-title gridInfo-item">Related</span>
+            <div id="relatedPhrases"></div>
+
+            <span class="gridInfo-title gridInfo-item">Reminder</span>
+            <typeahead-input size="small" id="reminderText" placeholder="Reminder text. E.g. Heroes SS3 Eps1!" min-chars="3" limit="8" size="small"></typeahead-input> 
+
+            <span class="gridInfo-title gridInfo-item">Tags</span>
+            <advanced-combobox size="small" id="tagSelection" max-height="200px" allow-delete confirm-delete></advanced-combobox>  
         </div>
+        <div id="imageInput">
+          <div id="imageContainer">
+          </div>
+          <sl-icon-button id="imageInputBtn" name="pencil" label="Edit"></sl-icon-button>
+        </div>
+        
         <sl-divider class="editElement"></sl-divider>
-          <sl-input class="label-on-left" label="Translate" size="small" id="translateEditInput" placeholder="Add your own translation"></sl-input>
-        <sl-divider class="editElement"></sl-divider>
-          <sl-input class="label-on-left" label="Note" size="small" id="noteEditInput" placeholder="Add your own note"></sl-input>
-        <sl-divider class="editElement"></sl-divider>          
-        <sl-input class="label-on-left" label="Connect" size="small" id="connectingPhrases" placeholder="Connecting phrases" rows="1" resize="auto"></sl-input>
-        <sl-divider class="editElement"></sl-divider>          
-        <sl-input class="label-on-left" label="Image" size="small" id="imageInput" placeholder="Photo link" rows="1"></sl-input>
-        <sl-divider class="editElement"></sl-divider>
+           <span id="ipa"></span>
+      <pos-badge-group id="posBadgeGroup"></pos-badge-group>
+       
+        
       </sl-card>
+
     </div>
     
     <smart-text-input></smart-text-input>  
@@ -61,12 +96,19 @@ class APhraseMobileEditor extends HTMLElement {
     this._phrase = sR.getElementById("phrase");  
     this._posBadgeGroup = sR.getElementById("posBadgeGroup");
     this._ipa= sR.getElementById("ipa");  
-    this._definition= sR.getElementById("definition");         
-    this._user_translate= sR.getElementById("translation");     
-    this._user_note= sR.getElementById("note");     
-    this._connect= sR.getElementById("connect"); 
-    this._image= sR.getElementById("image");  
 
+    this._ratingBtn = sR.getElementById("ratingButton");
+    this._ratingMenu = sR.getElementById("ratingMenu");
+
+    this._ipaEditBtn = sR.getElementById("ipaEditBtn");    
+    this._soundEditBtn = sR.getElementById("soundEditBtn");
+    this._definitionEditBtn = sR.getElementById("definitionEditBtn");   
+
+    this._definition= sR.getElementById("definition");   
+    this._translateEditInput = sR.getElementById("translateEditInput");
+    
+    this._imageContainer = sR.getElementById("imageContainer");     
+    this._imageInputBtn = sR.getElementById("imageInputBtn");     
     this._initAssignBtnFunction();
   }
 
@@ -99,43 +141,80 @@ class APhraseMobileEditor extends HTMLElement {
     this._ipa.innerText = entry.user_ipa? `/${entry.user_ipa}/`: "";    
     this._definition.innerHTML = this._createDefiDivHtml(entry);
     this._defiEditDialog.loadInitData(this.entry);    
-    // this._user_translate.innerHTML = entry.user_translate? entry.user_translate : "";
     this._translateEditInput .value = entry.user_translate? entry.user_translate : "";
-    // this._user_note.innerHTML = entry.user_note? entry.user_note : "";
     this._noteEditInput.value = entry.user_note? entry.user_note : "";
-    // console.log(this.entry.connecting_phrases);
-    const valueC = (await getPhraseFromPhraseID(this.entry.connecting_phrases.map(item=>item.id)));
-    // console.log(valueC);
-    this._connectingPhrases.value = (await getPhraseFromPhraseID(this.entry.connecting_phrases.map(item=>item.id))).join(', ');
+
+
+    // related phrases
+    const newChipsDiv = await createChips(this.entry.related_phrases); 
+     if (newChipsDiv.firstChild===null)  { this._relatedPhrases.innerHTML= `<span class="placeHolder">Related phrases</span>`; }
+    else { 
+      this._relatedPhrases.innerHTML="";
+      while (newChipsDiv.firstChild) { 
+        this._relatedPhrases.appendChild(newChipsDiv.firstChild); 
+      }
+    }
+
+    // photo
+    this._setImage(this.entry.image.data);    
+    // console.log(this.entry.image);
+  }
+
+  _setImage(photoData) {  
+    this._imageContainer.innerHTML=``;
+    const phraseID = this.entry.phraseID;
+    if (!Array.isArray(photoData) || photoData.length <= 0) {
+      this._imageContainer.innerHTML=`<sl-icon name="camera"></sl-icon>`;
+      return;
+    }
+    const _appendImage = async (object) =>  {
+      this._imageContainer.innerHTML=``;    
+      const img = document.createElement('img');  
+      const type = document.createElement('span');
+      if (object.t==="web") { 
+        img.src = object.url;
+        type.innerHTML = "🌍";
+      }
+      if (object.t==="blob") {
+        img.src = await getImageUrl(phraseID,object.id);
+        type.innerHTML = "💾";
+      }
+      this._imageContainer.appendChild(img);
+      this._imageContainer.appendChild(type);
+    }
+
+    const pickedImages = photoData.filter(object=> object.pick === true);
+    if (pickedImages.length>0) {
+      _appendImage(pickedImages[0]); // set the first image from pickedImages
+    } else {
+      _appendImage(photoData[0]);  // set the first image from the whole data array
+    }     
   }
 
   _initAssignBtnFunction() {
     const { signal } = this._abort;
     const sR = this.shadowRoot;
     // this._phrase = sR.getElementById("phraseEditBtn");    
-    this._ipaEditBtn = sR.getElementById("ipaEditBtn");    
-    this._soundEditBtn = sR.getElementById("soundEditBtn");
-    this._definitionEditBtn = sR.getElementById("definitionEditBtn");   
+    
+    this._ratingMenu.addEventListener('sl-select', event => {
+      // event.detail.item is the selected <sl-menu-item>
+      this._ratingBtn.innerHTML = event.detail.item.innerHTML;
+    }, {signal});
     // this._translateEditBtn = sR.getElementById("translateEditBtn");
 
-    this._translateEditInput = sR.getElementById("translateEditInput");
 
     // this._noteEditBtn = sR.getElementById("noteEditBtn");
     this._noteEditInput = sR.getElementById("noteEditInput");
 
-    this._connectingPhrases = sR.getElementById("connectingPhrases");
-    this._connectingPhrases.addEventListener('click', (e) => this._handleConnectingPhraseEdit(), { signal });
+    this._relatedPhrases = sR.getElementById("relatedPhrases");
+    this._relatedPhrases.addEventListener('click', (e) => this._handleRelatedPhraseEdit(), { signal });
 
-    this._fcImagePickerInput = sR.getElementById("imageInput");
-    this._fcImagePickerInput.addEventListener('click', (e) => this._handleFcImagePicker(), { signal });
-
-    this._imageEditBtn = sR.getElementById("imageEditBtn");
-
+    this._imageInputBtn.addEventListener('click', (e) => this._imageSelection(), { signal });
+    
     this._textEditDialog =  this.shadowRoot.querySelector('smart-text-input');
     this._phraseIPAialog = this.shadowRoot.querySelector('smart-ipa-input');
     this._defiEditDialog = this.shadowRoot.querySelector('defi-edit');
-    this._connectingPhraseDialog = this.shadowRoot.querySelector('connecting-phrase');
-    this._fcImagePickerInput =  this.shadowRoot.querySelector('imageInput');
+    this._relatedPhraseDialog = this.shadowRoot.querySelector('connecting-phrase');
 
     this._handlePhraseEdit = this._handlePhraseEdit.bind(this);
     this._phrase.addEventListener('click',this._handlePhraseEdit, { signal });
@@ -148,11 +227,13 @@ class APhraseMobileEditor extends HTMLElement {
     this._definitionEditBtn.addEventListener('click',this._handleDefinitionEdit ,{ signal });
 
     this._fcImagePicker = this.shadowRoot.querySelector('fc-image-picker');
+
     this._fcImagePicker.init();
-    this._fcImagePicker.addEventListener("fc-image-picker-confirmed", (e) => {
-      this.entry = e.detail.data;
+    this._fcImagePicker.addEventListener("fc-image-picker-confirmed", (e) => {    
+      this.entry.image = e.detail.entry.image;
+      this._setImage(this.entry.image.data);
       // this._ipa.innerText = this.entry.user_ipa? `/${this.entry.user_ipa}/`: "";   
-    });
+    }, { signal });
 
     // this._handleTranslateEdit = this._handleTranslateEdit.bind(this);
     // this._translateEditBtn.addEventListener('click',this._handleTranslateEdit);
@@ -166,12 +247,17 @@ class APhraseMobileEditor extends HTMLElement {
       this._ipa.innerText = this.entry.user_ipa? `/${this.entry.user_ipa}/`: "";   
     });
 
-    this._connectingPhraseDialog.addEventListener("connecting-phrase-updated", async (e) => {
-        console.log(e.detail);
-        this.entry.connecting_phrases = e.detail;
-        this._connectingPhrases.value = (await getPhraseFromPhraseID(this.entry.connecting_phrases.map(item=>item.id))).join(', ');
+    this._relatedPhraseDialog.addEventListener("related-phrases-updated", async (e) => {
+        this.entry.related_phrases = e.detail;
+        const newChipsDiv = await createChips(this.entry.related_phrases);  
+        if (newChipsDiv.firstChild===null) { this._relatedPhrases.innerHTML= `<span class="placeHolder">Connect with other studied phrases</span>`; }
+        else { 
+          this._relatedPhrases.innerHTML="";
+          while (newChipsDiv.firstChild) { 
+            this._relatedPhrases.appendChild(newChipsDiv.firstChild); 
+          }
+        }
     }, { signal });
-
 
     this._defiEditDialog.addEventListener("defi-edit-dialog-confirmed", (e) => {
       this.entry.user_defi = e.detail.user_defi;
@@ -185,12 +271,13 @@ class APhraseMobileEditor extends HTMLElement {
     }, { signal });
   }
 
-  _handleFcImagePicker(e) {
+  _imageSelection(e) {
+    console.log(this.entry.image);
     this._fcImagePicker.open(this.entry);
   }
 
-  _handleConnectingPhraseEdit() {
-    this._connectingPhraseDialog.open(this.entry);
+  _handleRelatedPhraseEdit() {
+    this._relatedPhraseDialog.open(this.entry);
   }
 
   _handlePhraseEdit() {
@@ -214,7 +301,7 @@ class APhraseMobileEditor extends HTMLElement {
   }
 
   _renderPhraseTitle(entry) {    
-    console.log(`vao render title`);
+    // console.log(`vao render title`);
     this._phrase.textContent  = entry.phrase;
   }
 
@@ -228,7 +315,7 @@ class APhraseMobileEditor extends HTMLElement {
       defArray = Array.isArray(entry.user_defi.customized_defi)? this.entry.user_defi.customized_defi : [];
     }
     
-    console.log(defArray);
+    // console.log(defArray);
     if (!Array.isArray(defArray)) return "";
 
     const container = document.createElement('div');
@@ -239,7 +326,7 @@ class APhraseMobileEditor extends HTMLElement {
     defArray.forEach(({pos, info, definition, example}) => {    
     if (definition!=="") {
       const posHtml = `<pos-badge-group pos="${pos}"></pos-badge-group>`;
-      const infoHtml = info? `<i style="font-size: 0.9rem; color:#fff; padding: 0 5px; background: #ccc">${info}</i>` : "";
+      const infoHtml = info? `<i style="font-size: 1rem; color:#fff; padding: 0px 3px 1px; background: #ababab">${info}</i>` : "";
       const shortDef = `${posHtml} ${infoHtml} <span class="defi">${definition}</span>`;
       const exampleArray = example?.split('\n');
       

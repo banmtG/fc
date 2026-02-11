@@ -4,20 +4,41 @@ const inputTemplate = document.createElement('template');
 inputTemplate.innerHTML = `
   <style>
     .chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
+      display: flex !important;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      gap: 3px;
       align-items: center;
+      overflow-x: scroll;  
+      background: yellow;
     }    
+
+    .chips::-webkit-scrollbar  {
+      display:none;
+    }   
+
+    sl-input::part(prefix) {
+      max-width:65%;
+      min-width: 0px;
+      width:0;
+    }
+         
+    sl-input::part(base) {
+      font-size:16px;
+    }
+
+
+
   </style>
   <sl-input id="input" clearable>
     <div slot="prefix" class="chips" id="chips"></div>
   </sl-input>
+
 `;
 
 class ComboInput extends HTMLElement {
   static get observedAttributes() {
-    return ['label', 'placeholder'];
+    return ['label', 'placeholder','size'];
   }
 
   constructor() {
@@ -58,6 +79,11 @@ class ComboInput extends HTMLElement {
       this.input.removeAttribute('label');
     }
 
+    const size = this.getAttribute('size');
+    if (size) {
+       this.input.setAttribute('size',size);
+    }
+
     if (this.hasAttribute('placeholder')) {
       this.input.placeholder = this.getAttribute('placeholder');
     } else {
@@ -66,7 +92,7 @@ class ComboInput extends HTMLElement {
   }
 
   set selected(list) {
-    this._selected = Array.isArray(list) ? [...list] : [];
+    this._selected = Array.isArray(list) ? [...list] : [];   
     this._renderChips();
   }
 
@@ -112,6 +138,20 @@ class ComboInput extends HTMLElement {
   };
 
   _renderChips() {
+    const sheet = this.shadowRoot.querySelector("style").sheet;    
+    if (this._selected.length>0) {        
+        for (const rule of sheet.cssRules) {
+          if (rule.selectorText === "sl-input::part(prefix)") {   
+            rule.style.width = "auto";
+          }
+        }    
+    } else {
+        for (const rule of sheet.cssRules) {
+        if (rule.selectorText === "sl-input::part(prefix)") {   
+          rule.style.width = "0";
+        }
+      }
+    }
     this.chipsContainer.innerHTML = '';
     this._selected.forEach(item => {
       const chip = document.createElement('combo-chip');

@@ -29,10 +29,12 @@ template.innerHTML = `
               <div class="legendBoard"></div>
             </div>
         </div>
-        <div slot="footer">
-            <sl-button size="small" variant="primary" id="confirm" class="focusable">Confirm</sl-button>
-            <sl-button size="small" variant="default" id="cancel" class="focusable">Cancel</sl-button>
-        </div>   
+        <div slot="footer" class="footer">
+            <sl-button-group> 
+              <sl-button size="medium" variant="primary" id="confirm" class="focusable"><sl-icon name="check-circle-fill" slot="prefix"></sl-icon>Confirm</sl-button>
+              <sl-button size="medium" variant="default" id="cancel" class="focusable"><sl-icon name="x-circle" slot="prefix"></sl-icon>Cancel</sl-button>
+            </sl-button-group> 
+        </div>    
     </smart-dialog>
 `;
 
@@ -73,8 +75,8 @@ class ConnectingPhrase extends HTMLElement {
         return { phrase: item.phrase, phraseID: item.phraseID }     
     });       
     this._suggested_ConnectingPhrases = this._findRelatedPhrases(this._entry.phrase, this._unConnecting_phrases_forFuseSearch);
-    this._connecting_phraseID = this._entry.connecting_phrases? this._entry.connecting_phrases.map(item=> item.id) : [];    
-    this._connecting_phrases_map = this._entry.connecting_phrases? this._entry.connecting_phrases : [];  
+    this._related_phraseID = this._entry.related_phrases? this._entry.related_phrases.map(item=> item.id) : [];    
+    this._related_phrases_map = this._entry.related_phrases? this._entry.related_phrases : [];  
   }
 
   _aPhraseNormalise(item) {
@@ -92,21 +94,16 @@ class ConnectingPhrase extends HTMLElement {
   }
 
   _mapTableData(rawData) {   
-    // const orderArray = this._connecting_phraseID.map((item,index) => { return { item, theOrder:index} });
+    // const orderArray = this._related_phraseID.map((item,index) => { return { item, theOrder:index} });
     // console.log(orderArray);
-    this._theOrder = this._connecting_phraseID.length;
+    this._theOrder = this._related_phraseID.length;
 
     const MaxOrder = rawData.length+1;
     // console.log(this._theOrder);
     return rawData.map((item) => {
-      const order = this._connecting_phraseID.indexOf(item.phraseID);
-      const foundObj = this._connecting_phrases_map.find(obj=>obj.id===item.phraseID);
-      if (foundObj) { console.log(foundObj);
-        console.log(foundObj["type"]);
-  
-      }
+      const order = this._related_phraseID.indexOf(item.phraseID);
+      const foundObj = this._related_phrases_map.find(obj=>obj.id===item.phraseID);
       let connectingType = foundObj? foundObj['type'] : null;
-            
       return { ...this._aPhraseNormalise(item), 
         linked: (order>-1)? true : false,
         theOrder: (order>-1)? order : MaxOrder,
@@ -146,7 +143,7 @@ _hydrateSuggestedContainer() {
   // Clear container
   container.innerHTML = '';
   this._suggested_ConnectingPhrases.forEach(item => {
-    if (!this._connecting_phraseID.includes(item.phraseID)&&item.phraseID!==this._entry.phraseID) {
+    if (!this._related_phraseID.includes(item.phraseID)&&item.phraseID!==this._entry.phraseID) {
       const el = document.createElement('span');
       el.className = 'suggest_phrase';
       el.textContent = item.phrase;
@@ -163,11 +160,10 @@ _hydrateSuggestedContainer() {
       container.appendChild(el);
     }
   });
-  if (this._suggested_ConnectingPhrases.length>1) {
-    // console.log(this._suggested_ConnectingPhrases);
+  if (this._suggested_ConnectingPhrases.length>0) {
+    //console.log(this._suggested_ConnectingPhrases);
     this._entryPhrase.innerHTML = `<i>Similar to <b>${this._entry.phrase}</b>? Double tap to connect!</i>`;
-  } else {   console.log(this._suggested_ConnectingPhrases);
-    
+  } else { //console.log(this._suggested_ConnectingPhrases);    
     this._entryPhrase.innerHTML = `<i>No similar phrases suggested for <b>${this._entry.phrase}</b></i>`; }
 }
 
@@ -175,8 +171,8 @@ _hydrateSuggestedContainer() {
     const target = e.target.closest(".suggest_phrase"); 
     const targetID = target.dataset.phraseID;
     this._removeWithAnimation(target);    
-    this._connecting_phraseID.push(targetID);   
-    this._connecting_phrases_map.push({id: targetID , type: "R"});   
+    this._related_phraseID.push(targetID);   
+    this._related_phrases_map.push({id: targetID , type: "R"});   
     this._updateTablewithConnectingPhrase(targetID, true, "R");
   }
 
@@ -189,7 +185,7 @@ _hydrateSuggestedContainer() {
     
     this._smartTable._runPipeline();
     this._smartTable.updateRowUI(targetID);
-    console.log(changeOrder);
+    // console.log(changeOrder);
 
     if (changeOrder&&linkFlag===true) this._theOrder++;
     if (changeOrder&&linkFlag===false) this._theOrder--;
@@ -325,7 +321,8 @@ _hydrateSuggestedContainer() {
       tableMaxHeight: "35vh",
       columnToSearch: ["phrase","user_translate","defi","user_defi"],
       idKey: "phraseID",
-      cellPading: "4px 6px"
+      cellPading: "4px 6px",
+      selectionModeOnTouch: false,
     })   
   }
 
@@ -337,6 +334,7 @@ _hydrateSuggestedContainer() {
     this._entryPhrase = this.shadowRoot.querySelector('#entryPhrase');
     this._smartTable = this.shadowRoot.querySelector('extended-smart-table');
     this._tableBody = this._smartTable.shadowRoot.getElementById("tbl").shadowRoot.getElementById("tableBody");
+    this._childSmartTable = this._smartTable.shadowRoot.getElementById("tbl");
     this._legendBoard = this.shadowRoot.querySelector('.legendBoard');
 
     this._renderLengend();
@@ -351,17 +349,17 @@ _hydrateSuggestedContainer() {
       console.log("highlight-changed", e.detail.id);      
     } , { signal });
     this._smartTable.addEventListener('link-requested', (e) => {     
-      this._connecting_phraseID.push(e.detail.id);
+      this._related_phraseID.push(e.detail.id);
       this._updateTablewithConnectingPhrase(e.detail.id, true, "R");
       this._hydrateSuggestedContainer();
-      this._connecting_phrases_map.push({id: e.detail.id , type: "R"});
+      this._related_phrases_map.push({id: e.detail.id , type: "R"});
     },{ signal });
     this._smartTable.addEventListener('unlink-requested', (e) => {
-      this._connecting_phraseID = this._connecting_phraseID.filter(id=> {
+      this._related_phraseID = this._related_phraseID.filter(id=> {
         return id !== e.detail.id; // must return booleans
       });
 
-      this._connecting_phrases_map = this._connecting_phrases_map.filter(obj=> 
+      this._related_phrases_map = this._related_phrases_map.filter(obj=> 
          obj.id !== e.detail.id );
 
       this._updateTablewithConnectingPhrase(e.detail.id, false, null);
@@ -370,7 +368,7 @@ _hydrateSuggestedContainer() {
 
    this._smartTable.addEventListener('connectingType-altered', (e) => {    
       const targetID = e.detail.id;
-      const targetObject = this._connecting_phrases_map.find(obj => obj.id === targetID);
+      const targetObject = this._related_phrases_map.find(obj => obj.id === targetID);
       const currentType = targetObject?.type;
 
       // Find current index in RELATED_TYPE
@@ -396,19 +394,23 @@ _hydrateSuggestedContainer() {
       delay: 250,               // time in ms to hold before drag starts
       delayOnTouchOnly: true,   // only apply delay on touch devices
       touchStartThreshold: 5,   // px of movement before drag starts 
-      onEnd: (evt) => {
-        console.log(this._connecting_phrases_map);
+      onStart: (evt) => {  
+        evt.oldIndex;  // element index within parent
+        console.log(this._childSmartTable._data.slice(0,5));
+      },
+      onEnd: (evt) => {        
+        this.shiftItemAfterDrag(this._childSmartTable._data,evt.oldIndex,evt.newIndex);
         // Get final order of IDs
         const newOrder = Array.from(this._tableBody.querySelectorAll(".linked")).map(el => el.dataset.id);
         // Step 1: Create a lookup map for order 
         const orderMap = new Map(newOrder.map((id, index) => [id, index])); 
         // Step 2: Sort the array based on the order map 
-        const sorted = this._connecting_phrases_map.sort((a, b) => orderMap.get(a.id) - orderMap.get(b.id)); 
+        const sorted = this._related_phrases_map.sort((a, b) => orderMap.get(a.id) - orderMap.get(b.id)); 
         // Step 3: Add theOrder key based on index 
-        this._connecting_phrases_map = sorted.map((obj, index) => ({ ...obj, theOrder: index }));
+        this._related_phrases_map = sorted.map((obj, index) => ({ ...obj, theOrder: index }));
            console.log("Final order of IDs:", newOrder);
-              console.log("Final order of IDs:", this._connecting_phrases_map);
-        this._connecting_phrases_map.forEach(item=> {
+              console.log("Final order of IDs:", this._related_phrases_map);
+        this._related_phrases_map.forEach(item=> {
           const targetID=item.id;
           this._smartTable._updateRowData(targetID, { 
           linked: true, 
@@ -470,8 +472,8 @@ _hydrateSuggestedContainer() {
     //nodeLinked.forEach(el => { this._result.push(el.dataset.id); });
     //this._entry.connecting_phrases = this._result;
     this.dispatchEvent(
-      new CustomEvent('connecting-phrase-updated', { 
-        detail: this._connecting_phrases_map.map(item=> {return { id: item.id, type: item.type }}), 
+      new CustomEvent('related-phrases-updated', { 
+        detail: this._related_phrases_map.map(item=> {return { id: item.id, type: item.type }}), 
         bubbles: false,
         composed: true,
       }));   
@@ -480,12 +482,39 @@ _hydrateSuggestedContainer() {
 
   _cancelHandler() {
     this.dispatchEvent(
-      new CustomEvent('connecting-phrase-cancelled', {         
+      new CustomEvent('related-phrases-cancelled', {         
         bubbles: false,
         composed: true,
       }));   
     this._smart_dialog.style.display = "none";
   }
+
+/**
+ * Move an item in an array from oldIndex to newIndex,
+ * shifting other items up or down as needed.
+ *
+ * @param {Array} arr - The array of objects
+ * @param {number} oldIndex - The current index of the item
+ * @param {number} newIndex - The target index
+ * @returns {Array} the updated array
+ */
+  shiftItemAfterDrag(arr, oldIndex, newIndex) {
+  if (
+    oldIndex < 0 || oldIndex >= arr.length ||
+    newIndex < 0 || newIndex >= arr.length
+  ) {
+    throw new Error("Invalid indices");
+  }
+
+  // Remove the item from oldIndex
+  const [item] = arr.splice(oldIndex, 1);
+  // Insert it at newIndex
+  arr.splice(newIndex, 0, item);
+
+  return arr;
+}
+
+
 }
 
 customElements.define('connecting-phrase', ConnectingPhrase);

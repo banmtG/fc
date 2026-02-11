@@ -42,6 +42,10 @@ template.innerHTML = `
       padding: var(--sl-spacing-small);
       font-style: italic;
     }
+
+    sl-input::part(base) {
+      font-size:16px;
+    }
   </style>
 
   <sl-dropdown id="dropdown" placement="bottom-start" distance="0" hoist>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FC Sound Picker</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css" />
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace.js"></script>
+  <script type="module" src="./../components/fc/fc-sound-picker.js"></script>
+  
+</head>
+<body>
+<h1>FC Sound Picker</h1> 
+<fc-sound-picker id="fsp"></fc-sound-picker> 
+
+<audio id="myAudioUK" src="https://dictionary.cambridge.org/media/english/uk_pron/u/uka/ukabd/ukabdic012.mp3"></audio>
+<button id="playBtn">Play</button>
+<script> 
+  const audio = document.getElementById("myAudioUK");
+  const playBtn = document.getElementById("playBtn");
+  playBtn.addEventListener('click', ()=> {audio.play();});
+  
+  const fsp = document.getElementById('fsp'); 
+  const entry =  {
+        "phraseID": "phrase-01KG7C2X27MFRSAHNTS0R6D8KD",
+        "userID": "user-ecb0b126-de76-11f0-9b1e-e43d1a3de858",
+        "phrase": "semen",       
+        "sound": {
+            "data":[
+    {
+        "id": "semen_6ae793",
+        "blob": {},
+        "origin": "-",
+        "accent": "-", 
+        "order": 0
+    },
+    {
+        "id": "semen_3a4218",
+        "blob": {},
+        "origin": "Local",
+        "accent": "-",  
+        "order": 1
+    },
+    {
+        "id": "semen_80ced7",
+        "t": "web",
+        "url": "http://img2.tfd.com/pron/mp3/en/UK/d3/d3sgdssldtshhr.mp3",
+        "origin": "TFD",
+        "accent": "UK",
+        "alive": "alive",
+        "order": 2
+    },
+    {
+        "id": "semen_65da8f",
+        "t": "web",
+        "url": "http://www.onelook.com/pronounce/macmillan/US/semen-American-English-pronunciation.mp3",
+        "origin": "OneLook",
+        "accent": "US",
+        "alive": "alive",
+        "order": 3
+    },
+    {
+        "id": "semen_cb0187",
+        "t": "web",
+        "url": "http://www.oxforddictionaries.com/media/english/uk_pron/s/sem/semen/semen__gb_1_8.mp3",
+        "origin": "Oxford",
+        "accent": "UK",
+        "alive": "dead",
+        "order": 4
+    },
+    {
+        "id": "semen_d5bbb9",
+        "t": "web",
+        "url": "https://dictionary.cambridge.org/media/english/uk_pron/u/uks/ukscu/ukscutt022.mp3",
+        "origin": "Cambridge",
+        "accent": "UK",
+        "alive": "alive",
+        "order": 5
+    },
+    {
+        "id": "semen_5eaa3f",
+        "t": "web",
+        "url": "http://static.sfdict.com/staticrep/dictaudio/S03/S0314000.mp3",
+        "origin": "SFDict",
+        "accent": "?",
+        "alive": "dead",
+        "order": 6
+    },
+    {
+        "id": "semen_1b761b",
+        "t": "web",
+        "url": "https://api.dictionaryapi.dev/media/pronunciations/en/obituary-uk.mp3",
+        "origin": "dictionaryapi.dev",
+        "accent": "?",
+        "alive": "alive",
+        "order": 7
+    },
+    {
+        "id": "semen_bf8a1b",
+        "t": "web",
+        "url": "http://www.onelook.com/pronounce/macmillan/UK/semen-British-English-pronunciation.mp3",
+        "origin": "OneLook",
+        "accent": "UK",
+        "alive": "alive",
+        "order": 8
+    },
+    {
+        "id": "semen_c7b585",
+        "t": "web",
+        "url": "https://dictionary.cambridge.org/media/english/us_pron/s/sem/semen/semen.mp3",
+        "origin": "Cambridge",
+        "accent": "US",
+        "alive": "alive",
+        "order": 9
+    },
+    {
+        "id": "semen_f2c35b",
+        "t": "web",
+        "url": "http://s3.amazonaws.com/audio.vocabulary.com/1.0/us/S/1D9663IHUZZEZ.mp3",
+        "origin": "Vocabulary (AWS)",
+        "accent": "US",
+        "alive": "alive",
+        "order": 10
+    }
+]
+        },       
+        "createdAt": "2026-01-30T11:54:45.191Z",
+        "updatedAt": "2026-01-30T11:54:45.191Z",
+        "source": "d",
+        "status": "draft"
+    };
+  
+
+  window.addEventListener("DOMContentLoaded", () => runAfterDOMLoaded());
+
+  function runAfterDOMLoaded() {
+    fsp.open(entry);
+  }
+
+
+</script> 
+</body> 
+</html>

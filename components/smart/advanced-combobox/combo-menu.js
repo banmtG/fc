@@ -1,16 +1,26 @@
 import '../delete-button.js';
 import { FocusStack } from './../../../core/focus-stack.js';
+import { confirmDialog } from './../../../core/confirmDialog.js';
 
 const menuTemplate = document.createElement('template');
 menuTemplate.innerHTML = `
   <style>
-    sl-menu { overflow-y: auto; }
+    sl-menu { 
+      overflow-y: auto; 
+      z-index:1000;
+      padding:0 5px;
+    }
+
+    sl-menu::-webkit-scrollbar  {
+      display:none;
+    }   
 
     .row-content {
       display: flex;
       align-items: center;
       width: 100%;
       padding: 0;
+      font-size: 16px;
     }
 
     .row-content sl-checkbox {
@@ -19,6 +29,8 @@ menuTemplate.innerHTML = `
 
     .row-content span {
       flex: 1; /* label grows to fill space */
+      max-width:90%;
+      overflow:hidden;
     }
 
     .row-content delete-button {
@@ -34,6 +46,16 @@ menuTemplate.innerHTML = `
     }
 
     .highlighted { background-color: var(--sl-color-primary-100); border-radius: 4px; }
+
+    .delete-icon {
+      margin-left:10px;
+    }
+    sl-menu-item::part(checked-icon) {
+      display:none;
+    }
+    sl-menu-item::part(submenu-icon) {
+      display:none;
+    }
   </style>
   <sl-menu size="small" id="menu"></sl-menu>
 `;
@@ -71,7 +93,7 @@ class ComboMenu extends HTMLElement {
 
   disconnectedCallback() {
     // Release from FocusStack when removed
-    console.log('ComboMenu disconnected');
+    // console.log('ComboMenu disconnected');
     FocusStack.pop(this);
     this.unbindKeyEvents(); // detach keyboard handling
     for (const fn of this._rowCleanups) fn();
@@ -194,12 +216,12 @@ class ComboMenu extends HTMLElement {
         deleteIcon.setAttribute('name', 'trash');
         deleteIcon.classList.add('delete-icon');
 
-        const onDeleteClick = (e) => {
+        const onDeleteClick = async (e) => {
           e.stopPropagation();
           if (this.hasAttribute('confirm-delete')) {
             // Simple confirm mechanism
-            const confirmed = window.confirm(`Delete "${vi.value}"?`);
-            if (!confirmed) return;
+            const confirmed = await confirmDialog.show(`⛔ Confirmation`,`Delete this tag "${vi.value}"?`);
+            if (!confirmed) return;            
           }
           this.dispatchEvent(new CustomEvent('option-action', {
             detail: { value: vi.value, action: 'delete' },

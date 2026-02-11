@@ -50,11 +50,13 @@
   border-bottom: 1px solid #ddd;
   min-width: 0;
   box-sizing: border-box;
-
+  overflow: hidden;
+  text-overflow: ellipsis;
   /* force text to stay on one line 
   white-space: nowrap;
+  text-overflow: ellipsis;
   overflow: hidden;
-  text-overflow: ellipsis; /* optional: adds "…" when truncated */
+   /* optional: adds "…" when truncated */
 }
 
 

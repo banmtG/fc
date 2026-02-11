@@ -33,16 +33,30 @@ export function handleHeaderClick(component, target) {
 
 
 // Add a new row
-export function addRow(component, obj) {
+export function addRow(component, obj, positionIndex) {
   const sid = String(obj[component._idKey]);
   // Update data model
-  component._data.push(obj);
+  console.log(component._data[0]);
+  component._data.unshift(obj);
+  const total = component._data.length;
+  console.log(obj);
+  console.log(component.columns);
+  console.log(component._idKey);
   // Build row element using external rowFactory
-  const rowEl = createRow(obj, component.columns, component._templateCols, component._idKey);
+  const rowEl = createRow(obj, component.columns, component._idKey, positionIndex, total);
   // Track in rowMap
+
   component._rowMap.set(sid, rowEl);
+  console.log(rowEl);
+  console.log(component._rowMap);
+  console.log(obj.id);
+  const theRow = component._rowMap.get(obj.id);
+  console.log(theRow);
+  const targetRowToInsert = Array.from(component._rowMap)[positionIndex][1];
+  console.log(targetRowToInsert);
   // Append to body
-  component.shadowRoot.querySelector(".body").appendChild(rowEl);
+  const theContainer = component.shadowRoot.querySelector(".body");
+  theContainer.insertBefore(rowEl, targetRowToInsert);
 }
 
 

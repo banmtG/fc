@@ -35,7 +35,7 @@
 }
 
 sl-card {
-  height: 80dvh;
+  max-height: 90vh;
   width: 100%;
   overflow-y: scroll;
 }
@@ -45,52 +45,63 @@ sl-card::part(body) {
   padding: 5px;
 }
 
-h2 {
-    /* line-height: 1rem; */
-    /* font-size: 2rem; */
-    margin: 0px 0 0px 0;
-    padding: 5px 0;  
-    font-size: 2.5rem;
-    line-height: 1;
-    overflow-wrap: break-word;
-    max-height: 65px !important;
-    overflow-y: scroll;   
-    scrollbar-width: none;     /* Firefox */
-    -ms-overflow-style: none;  /* IE 10+ */
-    transition: font-size 0.6s ease-in-out;
-    max-width: 70vw;
+.lineInfo {
+  width:100%;
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: scroll;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
 }
 
-h2 ::-webkit-scrollbar {
-  display: none;
+.lineInfo::-webkit-scrollbar {
+  display:none;
+}
+
+.lineInfo sl-button::part(base) {
+  padding: 7px 8px;
+}
+
+.lineInfo sl-button::part(label) {
+  font-size: 18px;
+  padding: 0 5px 0 0;
+}
+
+.lineInfo sl-button::part(prefix) {
+  display:none;
+}
+
+.lineInfo sl-icon {
+  color: var(--sl-color-warning-600);
+}
+
+.rating sl-icon {
+  color: var(--sl-color-warning-300);
 }
 
 sl-details {
-  font-size: 1.2rem;
-}
-
-sl-button::part(label) {
-  font-size:1.1rem;
-  font-weight: bold;
-}
-
-sl-divider {
-  margin: 1px 0px;
-}
-
-sl-divider .defi {
-  line-height: 1;
+  margin-bottom: 5px;
 }
 
 sl-details::part(header) {
   padding: 5px 5px 5px 5px;
   line-height: 1.1;
-  font-size: 1.2rem;
-  vertical-align: middle; 
+  font-size: 1.3rem;
+  max-height: 4rem;
+  overflow: scroll;
+  text-overflow: ellipsis; 
+  align-items: flex-start;
+}
+
+sl-details::part(header)::-webkit-scrollbar  {
+  display:none;
 }
 
 sl-details::part(content) {
   padding: 5px 5px 5px 5px;
+  font-size: 1.2rem;
   /* margin-left: 25px; */
   line-height: 1.3rem;
   max-height: 3rem;
@@ -184,8 +195,8 @@ sl-details::part(content)::-webkit-scrollbar {
   scroll-snap-align: start;
 }
 
-sl-textarea::part(textarea) {
-  padding: 2px var(--sl-input-spacing-small);
+.multiline {
+  margin-bottom:5px;
 }
 
 sl-button.multiline::part(textarea) {
@@ -196,17 +207,15 @@ sl-button.multiline::part(textarea) {
 }
 
 sl-button.multiline::part(label) {
- font-size:1.5rem;
- padding: 5px 10px;
- max-height: 70px;
- overflow-y: auto;
-
+  font-size:2rem;
+  padding: 2px 5px;
+  overflow-y: hidden;
 }
 
 
 sl-button.multiline::part(label)::-webkit-scrollbar {
-  width: 2px;
-  height: 2px;
+  width: 1px;
+  height: 1px;
 }
 
 sl-button.multiline::part(label)::-webkit-scrollbar-track {
@@ -226,11 +235,147 @@ sl-button.multiline::part(label)::-webkit-scrollbar-thumb:window-inactive {
   background: rgba(255, 255, 255, 0.3);
 }
 
+.gridInfo {
+  width:100%;
+  display:grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr);
+  gap: 1px; /* The border width */
+  padding: 1px; /* Optional: adds a border around the outer edge */  
+  color: var(--sl-input-text-color);
+}
+
+.gridInfo-item {
+  background-color: #fff; /* The item background color */
+  padding: 2px;
+}
+
+.gridInfo-title {
+  display:flex;
+  align-items: center;
+  flex-shrink: 0;
+  justify-content: flex-end;  
+  font-size: var(--sl-input-label-font-size-medium);
+}
+
+/* mimic sl-input size="small" */
+#relatedPhrases { 
+  height: calc(var(--sl-input-height-small) - var(--sl-input-border-width) * 2);
+  border: solid var(--sl-input-border-width) var(--sl-input-border-color);
+  border-radius: var(--sl-border-radius-medium);
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  gap: 5px;
+  margin:2px;
+  padding: 0 10px;
+  font-size: var(--sl-input-label-font-size-medium);
+  user-select: none;
+  cursor: pointer;
+  justify-content: flex-start;
+  align-items: center;
+
+}
+
+#relatedPhrases .related_chip {
+  padding: 0px 6px;
+  margin: 0px 0;
+  flex-shrink: 0;
+  border-radius: 2px;
+  font-size: inherit;
+  line-height: calc(var(--sl-input-height-small) - var(--sl-input-border-width) * 2 - 2px);
+  height: auto;
+}
+
+#relatedPhrases .placeHolder {
+  margin: 0 calc(var(--sl-input-spacing-small) - 5px);  
+  color: var(--sl-input-text-color);
+  font-size: var(--sl-input-label-font-size-small);
+  flex-shrink: 0;
+}
+
+
+
+#relatedPhrases:hover {
+    border: solid var(--sl-input-border-width) var(--sl-input-border-color-hover);
+}
+
+#relatedPhrases::-webkit-scrollbar {
+  display:none;
+}
+
+#reminderText {
+  margin: 2px 2px;
+  width: calc(100% - 4px);
+}
+
+#tagSelection {
+  margin: 2px 2px;
+  width: calc(100% - 4px);
+}
+
+#imageInput {
+  position: relative; 
+}
+
+#imageInput #imageInputBtn {
+  position: absolute; 
+  top: 2px;
+  right:2px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background: rgba(255,255,255,0.8);
+  opacity: 0.7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  height: 1.8rem;
+  width: 1.8rem;
+}
+
+#imageContainer {
+  background-color: #ccc;
+  width:100%;
+  height: 200px;
+  border: 1px solid #ccc;
+  font-size: 10rem;
+  display:flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  z-index: 0;
+}
+
+
+#imageContainer img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+#imageContainer span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  height: 1.8rem;
+  width: 1.8rem;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  border-radius: 5px;
+  opacity: 0.9;
+  background: rgba(255,255,255,0.7);
+}
+
+
 
 /* scrollbar */
 ::-webkit-scrollbar {
-  width: 3px;
-  height: 3px;
+  width: 1px;
+  height: 1px;
 }
 
 ::-webkit-scrollbar-track {
@@ -275,3 +420,36 @@ sl-button.multiline::part(label)::-webkit-scrollbar-thumb:window-inactive {
 .label-on-left::part(form-control-help-text) {
   grid-column-start: 2;
 }
+
+#relatedPhrases::part(input) {
+  width: 0;
+  padding: 0;
+  margin: 0;
+  border: none;
+  opacity: 0;   /* invisible */
+}
+
+
+/* Target the prefix slot of your sl-input */
+#relatedPhrases::part(prefix) {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  flex-wrap: nowrap;       /* keep chips in one line */
+  overflow-x: scroll;        /* enable horizontal scrolling */
+  overflow-y: hidden;      /* hide vertical scrollbar */
+  gap: 10px;                /* spacing between chips */
+  width: 100%;             /* take full width of sl-input */
+  box-sizing: border-box;  /* respect padding/borders */
+}
+
+/* Optional: style the scrollbar */
+#relatedPhrases::part(prefix)::-webkit-scrollbar {
+  height: 6px;
+}
+
+
+sl-input::part(base) {
+  font-size: 18px;
+}
+

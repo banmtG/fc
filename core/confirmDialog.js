@@ -8,8 +8,6 @@ class ConfirmDialog {
     const form = document.createElement("form");
     form.method = "dialog";
 
-
-
     const confirmTitle = document.createElement("div");
     confirmTitle.id = "confirmTitle";
 
@@ -50,6 +48,8 @@ class ConfirmDialog {
         color: #3F3F46;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
         font-size: 1.2rem;
+        user-select: none;
+        cursor: pointer;
       }
       
       .confirm-dialog::backdrop {

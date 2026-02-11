@@ -93,3 +93,8 @@ extended-smart-table {
   padding: 3px;
   overflow: scroll;
 }
+
+.footer sl-button-group sl-button::part(base) {
+  font-size: 16px;
+  font-weight: bolder;
+}

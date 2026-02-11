@@ -10,12 +10,14 @@ comboTemplate.innerHTML = `
       display: block;
       position: relative;
       font-family: var(--sl-font-sans);
+      z-index: 99;
     }
     .container {
       display: flex;
       flex-direction: column;
       position: relative;
     }
+
     sl-popup::part(popup) {
       width: 100%;
       background: white;
@@ -28,10 +30,14 @@ comboTemplate.innerHTML = `
     .hidden-slot {
       display: none;
     }
+
+    sl-popup {
+      z-index:100;
+    }
   </style>
   <div class="container">
-    <combo-input id="comboInput" placeholder="Tags: select or add a new tag"></combo-input>
-    <sl-popup id="popup" placement="bottom-start" distance="0" close-on-outside-click>
+    <combo-input id="comboInput" placeholder="Select or add a new tag"></combo-input>
+    <sl-popup id="popup" placement="bottom-start" distance="0" close-on-outside-click flip>
       <combo-menu id="comboMenu"></combo-menu>
     </sl-popup>
     <div class="hidden-slot">
@@ -42,7 +48,7 @@ comboTemplate.innerHTML = `
 
 class AdvancedCombobox extends HTMLElement {
   static get observedAttributes() {
-    return ['max-height', 'allow-delete', 'need-confirm'];
+    return ['max-height', 'allow-delete', 'need-confirm', 'size'];
   }
 
   constructor() {
@@ -50,12 +56,15 @@ class AdvancedCombobox extends HTMLElement {
     this.attachShadow({ mode: 'open' }).appendChild(
       comboTemplate.content.cloneNode(true)
     );
+    this._abort = new AbortController();
+
+
 
     this.inputComp = this.shadowRoot.querySelector('#comboInput');
     this.menuComp = this.shadowRoot.querySelector('#comboMenu');
     this.popup = this.shadowRoot.querySelector('#popup');
     this.rowActionsSlot = this.shadowRoot.querySelector('#rowActionsSlot');
-
+    this._inputFocusCount = 0;
     this._options = [];
     this._selected = new Set();
 
@@ -67,12 +76,15 @@ class AdvancedCombobox extends HTMLElement {
   }
 
   connectedCallback() {
-
+    const { signal } = this._abort;
     this.popup.anchor = this.inputComp.focusTarget;
 
     this.inputComp.addEventListener('typed-change', this._onTypedChange);
     this.inputComp.addEventListener('chip-remove', this._onChipRemove);
-    this.inputComp.addEventListener('input-focus', this._onInputFocus);
+    //this.inputComp.addEventListener('input-focus', this._onInputFocus);
+
+    this.inputComp.addEventListener('click',() => this._togglePopupOnClick(), { signal });
+
 
     this.menuComp.addEventListener('option-toggle', this._onOptionToggle);
     this.menuComp.addEventListener('option-add', this._onOptionAdd);
@@ -83,12 +95,14 @@ class AdvancedCombobox extends HTMLElement {
     this.menuComp.addEventListener('combo-menu-close', () => {
       this._hidePopup();
     });
+
     //document.addEventListener('mousedown', this._onDocMouseDown);
     //document.addEventListener("pointerdown", this._onDocPointerDown);
 
     // listen for popup show/hide
     this.popup.addEventListener('sl-show', () => {
       document.addEventListener('pointerdown', this._onDocPointerDown);
+
     });
     this.popup.addEventListener('sl-hide', () => {
       document.removeEventListener('pointerdown', this._onDocPointerDown);
@@ -107,6 +121,8 @@ class AdvancedCombobox extends HTMLElement {
   }
 
   disconnectedCallback() {
+    this._abort.abort();
+
     this.inputComp.removeEventListener('typed-change', this._onTypedChange);
     this.inputComp.removeEventListener('chip-remove', this._onChipRemove);
     this.inputComp.removeEventListener('input-focus', this._onInputFocus);
@@ -142,6 +158,12 @@ class AdvancedCombobox extends HTMLElement {
 }
 
   // ---------- show/hide helpers ----------
+
+  _togglePopupOnClick() {
+    if (!this.popup.active) { this._showPopup() } 
+    else { this._hidePopup() }
+  }
+
   _showPopup() {
     if (!this.popup.active) {
       // console.log(`addEventListener 'pointerdown'`);
@@ -174,6 +196,11 @@ class AdvancedCombobox extends HTMLElement {
       this.popup.style.maxHeight = '';
       this.popup.style.overflow = '';
       this.menuComp.removeAttribute('max-height');
+    }
+
+    const size = this.getAttribute('size');
+    if (size) {
+      this.inputComp.setAttribute('size',size);
     }
 
     // mirror allow-delete and need-confirm
@@ -233,6 +260,7 @@ class AdvancedCombobox extends HTMLElement {
   _onDocMouseDown(e) {
     if (!this.contains(e.target)) this.popup.active = false;
   }
+
 
   _onInputFocus = () => {
     this._showPopup();

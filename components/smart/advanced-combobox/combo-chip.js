@@ -3,25 +3,35 @@ const chipTemplate = document.createElement('template');
 chipTemplate.innerHTML = `
   <style>
     .chip {
-      display: inline-flex;
+      display: flex;
+      flex-shrink: 0;
       align-items: center;
+      flex-direction: row;
       gap: 2px;
       padding: 2px 4px;
       border-radius: 999px;
       background: var(--sl-color-neutral-200);
       color: var(--sl-color-neutral-700);
-      font-size: 1.0rem;
+      font-size: 16px;
+      line-height: 18px;
+      overflow-y: hidden;
     }
+
+    #label {
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
     .chip-remove {
+      flex-shrink: 0;
       cursor: pointer;
       font-size: 1.2rem;
       user-select: none;
     }
   </style>
   <div class="chip">
-    <span id="label"></span>
-    <span class="chip-remove">✗</span>
-
+    <div id="label"></div>
+    <div class="chip-remove">⦸</div>
   </div>
 `;
 

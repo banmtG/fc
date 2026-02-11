@@ -9,8 +9,8 @@ export const CONFIG = {
   QUOTA_GUEST: 100,
   TOKEN_EXPIRY: 900, // seconds
   RELATED_TYPE: [ 
-    { type: "S" , bg: "#86FFB7" , legend: "Synonym"},
-    { type: "A" , bg: "#FFD17C" , legend: "Antonym"},
-    { type: "R" , bg: "#DEDEDE" , legend: "Related"},
+    { type: "S" , bg: "#a1d8fd" , legend: "Synonym"},
+    { type: "A" , bg: "#E8D5B7" , legend: "Antonym"},
+    { type: "R" , bg: "#D5D8DC" , legend: "Related"},
   ]
 };

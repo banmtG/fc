@@ -19,20 +19,40 @@ smart-dialog {
 
 .container_row {  
   display:grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 5px;
   margin: 5px 0;
 }
 
 .smartDragdrop_buttons {
-  display:grid;
-  grid-template-columns:  1fr 1fr 1fr 1fr 1fr;
-  gap: 5px;
+  width: 100%;
   margin: 5px 0;  
 }
 
+sl-button-group {
+  display: flex;       /* ensure flex layout */
+  width: 100%;         /* take full width of parent */
+}
+
+sl-button-group::part(base) {
+  flex: 1;             /* distribute buttons evenly */
+}
+
+sl-button-group sl-button::part(base) {
+  flex: 1;             /* each button expands to fill */
+}
+
+.body sl-button-group sl-button::part(label) {
+  padding: 0 10px;
+}
+  
+.footer sl-button-group sl-button::part(base) {
+  font-size: 16px;
+  font-weight: bolder;
+}  
+
 .icon_button sl-button::part(base) {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
 }
 
 .container_row sl-input,

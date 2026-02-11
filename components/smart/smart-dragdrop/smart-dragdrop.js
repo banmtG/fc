@@ -104,6 +104,9 @@ class SmartDragdrop extends HTMLElement {
     this._bindViewControls();
   }
 
+  focus() {
+    this.setHighlight();
+  }
 
   set data({ arr }) {   
     this.fullData = normalizeOrders(arr, this.columns);
@@ -253,7 +256,7 @@ class SmartDragdrop extends HTMLElement {
             imgEl.replaceWith(document.createTextNode(`❌ Loading too long ${imgEl.dataset.src}`));
             // this._markBroken(itemId, zone);
             observer.unobserve(imgEl);
-          }, 5000); // 5s timeout
+          }, 10000); // 10s timeout
 
           imgEl.onload = () => {
             clearTimeout(timer);

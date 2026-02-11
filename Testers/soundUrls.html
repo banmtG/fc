@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Audio Capture Test</title>
+</head>
+<body>
+  <h1>MediaRecorder Audio Capture Test</h1>
+  <button id="captureBtn">Capture Audio</button>
+  <audio id="player" controls></audio>
+
+  <script>
+    async function captureAudioWithMediaRecorder(url) {
+      return new Promise((resolve, reject) => {
+        console.log("[captureAudio] starting with URL:", url);
+        try {
+          const audio = new Audio(url);
+          audio.crossOrigin = "anonymous";
+
+          const ctx = new AudioContext();
+          console.log("[captureAudio] AudioContext created");
+
+          const source = ctx.createMediaElementSource(audio);
+          const dest = ctx.createMediaStreamDestination();
+          source.connect(dest);
+          source.connect(ctx.destination);
+          console.log("[captureAudio] audio source connected");
+
+          const recorder = new MediaRecorder(dest.stream);
+          const chunks = [];
+
+          recorder.ondataavailable = e => {
+            console.log("[captureAudio] dataavailable event:", e.data.size);
+            if (e.data.size > 0) chunks.push(e.data);
+          };
+
+          recorder.onstop = () => {
+            console.log("[captureAudio] recorder stopped, chunks:", chunks.length);
+            const blob = new Blob(chunks, { type: "audio/webm" });
+            console.log("[captureAudio] blob created, size:", blob.size);
+            resolve(blob);
+          };
+
+          recorder.onerror = e => {
+            console.error("[captureAudio] recorder error:", e.error);
+            reject(e.error);
+          };
+
+          recorder.start();
+          console.log("[captureAudio] recorder started");
+
+          audio.onplay = () => console.log("[captureAudio] audio started playing");
+          audio.onended = () => {
+            console.log("[captureAudio] audio ended, stopping recorder");
+            recorder.stop();
+            ctx.close();
+          };
+          audio.onerror = e => {
+            console.error("[captureAudio] audio error:", e);
+            reject(e);
+          };
+
+          audio.play().catch(err => {
+            console.error("[captureAudio] play() failed:", err);
+            reject(err);
+          });
+        } catch (err) {
+          console.error("[captureAudio] exception:", err);
+          reject(err);
+        }
+      });
+    }
+
+    document.getElementById("captureBtn").addEventListener("click", async () => {
+      const testUrl = "https://api.dictionaryapi.dev/media/pronunciations/en/obituary-uk.mp3";
+      try {
+        const blob = await captureAudioWithMediaRecorder(testUrl);
+        console.log("[captureBtn] capture finished, blob:", blob);
+
+        // Show playback of captured blob
+        const player = document.getElementById("player");
+        player.src = URL.createObjectURL(blob);
+        player.play();
+      } catch (err) {
+        console.error("[captureBtn] capture failed:", err);
+      }
+    });
+  </script>
+</body>
+</html>

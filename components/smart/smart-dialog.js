@@ -155,14 +155,15 @@ class SmartDialog extends HTMLElement {
           min-height:0;
         }
 
-        .footer {
+        .footer {  
           flex: 0 0 auto;
           padding: 5px;
-          background: #f9f9f9;        
+          background: #f0f0f0;         
           display: flex;
           flex-direction: row;
           justify-content: space-between;
         }
+         
 
         .footer_extra {
           margin-left: 0;
@@ -662,7 +663,7 @@ class SmartDialog extends HTMLElement {
 
  _getDeepFocusableElementsRecursively(root) {
   const focusables = [];
-
+  const excluded_SL_LISTs = ['SL-BUTTON-GROUP','SL-TOOLTIP'];
   const isFocusable = (el) =>
     el.classList?.contains('focusable') && this._isTrulyVisible(el);
 
@@ -677,7 +678,7 @@ class SmartDialog extends HTMLElement {
     }
 
     // If it has a shadow root, traverse inside it
-    if (node.shadowRoot) {
+    if (node.shadowRoot && !excluded_SL_LISTs.includes(node.tagName)) {
       node.shadowRoot.childNodes.forEach(traverse);
     }
 
@@ -686,7 +687,7 @@ class SmartDialog extends HTMLElement {
   };
 
   traverse(root);
-  // console.log(focusables);
+  console.log(focusables);
   return focusables;
 }
 

@@ -57,10 +57,10 @@ class POSBadgeGroup extends HTMLElement {
         .badge {
           display: inline-block;
           width: 1.0rem;
-          height: 1.0rem; 
+          height: 1.5rem; 
           color: white;
           font-weight: 500;
-          font-size: 0.7rem;
+          font-size: 1rem;
           text-align: center;
           line-height: 1.6;
           cursor: pointer;

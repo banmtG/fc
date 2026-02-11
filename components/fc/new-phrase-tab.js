@@ -16,8 +16,9 @@ template.innerHTML = `
     :host {
       display: block;
       font-family: var(--sl-font-sans);
+      font-size: var(--sl-input-label-font-size-large);
     }    
-    .row {
+    .row {      
       margin-bottom: 0.5rem;
       display:flex;
       flex-direction: column;
@@ -44,16 +45,51 @@ template.innerHTML = `
     advanced-combobox {
         z-index:10;
     }
+
+    #organizingHeader {
+      display: flex;
+      align-items: center;
+      gap:10px;
+      background: rgba(255,255,255,0.2);
+    }
+
+    #organizingHeader span {
+      margin-bottom: 2px;
+      font-size: var(--sl-input-label-font-size-large);
+    }
+
+    #organizingBody {    
+      margin-bottom:10px;
+      background: rgba(255,255,255,0.2);
+      padding:0;
+      max-height: 0;              /* collapsed */
+      transition: max-height 0.4s ease-out; /* animate height */
+    }
+
+    #organizingBody.show {
+      max-height: 95px;          /* expanded height */
+      padding: 5px 2px 10px 2px;
+    }
+
+    .hidden {
+      display:none;
+    }
   </style>
-  <span>Add reminder text / tags for new entries in batch!</span>
-  <typeahead-input size="medium" id="reminderText" placeholder="Reminder text. For example: Dexter SS3 Eps1!" min-chars="3" limit="8" size="small"></typeahead-input> 
-  <advanced-combobox id="tagSelection" max-height="200px" allow-delete confirm-delete></advanced-combobox>
 
-  <sl-divider style="--width: 4px;"></sl-divider>
-
+  <div id="organizingHeader">
+  <span>Reminder text / Tags for organizing</span>
+  <div>
+    <sl-icon class="arrowRight hidden" name="caret-right"></sl-icon>
+    <sl-icon class="arrowDown" name="caret-down"></sl-icon>
+  </div>
+  </div>
+  <div id="organizingBody" class="show">
+    <typeahead-input size="medium" id="reminderText" placeholder="Reminder text. E.g. Heroes SS3 Eps1!" min-chars="3" limit="8" size="small"></typeahead-input> 
+    <advanced-combobox size="large" id="tagSelection" max-height="200px" allow-delete confirm-delete></advanced-combobox>
+  </div>
   <div class="row">
-    <sl-textarea rows="2" label="New entries" id="searchBox" placeholder="Words, phrases or terms"></sl-textarea>
-    <sl-button style="width: 100%;" id="searchBtn" variant="primary">Fetch and Add</sl-button>
+    <sl-textarea rows="2" size="medium" label="New entries" id="searchBox" placeholder="Words, phrases or terms"></sl-textarea>
+    <sl-button size="large" style="width: 100%;" id="searchBtn" variant="primary">Fetch and Add</sl-button>
   </div>
   <pre id="output"></pre>
 `;
@@ -62,6 +98,10 @@ class NewPhraseTab extends HTMLElement {
   constructor() {
   super();
   this.attachShadow({ mode: 'open' }).appendChild(template.content.cloneNode(true));
+  this._abort = new AbortController();
+  const { signal } = this._abort;
+  this._organizingHeader = this.shadowRoot.querySelector('#organizingHeader');
+  this._organizingBody = this.shadowRoot.querySelector('#organizingBody');
 
   this.tagSelection = this.shadowRoot.querySelector('#tagSelection');
   this.reminderText = this.shadowRoot.querySelector('#reminderText');
@@ -70,6 +110,8 @@ class NewPhraseTab extends HTMLElement {
   this.output = this.shadowRoot.getElementById('output');
 
   // bind handlers
+  this._organizingHeader.addEventListener('click', (e)=>this._handleOrganizingDetail(e), { signal })
+  this._organizingBody.addEventListener("transitionend", (e) => { if (this._organizingBody.classList.contains("show")) { this._organizingBody.style.overflow = "visible"; } } , { signal })
   this._onSearchClick = this._onSearchClick.bind(this);
   this._onTagSelectionChange = this._onTagSelectionChange.bind(this);
   this._onReminderTextChange = this._onReminderTextChange.bind(this);
@@ -112,6 +154,8 @@ class NewPhraseTab extends HTMLElement {
   }
 
   disconnectedCallback() {
+
+    this._abort.abort();
     this.searchBtn.removeEventListener('click', this._onSearchClick);
 
   // NEW: remove typeahead-input listeners 
@@ -131,6 +175,13 @@ class NewPhraseTab extends HTMLElement {
     document.removeEventListener('app:ready', this._onAppReady);
   }
 
+  _handleOrganizingDetail() {
+      this._organizingBody.classList.toggle("show");
+      this._organizingBody.style.overflow = "hidden"; 
+      this._organizingHeader.querySelector('.arrowDown').classList.toggle("hidden");
+      this._organizingHeader.querySelector('.arrowRight').classList.toggle("hidden");
+      //this._organizingBody.style.display = "block";
+  }
   // collect metadata from combo and tag-note
   _onTagSelectionChange(e) {
     this._meta.tags = e.detail.value || [];

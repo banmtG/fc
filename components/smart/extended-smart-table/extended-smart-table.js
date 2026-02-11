@@ -2,6 +2,7 @@ import "./../smart-table/smart-table.js";
 
 import { debounce } from "./../smart-table/utils/debounce.js";
 import { sortRowsFullObject } from "./../smart-table/utils/sortUtils.js";
+import { getDeviceType_Robust } from './../../../js/utils/deviceUtils_ex.js';
 
 const cssUrl = new URL("./extended-smart-table.css", import.meta.url);
 
@@ -17,7 +18,14 @@ tpl.innerHTML = `
     <select class="page-size"></select>
   </div>
   <smart-table id="tbl"></smart-table>
-  <div class="status"></div>
+  <div class="est_footer">
+    <div class="status"></div>
+    <sl-tooltip content="Multi-selection mode">  
+      <div id="selectionMode" class="mode-toggle" data-mode="0">
+        <sl-icon></sl-icon>
+      </div>
+    </sl-tooltip>
+  </div>
 `;
 
 export class ExtendedSmartTable extends HTMLElement {
@@ -52,7 +60,8 @@ export class ExtendedSmartTable extends HTMLElement {
     this.$next = this.shadowRoot.querySelector(".next");
     this.$pageSize = this.shadowRoot.querySelector(".page-size");
     this.$status = this.shadowRoot.querySelector(".status");
-
+    
+    this.$modeToggle = this.shadowRoot.querySelector('.mode-toggle');
     // Defaults
     this._enableSearch = false;
     this._pageSizes = null;
@@ -87,11 +96,36 @@ export class ExtendedSmartTable extends HTMLElement {
     if (this._raw.length > 0) {
       this._runPipeline();
     }
+
+    
+    this._initSelectionModeOnTouch();
     this.setAttribute('tabindex', '-1');
+    
   }
 
   focus() {
       this.$search.focus();
+  }
+
+  _initSelectionModeOnTouch() {
+    const toggle = this.shadowRoot.querySelector(".mode-toggle");
+    if (!toggle) return;
+
+    // initialize from config if present
+    this._selectionMode = 0;
+
+    toggle.addEventListener("click", () => {
+      // cycle 0 → 1 → 2 → 0
+      this._selectionMode = (this._selectionMode + 1) % 3;
+      this.$tbl._touchScreen = this._selectionMode;
+      toggle.setAttribute("data-mode", this._selectionMode);
+
+      const icon = toggle.querySelector("sl-icon");
+      if (icon) {
+        icon.name = this._selectionMode === 1 ? "check2" :
+                    this._selectionMode === 2 ? "arrows" : "";
+      }
+    }, { signal: this._abort.signal });
   }
 
   disconnectedCallback() {
@@ -131,24 +165,33 @@ export class ExtendedSmartTable extends HTMLElement {
 
 
   setConfig(configs) {         
+    this._config = configs;
     this._idKey = configs.idKey;
     this.$tbl._idKey = this._idKey;
     this._sortState = { key: configs.sortKey, dir: configs.sortDir};    
-
+    this._selectionModeOnTouch = (configs.selectionModeOnTouch !== undefined)? configs.selectionModeOnTouch : true;
+    if (this._selectionModeOnTouch===true) this.$modeToggle.style.display = "flex";
+    if (getDeviceType_Robust() === "mobile" || getDeviceType_Robust() === "tablet") {} else 
+      this.$modeToggle.style.display = "none";
+  
     if (!Number.isNaN(configs.pageSize) && configs.pageSize > 0) {
         this._pageSize = configs.pageSize;
         this.$pageSize.value = configs.pageSize;
     } else if (configs.pageSize==="all") {
-        this._pageSize = this.data.length;
+        this._pageSize = this._raw.length;
         this.$pageSize.value = "all";
     }
     this.$tbl.style.setProperty('--tableMaxHeight',configs.tableMaxHeight);
-    this.$tbl._allowDeleteKey = configs._allowDeleteKey? configs.allowDeleteKey : false;
-
+    this.$tbl._allowDeleteKey = configs.allowDeleteKey? configs.allowDeleteKey : false;
+    
     this._columnsToSearch = configs.columnToSearch? configs.columnToSearch : "all"; // all = default; ["phrase","status"] data field
     this._cellPadding = configs.cellPading? configs.cellPading : "6px 8px";
     this.$tbl.style.setProperty('--cellPadding', this._cellPadding);
     this._onPageSize({ target : { value : `${configs.pageSize}`}});      // this will also call render()
+  }
+
+  getSelected() {
+    return this.$tbl.getSelected();
   }
 
   setColumns(columns) {
@@ -161,6 +204,12 @@ export class ExtendedSmartTable extends HTMLElement {
     // Normalize: accept single id or array
     const sids = Array.isArray(ids) ? ids.map(String) : [String(ids)];
 
+    //set new HighLight after delete
+    const newHighLightObject = this._raw.find(item => 
+      (item.id!==this.$tbl._highlightId && !Array.from(this.$tbl._selected).includes(item.id)));
+    this.$tbl._highlightId = newHighLightObject.id; 
+
+
     // Remove from raw dataset
     this._raw = this._raw.filter(o => !sids.includes(String(o[this._idKey])));
 
@@ -168,8 +217,14 @@ export class ExtendedSmartTable extends HTMLElement {
     this.$tbl._selected.clear();
     // Re-run pipeline
     this._runPipeline();
+
     // Forward event for host apps
-    this.dispatchEvent(new CustomEvent("rows-deleted", { detail: { ids: sids } }));
+    this.dispatchEvent(new CustomEvent("rows-deleted", { 
+      detail: { ids: sids }, 
+      bubbles: false,
+      composed: true
+    }
+    ));
   }
 
   _flattenValues(obj) {
@@ -201,6 +256,7 @@ export class ExtendedSmartTable extends HTMLElement {
   
   // Pipeline: raw → filter → sort → paginate → render
   _runPipeline() {
+    // console.log(this._pageSize);
     let view = [...this._raw];
 
     // Filter
@@ -268,6 +324,7 @@ export class ExtendedSmartTable extends HTMLElement {
       }
     }
     this._page = 1;
+
     this._runPipeline();
   }
 
@@ -287,8 +344,15 @@ export class ExtendedSmartTable extends HTMLElement {
     if (checkObjectInUI) {
       const sid = String(id);
       const idx = this._raw.findIndex(o => String(o[this._idKey]) === sid);
+      console.log(this._raw[idx]);
       this.$tbl.updateRowUI(id, this._raw[idx]);
     }
+  }
+
+  addRow(newRow, positionIndex = 0) {
+    this._raw.push(newRow);
+    this.setConfig(this._config);
+    //this.$tbl.addRow(newRow, positionIndex);
   }
 
     _renderPageSizeOptions() {

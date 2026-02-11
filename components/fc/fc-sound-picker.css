@@ -1,0 +1,91 @@
+:host {
+  width: 100%;
+  display: block;
+}
+
+smart-dialog {
+  display: none;
+}
+
+/* .body {
+  height:80vh;
+} */
+
+.container {
+  width: calc(100% - 10px);
+  padding: 5px;
+  position: relative;
+}
+
+.container_row sl-input,
+.container_row sl-button {
+  min-width: 0; /* allow shrinking inside grid */
+}
+
+
+.container_row sl-input {
+  flex-shrink: 0;
+}
+
+.container_top {
+  display: flex;
+  flex-direction: column;
+}
+
+.container {
+  display: flex;  
+  flex-direction: column;
+  width: calc(100% - 10px);
+  padding: 5px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  height: 75vh;
+}
+
+.container_row {  
+  display:grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) auto;
+  gap: 5px;
+  margin: 5px 0;
+}
+
+extended-smart-table {
+  margin-bottom: 10px;
+}
+
+/* scrollbar */
+::-webkit-scrollbar {
+  width: 1px;
+  height: 0px;
+}
+
+::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.3);
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
+}
+
+::-webkit-scrollbar-thumb:window-inactive {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.footer sl-button-group sl-button::part(base) {
+  font-size: 16px;
+  font-weight: bolder;
+}
+
+.spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* centers the element */
+  z-index: 10; /* put it above content if needed */
+  display:none;
+}

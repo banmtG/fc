@@ -2,19 +2,17 @@ import { createRow, _renderHeaderCell, _renderHeader, _updateRowUI } from "./uti
 import {clearSelectionVisuals,applySelection,toggleSelection,emitSelectionChanged,clearHighlight,setHighlight, requestDelete, selectRows } from "./utils/selectionUtils.js";
 import { addRow, handleHeaderClick } from "./utils/handlers.js";
 import { syncPixelTracks, attachResizeHandles, detachResizeHandles } from './utils/columnWidth.js';
-
+import {confirmDialog} from './../../../core/confirmDialog.js';
 const cssUrl = new URL("./smart-table.css", import.meta.url);
 
 // Define a template once
 const template = document.createElement("template");
 template.innerHTML = `
   <link rel="stylesheet" href="${cssUrl}">
-
-    <div class="table" id="mainTable" style="overflow-x:auto;">
-      <div class="header"></div>
-      <div class="body" id="tableBody" style="overflow-y:auto;">
-      </div>
-
+  <div class="table" id="mainTable" style="overflow-x:auto;">
+    <div class="header"></div>
+    <div class="body" id="tableBody" style="overflow-y:auto;">
+    </div>
   </div>
 `;
 
@@ -32,10 +30,12 @@ class SmartTable extends HTMLElement {
     this._rowMap = new Map();
     this._selected = new Set();
     this._highlightId = null;
+    this._touchScreen = 0; // 1 ctrl 2 shift
+    this._touchScreenFlag = 0;  
     this._hightlightPosition = null;
     // this._idKey = "phraseID";
     this._sortState = { key: null, dir: null };
-    this._allowDeleteKey = false; // Allow Delete Key to delete multiple rows
+    this._allowDeleteKey = true; // Allow Delete Key to delete multiple rows
 
     // Cache references
     this._table = this.shadowRoot.querySelector(".table"); 
@@ -66,7 +66,6 @@ class SmartTable extends HTMLElement {
   }
 
   getSelected() { return Array.from(this._selected); }
-
   
 // Example config:
 // extTbl.setColumns([
@@ -121,17 +120,18 @@ connectedCallback() {
       return;
     }
 
+ 
     // Use provided column config or derive from data keys
     let columnDefs = this.columns && Array.isArray(this.columns)
       ? this.columns
       : Object.keys(this._data[0]).map(k => ({ key: k, label: k }));
 
     // Ensure idKey is first if present
-    const idIdx = columnDefs.findIndex(c => c.key === this._idKey);
-    if (idIdx > 0) {
-      const idCol = columnDefs.splice(idIdx, 1)[0];
-      columnDefs.unshift(idCol);
-    }
+    // const idIdx = columnDefs.findIndex(c => c.key === this._idKey);
+    // if (idIdx > 0) {
+    //   const idCol = columnDefs.splice(idIdx, 1)[0];
+    //   columnDefs.unshift(idCol);
+    // }
 
     // Filter hidden columns
     this._visibleCols = columnDefs.filter(c => !c.hidden);
@@ -149,7 +149,7 @@ connectedCallback() {
     this._data.forEach((obj, index) => {
       // console.log(obj);
       // console.log(this._idKey);
-
+      
       const rowEl = createRow(
         obj,
         this._visibleCols,
@@ -157,6 +157,7 @@ connectedCallback() {
         index,
         total
       );
+
       body.appendChild(rowEl);
       this._rowMap.set(String(obj[this._idKey]), rowEl);
     });
@@ -187,10 +188,11 @@ connectedCallback() {
     } 
   }
 
+
+
   // Click events
  _onClick(e) {
   const target = e.target;
-
 
   const cell = target.closest(".cell"); 
   const header = target.closest(".header");
@@ -233,11 +235,20 @@ connectedCallback() {
   if (row) {
     const id = row.dataset.id; 
     const allIds = this._data.map(d => String(d[this._idKey]));
+    if ((e.shiftKey || this._touchScreen===2) && this._highlightId) {
 
-    if (e.shiftKey && this._highlightId) {
+      // clear shift select
+      if (this._touchScreenFlag===1) {
+          clearSelectionVisuals(this.shadowRoot);
+          this._touchScreenFlag=0;
+          this.setHighlight(id);   
+          return;
+      }
+      this._touchScreenFlag++;
+
       // SHIFT: extend selection from anchor (_highlightId) to current
-      const startIdx = allIds.indexOf(this._highlightId);
-      const endIdx = allIds.indexOf(id);
+      const startIdx = allIds.indexOf(this._highlightId);    
+      const endIdx = allIds.indexOf(id); 
       if (startIdx !== -1 && endIdx !== -1) {
         const [from, to] = startIdx < endIdx ? [startIdx, endIdx] : [endIdx, startIdx];
 
@@ -253,12 +264,13 @@ connectedCallback() {
         }
       }
       // Anchor (_highlightId) stays the same until a normal/ctrl click
-    } else if (e.ctrlKey || e.metaKey) {
+    } else if (e.ctrlKey || e.metaKey || this._touchScreen===1) {
       // CTRL/META: toggle single row, and reset anchor to this row
       toggleSelection(this.shadowRoot, this._rowMap, this._selected, id, true);
       this.setHighlight(id);   
     } else {
       // Normal click: reset selection and anchor
+      this._touchScreenFlag=0;
       clearSelectionVisuals(this.shadowRoot);
       this._selected.clear();
       this._selected.add(id);
@@ -272,7 +284,7 @@ connectedCallback() {
 
 
   // Keyboard events
-_onKeyDown(e) {
+async _onKeyDown(e) {
   const rows = Array.from(this.shadowRoot.querySelectorAll(".row"));
   if (!rows.length) return;
 
@@ -344,15 +356,17 @@ _onKeyDown(e) {
     emitSelectionChanged(this, this._selected);
     return;
   }
-
   if (e.key === "Delete"&&this._allowDeleteKey) {
+
     e.preventDefault();
     if (this._selected.size > 0) {
       const arraySelected = Array.from(this._selected);
       const msg = this._selected.size === 1
-        ? "Are you sure you want to delete this row?"
-        : `Are you sure you want to delete these ${arraySelected.length} rows?`;
-      if (confirm(msg)) this._requestDelete(arraySelected);
+        ? "Are you sure to delete this row?"
+        : `Are you sure to delete these ${arraySelected.length} rows?`;
+      const confirmed = await confirmDialog.show("⛔ Confirmation",msg);
+      if (!confirmed) return;
+      this._requestDelete(arraySelected);
     }
     return;
   }
@@ -365,7 +379,7 @@ _onKeyDown(e) {
   // Selection emit
   _emitSelectionChanged() {  emitSelectionChanged(this, this._selected);  }
   // Data ops
-  addRow(obj) { addRow(this, obj); }
+  addRow(obj, positionIndex) { addRow(this, obj, positionIndex); }
 
   updateRowUI(id,newRowData) { 
     _updateRowUI(this,id,newRowData) 

@@ -23,24 +23,30 @@ template.innerHTML = `
           <div class="container">
               <div class="container_row icon_button">
                 <sl-input id="urlTextInput" class="focusable"  size="medium" placeholder="Urls or text to fetch..."></sl-input>
-                <sl-button id="addBtn" class="focusable" size="medium">✚</sl-button>
-                <sl-button id="fetchBtn" class="focusable" size="medium">🔍</sl-button>
+                <sl-button-group>
+                  <sl-button id="addBtn" class="focusable" size="medium">➕</sl-button>
+                  <sl-button id="fetchBtn" class="focusable" size="medium">🔍</sl-button>
+                </sl-button-group>
               </div>
               <smart-dragdrop class="focusable" ></smart-dragdrop>
-              <div class="smartDragdrop_buttons icon_button">                
-                <sl-tooltip content="Add local photos"><sl-button size="medium" id="localPhotoBtn">📂</sl-button></sl-tooltip>
-                <sl-tooltip content="Download to use offline"><sl-button size="medium" id="downloadBtn">🌍➜💾</sl-button></sl-tooltip>
-                <sl-tooltip content="Delete"><sl-button size="medium" id="deleteBtn">🗑</sl-button></sl-tooltip>
-                <sl-tooltip content="Extract links"><sl-button size="medium" id="extractLinksBtn">⛏️</sl-button></sl-tooltip>
-                <sl-tooltip content="Pick to use in card view"><sl-button size="medium" id="useBtn">📌</sl-button></sl-tooltip>
-                <input type="file" id="localPhotoInput" style="display:none" multiple accept="image/*"> 
+      
+              <sl-button-group label="Alignment" class="smartDragdrop_buttons icon_button">              
+                <sl-tooltip content="Add local photos"><sl-button class="focusable" size="medium" id="localPhotoBtn">📂</sl-button></sl-tooltip>
+                <sl-tooltip content="Download to use offline"><sl-button class="focusable" size="medium" id="downloadBtn">🌍➜💾</sl-button></sl-tooltip>
+                <sl-tooltip content="Delete"><sl-button class="focusable" size="medium" id="deleteBtn">🗑</sl-button></sl-tooltip>
+                <sl-tooltip content="Extract links"><sl-button class="focusable" size="medium" id="extractLinksBtn">⛏️</sl-button></sl-tooltip>
+                <sl-tooltip content="Pick to use in card view"><sl-button class="focusable" size="medium" id="useBtn">📌</sl-button></sl-tooltip>
+              </sl-button-group>  
               </div>
+              <input type="file" id="localPhotoInput" style="display:none" multiple accept="image/*"> 
               <div class="spinner"><sl-spinner style="font-size: 50px; --track-width: 10px;"></sl-spinner></div>
           </div>
       </div>
-      <div slot="footer">
-          <sl-button size="medium" variant="primary" id="confirm" class="focusable">Confirm</sl-button>
-          <sl-button size="medium" variant="default" id="cancel" class="focusable">Cancel</sl-button>
+      <div slot="footer" class="footer">
+          <sl-button-group> 
+            <sl-button size="medium" variant="primary" id="confirm" class="focusable"><sl-icon name="check-circle-fill" slot="prefix"></sl-icon>Confirm</sl-button>
+            <sl-button size="medium" variant="default" id="cancel" class="focusable"><sl-icon name="x-circle" slot="prefix"></sl-icon>Cancel</sl-button>
+          </sl-button-group> 
       </div>   
     </smart-dialog>
 `;// capture="environment" to use camera
@@ -213,16 +219,10 @@ class FCImagePicker extends HTMLElement {
     items.forEach(item => {
       this._smartDragDrop.addItem(item, "1", 0);
     });
+
     this._smartDragDrop.updateColumnData();
-
-    // Show notification
-    NotificationManagerInstance.show({
-      label: `${items.length} item(s) have been newly added!`,
-      icon: "stars",
-      color: "--sl-color-success-500",
-      timer: 4000
-    });
-
+        // Show notification
+    this.notifySuccess(`${items.length} item(s) have been newly added!`);
     // show loading Spinner for await
     this.hideWorkingSpinner();
     // Optional: log compression stats
@@ -239,7 +239,7 @@ class FCImagePicker extends HTMLElement {
       defi: false,
       noLiveUrls: null,      
     }];
-    // console.log(items);
+    //  console.log(items);
     this.dispatchEvent(
       new CustomEvent('fc-image-picker-fetch-requested', { 
         detail: { items, origin: this },
@@ -271,12 +271,7 @@ class FCImagePicker extends HTMLElement {
           });
           this._smartDragDrop.updateColumnData();
           // Show notification
-          NotificationManagerInstance.show({
-            label: `${items.length} item(s) have been newly added!`,
-            icon: "stars",
-            color: "--sl-color-success-500",
-            timer: 4000
-          });
+          this.notifySuccess(`${items.length} item(s) have been newly added!`);         
           // show loading Spinner for await
           this.hideWorkingSpinner();
         }
@@ -318,12 +313,7 @@ class FCImagePicker extends HTMLElement {
     }
 
     if (verifiedUrls.length === 0) {
-      NotificationManagerInstance.show({
-        label: `Please enter valid urls.`,
-        icon: 'exclamation-square',
-        color: '--sl-color-warning-500',
-        timer: 4000
-      });
+      this.notifyWarning(`No new urls to add (duplicates skipped).`);
       return;
     }
 
@@ -335,12 +325,7 @@ class FCImagePicker extends HTMLElement {
     const newUrls = verifiedUrls.filter(u => !existingUrls.has(u));
 
     if (newUrls.length === 0) {
-      NotificationManagerInstance.show({
-        label: `No new urls to add (duplicates skipped).`,
-        icon: 'exclamation-square',
-        color: '--sl-color-warning-500',
-        timer: 4000
-      });
+      this.notifyWarning(`No new urls to add (duplicates skipped).`);     
       return;
     }
 
@@ -351,12 +336,7 @@ class FCImagePicker extends HTMLElement {
     });
     smartDragDrop.updateColumnData();
 
-    NotificationManagerInstance.show({
-      label: `${items.length} item(s) have been newly added!`,
-      icon: 'stars',
-      color: '--sl-color-success-500',
-      timer: 4000
-    });
+    this.notifySuccess(`${items.length} item(s) have been newly added!`);  
   }
 
 
@@ -371,12 +351,7 @@ class FCImagePicker extends HTMLElement {
       } else return obj.url_blob;      
     });
     copyTextToClipboard(results.join(',\n'));
-    NotificationManagerInstance.show({ 
-      label: `${results.length} link(s) has been copied to clipboard`,
-      icon: 'stars',
-      color: '--sl-color-success-500',
-      timer: 4000
-    })
+    this.notifySuccess(`${results.length} link(s) has been copied to clipboard!`);
   }
 
   _handleKeydown(e) {
@@ -404,15 +379,7 @@ class FCImagePicker extends HTMLElement {
     });
     // Combine update Data and UI
     this._smartDragDrop.updateItems(itemPatches);
-    // sync data in smartDragDrop and this parent data
-    // this._imageArray = this._smartDragDrop.fullData;
-
-    NotificationManagerInstance.show({ 
-      label: `${targetIDs.length} item(s) has been updated`,
-      icon: 'stars',
-      color: '--sl-color-success-500',
-      timer: 4000
-    })
+    this.notifySuccess(`${targetIDs.length} item(s) has been updated`);    
   }
 
 
@@ -443,20 +410,11 @@ async _handleDownload() {
     this._smartDragDrop.updateItems(patchedItems);   
     this.hideWorkingSpinner();
     
-    if (success.length>0) NotificationManagerInstance.show({ 
-      label: `${success.length} item(s) (${(totalSize/1024/1024).toFixed(2)}MB) has been downloaded!`,
-      icon: 'stars',
-      color: '--sl-color-success-500',
-      timer: 4000
-    })
+    if (success.length>0) 
+      this.notifySuccess(`${success.length} item(s) (${(totalSize/1024/1024).toFixed(2)}MB) has been downloaded!`);
 
-    if (failed.length>0) NotificationManagerInstance.show({ 
-      label: `${failed.length} items cannot be downloaded!`,
-      icon: 'exclamation-square',
-      color: '--sl-color-warning-500',
-      timer: 4000
-    })
-
+    if (failed.length>0) 
+      this.notifyWarning(`${failed.length} items cannot be downloaded!`);
   }
 
   showWorkingSpinner() {
@@ -482,7 +440,7 @@ async _handleDownload() {
   async _handleDelete() {   
     const targetIDs = this.getRealTargetIDs();
     if (!targetIDs) return; // nothing to work on
-    const confirmed = await confirmDialog.show("⛔ Confirmation dialog",`Delete ${targetIDs.length} ${targetIDs.length>1? "items" : "item"}?`);
+    const confirmed = await confirmDialog.show("⛔ Confirmation",`Delete ${targetIDs.length} ${targetIDs.length>1? "items" : "item"}?`);
     if (!confirmed) return;
     // proceed with deletion    
     const blobArray= [];
@@ -498,14 +456,7 @@ async _handleDownload() {
 
      // Combine remove javascript Data and UI
     this._smartDragDrop.removeItems(targetIDs);     
-        
-    NotificationManagerInstance.show({ 
-        label: `${targetIDs.length} item(s) has been deleted`,
-        icon: 'stars',
-        color: '--sl-color-success-500',
-        timer: 4000
-      });
-    
+    this.notifySuccess(`${targetIDs.length} item(s) has been deleted`);    
     // sync data with this component
     // this._imageArray = this._smartDragDrop.fullData;        
   }
@@ -515,7 +466,9 @@ async _handleDownload() {
   }
   
   exportImageData() {
-    const exportArray = this._smartDragDrop.fullData.map(item => { //this._imageArray
+    // console.log(this._smartDragDrop.fullData);
+    // console.log(this._smartDragDrop.columnData);
+    const exportArray = Object.values(this._smartDragDrop.columnData).flat().map(item => { //this._imageArray
      return {
       id: item.id,   
       t: item.t,
@@ -532,7 +485,7 @@ async _handleDownload() {
     this._entry.image.data = this.exportImageData();
     this.dispatchEvent(
       new CustomEvent('fc-image-picker-confirmed', { 
-        detail: { data: this._entry }, 
+        detail: { entry: this._entry }, 
         bubbles: false,
         composed: true,
       }));   
@@ -548,6 +501,24 @@ async _handleDownload() {
       }));   
     this._smart_dialog.style.display = "none";
     // this.remove();
+  }
+
+  notifySuccess(message) {
+    NotificationManagerInstance.show({
+      label: message,
+      icon: "stars",
+      color: "--sl-color-success-500",
+      timer: 1500
+    });
+  }
+
+  notifyWarning(message) {
+    NotificationManagerInstance.show({
+      label: message,
+      icon: 'exclamation-square',
+      color: '--sl-color-warning-500',
+      timer: 3000
+    });
   }
 }
 

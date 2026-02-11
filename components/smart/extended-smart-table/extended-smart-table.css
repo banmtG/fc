@@ -55,3 +55,40 @@
 }
 
 
+/* /////////////// selectionMode */
+.mode-toggle {
+  width: 18px;
+  height: 18px;
+  border: 1px solid #999;
+  border-radius: 4px;
+  display: none;
+  align-items: center;   /* vertical centering */
+  justify-content: center; /* horizontal centering */
+  cursor: pointer;
+  margin-bottom: 0px;
+}
+
+/* Mode 0: Normal */
+.mode-toggle[data-mode="0"] {
+  color: transparent; /* no icon visible */
+}
+
+/* Mode 1: Multi-select individual */
+.mode-toggle[data-mode="1"] {
+  background: #8c8c8c;
+  color: white;
+}
+
+/* Mode 2: Range select */
+.mode-toggle[data-mode="2"] {
+  background: rgb(83, 83, 83);
+  color: white;
+}
+
+.est_footer {
+  padding: 5px 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}

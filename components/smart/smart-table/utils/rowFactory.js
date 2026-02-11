@@ -1,10 +1,11 @@
+import { setHighlight } from './selectionUtils.js';
 // rowFactory.js
 export function createRow(obj, columns, idKey, localIndex, localTotal) {  
   const rowEl = document.createElement("div");
   rowEl.className = "row";
   rowEl.dataset.id = String(obj[idKey]);
-  rowEl.dataset.index = localIndex;
-  rowEl.dataset.total = localTotal;
+  rowEl.dataset.index = "-"; //localIndex;
+  rowEl.dataset.total = "?"; //localTotal;
 
   for (const col of columns) {
     const cell = document.createElement("div");
@@ -56,6 +57,9 @@ export function _updateRowUI(component, id, newRowData) {
 
   oldRow.replaceWith(newRow);
   component._rowMap.set(id, newRow);
+
+  // setHighlight(component,id);
+  newRow.classList.add('selected');
 
   // trigger highlight animation
   newRow.classList.add("row-highlight");
