@@ -1,0 +1,46 @@
+<!-- DONT WORK -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Youdao API Interceptor Demo</title>
+</head>
+<body>
+  <h3>Youdao Pronounce API Interceptor</h3>
+  <input id="wordInput" type="text" placeholder="Enter text here" />
+  <button id="searchBtn">Search</button>
+  <p>Captured API URL: <span id="apiUrl"></span></p>
+
+  <script>
+    // Monkey-patch fetch to intercept requests
+    const origFetch = window.fetch;
+    window.fetch = async (...args) => {
+      const url = args[0];
+      if (typeof url === "string" && url.includes("dict.youdao.com/pronounce/base")) {
+        console.log("Intercepted API call:", url);
+        document.getElementById("apiUrl").textContent = url;
+      }
+      return origFetch(...args);
+    };
+
+    document.getElementById("searchBtn").addEventListener("click", () => {
+      const word = document.getElementById("wordInput").value.trim();
+      if (!word) return;
+
+      // Construct the main site URL (this triggers the site’s own JS to call the API)
+      const siteUrl = `https://dict.youdao.com/result?word=${encodeURIComponent(word)}&lang=en`;
+
+      // Load the site in a hidden iframe so its JS runs and calls the API
+      let iframe = document.getElementById("youdaoFrame");
+      if (!iframe) {
+        iframe = document.createElement("iframe");
+        iframe.id = "youdaoFrame";
+        iframe.style.display = "none";
+        document.body.appendChild(iframe);
+      }
+      iframe.src = siteUrl;
+    });
+  </script>
+</body>
+</html>

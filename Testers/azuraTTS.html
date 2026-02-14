@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TTS Test (via PHP)</title>
+</head>
+<body>
+  <h3>Text to Speech via PHP → Azure</h3>
+  <label>
+    Phrases (comma separated):
+    <input id="phrasesInput" type="text" placeholder="hello,world" />
+  </label><br><br>
+  <button id="ttsBtn">Generate Speech</button>
+
+  <h4>Results:</h4>
+  <div id="results"></div>
+
+  <script>
+    document.getElementById("ttsBtn").addEventListener("click", async () => {
+      const phrases = document.getElementById("phrasesInput").value.split(",").map(p => ({
+        phrase: p.trim(),
+        textToSpeech: p.trim(),
+        metadata: { defi: true }
+      }));
+
+      try {
+        const res = await fetch("https://php.adapps.download/apps/fc/api/data/searchSoundBlob.php", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(phrases)
+        });
+
+        const data = (await res.json()).data;
+
+        // console.log(data);
+
+        const resultsDiv = document.getElementById("results");
+        resultsDiv.innerHTML = "";
+
+        data.forEach(item => {
+          const container = document.createElement("div");
+          container.style.marginBottom = "12px";
+
+          const label = document.createElement("span");
+          label.textContent = item.phrase + ": ";
+
+          if (item.blob) {
+            const audio = document.createElement("audio");
+            audio.controls = true;
+            audio.src = "data:audio/mp3;base64," + item.blob;
+
+            // optional: add a download link
+            const downloadLink = document.createElement("a");
+            downloadLink.href = audio.src;
+            downloadLink.download = item.phrase + ".mp3";
+            downloadLink.textContent = "Download";
+
+            container.appendChild(label);
+            container.appendChild(audio);
+            container.appendChild(downloadLink);
+          } else {
+            label.textContent += "(no audio)";
+            container.appendChild(label);
+          }
+
+          resultsDiv.appendChild(container);
+        });
+      } catch (err) {
+        document.getElementById("results").textContent = "Error: " + err.message;
+      }
+    });
+  </script>
+</body>
+</html>

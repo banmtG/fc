@@ -38,14 +38,13 @@ export function getUniqueLinks(soundArray) {
 
 
 export async function mapTableSoundData(phraseID, soundArray) {
-
   await Database.init();
   // Step 1: load blobs for this phraseID
   const blobRecords = await Database.getSoundsByPhrase(phraseID);
-  console.log(blobRecords);
+  // console.log(blobRecords);
 
   const blobItems = blobRecords[0]?.blob || [];
-  console.log(blobItems);
+  // console.log(blobItems);
   // Step 2: collect IDs already present in soundArray
   const existingIds = new Set(soundArray.map(item => item.id));
 
@@ -55,7 +54,7 @@ export async function mapTableSoundData(phraseID, soundArray) {
     ...blobItems.filter(b => !existingIds.has(b.id))
   ];
 
-  console.log(merged);
+  // console.log(merged);
 
   // Step 4: deduplicate by URL
   const unique = getUniqueLinks(merged);
@@ -120,18 +119,8 @@ export async function getSoundOriginAndAccent(item) {
   return { origin, accent };
 }
 
-/**
- * Download a sound from a URL, optionally process/convert,
- * and save into IndexedDB.
- *
- * @param {IDBDatabaseHelper} dbHelper - your helper instance with saveSoundBlob()
- * @param {string} phraseID
- * @param {string} phrase
- * @param {Array} items - array of { id, phraseID, phrase, url, title }
- * @returns {Promise<{success: Array, failed: Array}>}
- */
 export async function downloadAndSaveSound(component, phraseID, phrase, items) {
-  console.log(items);
+  // console.log(items);
   const success = [];
   const failed = [];
 

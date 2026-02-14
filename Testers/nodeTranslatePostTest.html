@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Translate API Test (via PHP)</title>
+</head>
+<body>
+  <h3>Test PHP → Node /api/translate</h3>
+  <label>
+    Phrases (comma separated):
+    <input id="phrasesInput" type="text" placeholder="hello,world" />
+  </label><br><br>
+  <label>
+    Source language:
+    <input id="sourceLangInput" type="text" placeholder="en" />
+  </label><br><br>
+  <label>
+    Target language:
+    <input id="targetLangInput" type="text" placeholder="fr" />
+  </label><br><br>
+  <button id="translateBtn">Translate</button>
+
+  <h4>Response:</h4>
+  <pre id="responseOutput"></pre>
+
+  <script>
+    document.getElementById("translateBtn").addEventListener("click", async () => {
+      const phrases = document.getElementById("phrasesInput").value.split(",");
+      const sourceLang = document.getElementById("sourceLangInput").value.trim();
+      const targetLang = document.getElementById("targetLangInput").value.trim();
+
+      try {
+        // Call your PHP proxy script instead of Node directly
+        const res = await fetch("https://php.adapps.download/apps/fc/api/data/searchTranslate.php", {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ phrases, sourceLang, targetLang })
+        });
+
+        const data = await res.json();
+        document.getElementById("responseOutput").textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        document.getElementById("responseOutput").textContent = "Error: " + err.message;
+      }
+    });
+  </script>
+</body>
+</html>
