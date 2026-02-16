@@ -42,15 +42,56 @@ smart-dialog {
   height: 75vh;
 }
 
-.container_row {  
+.container_row.row2 {  
   display:grid;
   grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) auto;
+  gap: 2px;
+  margin: 1px 0;
+}
+
+.container_row.row1 {  
+  display:grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2px;
+  margin: 1px 0;
+}
+
+.container_row.row3 {  
+  display:grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 5px;
   margin: 5px 0;
 }
 
+
 extended-smart-table {
   margin-bottom: 10px;
+}
+
+sl-button-group {
+  display: flex;       /* ensure flex layout */
+  width: 100%;         /* take full width of parent */
+}
+
+sl-button-group::part(base) {
+  flex: 1;             /* distribute buttons evenly */
+}
+
+sl-button-group sl-button::part(base) {
+  flex: 1;             /* each button expands to fill */
+}
+
+.body sl-button::part(label) {
+  padding: 0 10px;
+}
+  
+.footer sl-button-group sl-button::part(base) {
+  font-size: 16px;
+  font-weight: bolder;
+}  
+
+.icon_button sl-button::part(base) {
+  font-size: 1.1rem;
 }
 
 /* scrollbar */

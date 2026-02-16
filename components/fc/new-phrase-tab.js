@@ -55,7 +55,7 @@ template.innerHTML = `
 
     #organizingHeader span {
       margin-bottom: 2px;
-      font-size: var(--sl-input-label-font-size-large);
+      font-size: var(--sl-input-label-font-size-medium);
     }
 
     #organizingBody {    

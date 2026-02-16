@@ -25,7 +25,7 @@ template.innerHTML = `
                 <sl-input id="urlTextInput" class="focusable"  size="medium" placeholder="Urls or text to fetch..."></sl-input>
                 <sl-button-group>
                   <sl-button id="addBtn" class="focusable" size="medium">➕</sl-button>
-                  <sl-button id="fetchBtn" class="focusable" size="medium">🔍</sl-button>
+                  <sl-button id="fetchBtn" class="focusable" size="medium">🚀</sl-button>
                 </sl-button-group>
               </div>
               <smart-dragdrop class="focusable" ></smart-dragdrop>

@@ -23,12 +23,14 @@ template.innerHTML = `
         <div slot="body" class="body">
             <div class="container">
               <div class="container_top">
-                <sl-input id="urlTextInput" class="focusable"  size="medium" placeholder="Sound url"></sl-input>
-                <div class="container_row icon_button">                  
-                  <sl-input id="urlOrigin" class="focusable"  size="medium" placeholder="Origin"></sl-input>
-                  <sl-input id="urlAccent" class="focusable"  size="medium" placeholder="Accent"></sl-input>
-                  <sl-button-group>                  
-                    <sl-button id="addBtn" class="focusable" size="medium">➕</sl-button>
+              <div class="container_row row1 icon_button">
+                <sl-input id="urlInput" class="focusable" size="medium" placeholder="Sound url"></sl-input>   
+                <sl-button id="addBtn" class="focusable" size="medium">➕</sl-button>
+              </div>
+                <div class="container_row row2 icon_button">
+                  <sl-input id="originInput" class="focusable"  size="medium" placeholder="Origin"></sl-input>
+                  <sl-input id="accentInput" class="focusable"  size="medium" placeholder="Accent"></sl-input>
+                  <sl-button-group>    
                     <sl-button id="localFileBtn" class="focusable" size="medium">📂</sl-button>
                     <sl-button id="recordBtn" class="focusable" size="medium">🔴</sl-button>
                   </sl-button-group>
@@ -41,7 +43,11 @@ template.innerHTML = `
                 <sl-tooltip content="Delete"><sl-button class="focusable" size="medium" id="deleteBtn">🗑</sl-button></sl-tooltip>
                 <sl-tooltip content="Extract links"><sl-button class="focusable" size="medium" id="extractLinksBtn">⛏️</sl-button></sl-tooltip>
                 <sl-tooltip content="Pick to use in card view"><sl-button class="focusable" size="medium" id="useBtn">📌</sl-button></sl-tooltip>
-              </sl-button-group>          
+              </sl-button-group>      
+              <div class="container_row row3 icon_button">  
+                  <sl-input id="textToSpeechInput" class="focusable" size="medium" placeholder="Text To Speech"></sl-input>    
+                  <sl-button id="fetchBtn" class="focusable" size="medium">🚀</sl-button>
+              </div>    
               <input type="file" id="localFileInput" style="display:none" multiple accept="sound/*"> 
               <div class="spinner"><sl-spinner style="font-size: 50px; --track-width: 10px;"></sl-spinner></div>           
             </div>
@@ -222,8 +228,12 @@ class FCSoundPicker extends HTMLElement {
     this._childSmartTable = this._smartTable.shadowRoot.getElementById("tbl");
 
     this._spinner = this.shadowRoot.querySelector('.spinner');
-    this._urlTextInput =  this.shadowRoot.querySelector('#urlTextInput');
+    this._urlInput = this.shadowRoot.querySelector('#urlInput');
     this._addBtn =  this.shadowRoot.querySelector('#addBtn');
+
+    this._originInput = this.shadowRoot.querySelector('#originInput');
+    this._accentInput = this.shadowRoot.querySelector('#accentInput');
+
     this._localFileBtn = this.shadowRoot.querySelector('#localFileBtn');
     this._localFileInput = this.shadowRoot.querySelector('#localFileInput');
     this._recordBtn = this.shadowRoot.querySelector('#recordBtn');
@@ -283,10 +293,61 @@ class FCSoundPicker extends HTMLElement {
     });
   }
 
-  _handleRecord() {  
-    console.log(this._childSmartTable._data);
-    console.log(this._smartTable._raw);
+  async _handleRecord() {  
+    console.log(`vao Record`);
+    // console.log(this._childSmartTable._data);
+    // console.log(this._smartTable._raw);
+    let mediaRecorder;
+    let audioChunks = [];
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+    mediaRecorder = new MediaRecorder(stream);
+    
+    mediaRecorder.ondataavailable = event => {
+      if (event.data.size > 0) {
+        audioChunks.push(event.data);
+      }
+    };
+
+    mediaRecorder.onstop = () => {
+      // Combine chunks into a single Blob
+      const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+      const audioUrl = URL.createObjectURL(audioBlob);
+
+
+      console.log(audioUrl);
+      // You can now pass audioBlob into your _handleAddSounds
+      // Example: this._handleAddSounds([audioBlob]);
+    };
 }
+
+  async _handleAdd() {
+ 
+    const newUrls = this._urlInput.value.split(',').map(s => s.trim()).filter(Boolean);
+    this._urlInput.value = "";
+
+    if (newUrls.length === 0) return;
+
+    this.showWorkingSpinner();
+    // Normalize and add to drag‑drop
+    const items = normalizeSoundUrlsDataFromServer(this._entry.phrase, newUrls);
+    const origin = this._originInput.value;
+    const accent = this._accentInput.value;
+    items.forEach(item=> {
+      const insertAtPosition = 0;
+      const theOrder = calculateNewOrder(this._smartTable._raw,insertAtPosition);
+      if (origin) item['origin'] = origin;
+      if (accent) item['accent'] = accent;
+      item['order'] = theOrder;     
+      this._smartTable.addRow(item); // add at position 0 , add new item to "this._smartTable._raw"
+    });
+
+    this._smartTable._raw.sort((a, b) => a.order - b.order); // sort basded on "order" key
+    this.hideWorkingSpinner();
+    this.notifySuccess(`${items.length} sound url(s) have been newly added!`);
+
+}
+
 
   async _handleGetLocalSounds() {
     const files = Array.from(this._localFileInput.files || []);
@@ -301,34 +362,29 @@ class FCSoundPicker extends HTMLElement {
       // For audio, you can skip conversion unless you want to normalize format
       const blob = file; // File is already a Blob
       const meta = { name: file.name, size: file.size, type: file.type };
-
       metaList.push(meta);
-
       // Create local object URL for playback
       newUrls.push(URL.createObjectURL(blob));
     }
 
     // Normalize and add to drag‑drop
     const items = normalizeSoundUrlsDataFromServer(this._entry.phrase, newUrls);
-    console.log(items);
-
+    const origin = this._originInput.value;
+    const accent = this._accentInput.value;
     items.forEach(item=> {
       const insertAtPosition = 0;
       const theOrder = calculateNewOrder(this._smartTable._raw,insertAtPosition);
+      if (origin) item['origin'] = origin;
+      if (accent) item['accent'] = accent;
       item['order'] = theOrder;     
       this._smartTable.addRow(item); // add at position 0 , add new item to "this._smartTable._raw"
     })    
+
     this._smartTable._raw.sort((a, b) => a.order - b.order); // sort basded on "order" key
     this.notifySuccess(`${items.length} sound file(s) have been newly added!`);
 
-
     const { success, failed } = await downloadAndSaveSound(this,this._entry.phraseID,this._entry.phrase,items);
-
-    console.log(success);
-    console.log(failed);
-
     this.hideWorkingSpinner();
-  // console.table(metaList);
 }
 
 

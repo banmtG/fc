@@ -52,7 +52,7 @@ sl-button-group sl-button::part(base) {
 }  
 
 .icon_button sl-button::part(base) {
-  font-size: 1.3rem;
+  font-size: 1.1rem;
 }
 
 .container_row sl-input,
