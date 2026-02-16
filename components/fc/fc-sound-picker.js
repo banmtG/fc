@@ -293,36 +293,48 @@ class FCSoundPicker extends HTMLElement {
     });
   }
 
-  async _handleRecord() {  
-    console.log(`vao Record`);
-    // console.log(this._childSmartTable._data);
-    // console.log(this._smartTable._raw);
-    let mediaRecorder;
-    let audioChunks = [];
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+ async _handleRecord() {
+  // If we already have a recorder and it's active, stop it
+  if (this._mediaRecorder && this._mediaRecorder.state === "recording") {
+    this._mediaRecorder.stop();
+    this._recordBtn.innerText = "🔴"; // back to "ready to record"
+    return;
+  }
 
-    mediaRecorder = new MediaRecorder(stream);
-    
-    mediaRecorder.ondataavailable = event => {
+  // Otherwise, start recording
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    this._mediaRecorder = new MediaRecorder(stream);
+    this._audioChunks = [];
+
+    this._mediaRecorder.ondataavailable = event => {
       if (event.data.size > 0) {
-        audioChunks.push(event.data);
+        this._audioChunks.push(event.data);
       }
     };
 
-    mediaRecorder.onstop = () => {
-      // Combine chunks into a single Blob
-      const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+    this._mediaRecorder.onstop = async () => {
+      const audioBlob = new Blob(this._audioChunks, { type: "audio/webm" });
       const audioUrl = URL.createObjectURL(audioBlob);
 
-
+      // Example: playback element
       console.log(audioUrl);
-      // You can now pass audioBlob into your _handleAddSounds
-      // Example: this._handleAddSounds([audioBlob]);
+      const { success, failed } = await this.saveFromBlobUrls([audioUrl]);    
+      this.notifySuccess(`${success.length} record(s) has been newly saved!`);
+      if (failed.length>0) this.notifyWarning(`${failed.length} record has failed!`);
+      // You can also feed audioBlob into your _handleAddSounds
+      // this._handleAddSounds([audioBlob]);
     };
+
+    this._mediaRecorder.start();
+    this._recordBtn.innerText = "🟥"; // recording in progress
+  } catch (err) {
+    console.error("Microphone access failed:", err);
+    this.notifyError("Unable to access microphone");
+  }
 }
 
-  async _handleAdd() {
- 
+  async _handleAdd() { 
     const newUrls = this._urlInput.value.split(',').map(s => s.trim()).filter(Boolean);
     this._urlInput.value = "";
 
@@ -348,6 +360,24 @@ class FCSoundPicker extends HTMLElement {
 
 }
 
+  async saveFromBlobUrls(blobUrls) {
+    // Normalize and add to drag‑drop
+    const items = normalizeSoundUrlsDataFromServer(this._entry.phrase, blobUrls);
+    const origin = this._originInput.value;
+    const accent = this._accentInput.value;
+    items.forEach(item=> {
+      const insertAtPosition = 0;
+      const theOrder = calculateNewOrder(this._smartTable._raw,insertAtPosition);
+      if (origin) item['origin'] = origin;
+      if (accent) item['accent'] = accent;
+      item['order'] = theOrder;     
+      this._smartTable.addRow(item); // add at position 0 , add new item to "this._smartTable._raw"
+    })    
+
+    this._smartTable._raw.sort((a, b) => a.order - b.order); // sort basded on "order" key
+    const { success, failed } = await downloadAndSaveSound(this,this._entry.phraseID,this._entry.phrase,items);
+    return { success, failed };
+  }
 
   async _handleGetLocalSounds() {
     const files = Array.from(this._localFileInput.files || []);
@@ -366,25 +396,10 @@ class FCSoundPicker extends HTMLElement {
       // Create local object URL for playback
       newUrls.push(URL.createObjectURL(blob));
     }
-
-    // Normalize and add to drag‑drop
-    const items = normalizeSoundUrlsDataFromServer(this._entry.phrase, newUrls);
-    const origin = this._originInput.value;
-    const accent = this._accentInput.value;
-    items.forEach(item=> {
-      const insertAtPosition = 0;
-      const theOrder = calculateNewOrder(this._smartTable._raw,insertAtPosition);
-      if (origin) item['origin'] = origin;
-      if (accent) item['accent'] = accent;
-      item['order'] = theOrder;     
-      this._smartTable.addRow(item); // add at position 0 , add new item to "this._smartTable._raw"
-    })    
-
-    this._smartTable._raw.sort((a, b) => a.order - b.order); // sort basded on "order" key
-    this.notifySuccess(`${items.length} sound file(s) have been newly added!`);
-
-    const { success, failed } = await downloadAndSaveSound(this,this._entry.phraseID,this._entry.phrase,items);
+    const { success, failed } = await this.saveFromBlobUrls(newUrls);
     this.hideWorkingSpinner();
+    this.notifySuccess(`${success.length} sound file(s) have been newly added!`);
+    if (failed.length>0) this.notifyWarning(`${failed.length} sound file(s) have not been added!`);
 }
 
 
