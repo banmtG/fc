@@ -1,6 +1,7 @@
 :host {
   position: block;
   color: var(--sl-color-neutral-700);
+  font-family: var(--sl-input-font-family);
 }
 
 #nav {
@@ -93,6 +94,7 @@ sl-details::part(header) {
   overflow: scroll;
   text-overflow: ellipsis; 
   align-items: flex-start;
+  font-family: var(--sl-input-font-family);
 }
 
 sl-details::part(header)::-webkit-scrollbar  {
@@ -101,7 +103,8 @@ sl-details::part(header)::-webkit-scrollbar  {
 
 sl-details::part(content) {
   padding: 5px 5px 5px 5px;
-  font-size: 1.2rem;
+  font-size: 16px;
+  font-family: var(--sl-input-font-family);
   /* margin-left: 25px; */
   line-height: 1.3rem;
   max-height: 3rem;
@@ -282,15 +285,16 @@ sl-button.multiline::part(label)::-webkit-scrollbar-thumb:window-inactive {
   margin: 0px 0;
   flex-shrink: 0;
   border-radius: 2px;
-  font-size: inherit;
+  font-size: 16px;
   line-height: calc(var(--sl-input-height-small) - var(--sl-input-border-width) * 2 - 2px);
   height: auto;
 }
 
 #relatedPhrases .placeHolder {
-  margin: 0 calc(var(--sl-input-spacing-small) - 5px);  
-  color: var(--sl-input-text-color);
-  font-size: var(--sl-input-label-font-size-small);
+  margin: 0 1px;  
+  color: var(--sl-input-placeholder-color);
+  font-family: var(--sl-input-font-family);
+  font-size: 16px;
   flex-shrink: 0;
 }
 
@@ -450,6 +454,6 @@ sl-button.multiline::part(label)::-webkit-scrollbar-thumb:window-inactive {
 
 
 sl-input::part(base) {
-  font-size: 18px;
+  font-size: 16px;
 }
 

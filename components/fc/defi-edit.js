@@ -36,10 +36,12 @@ class DefiEdit extends HTMLElement {
           </div>
         </div>
         </div>
-        <div slot="footer">
-           <sl-button class="focusable" size="small" variant="primary" id="confirm">Confirm</sl-button>
-            <sl-button class="focusable" size="small" variant="default" id="cancel">Cancel</sl-button>
-        </div>   
+        <div slot="footer" class="footer">
+          <sl-button-group> 
+            <sl-button size="medium" variant="primary" id="confirm" class="focusable"><sl-icon name="check-circle-fill" slot="prefix"></sl-icon>Confirm</sl-button>
+            <sl-button size="medium" variant="default" id="cancel" class="focusable"><sl-icon name="x-circle" slot="prefix"></sl-icon>Cancel</sl-button>
+          </sl-button-group> 
+        </div>    
       </smart-dialog>
     `;
    

@@ -1,7 +1,7 @@
 :host {
   display: block;
-  font-family: system-ui, sans-serif;
-  font-size: 1rem;
+  font-family: var(--sl-input-font-family);
+  font-size: 18px;
 }
 
 :host(:focus) {

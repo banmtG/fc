@@ -101,3 +101,53 @@ extended-smart-table {
   display:none;
 }
 
+#bingDiv {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#bingDiv .bingDiv_top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3px;
+  font-family: inherit;
+  user-select: none;
+  cursor: pointer;
+}
+
+.iframeContainer {
+  width: calc(100% + 7px);
+  height:  calc(82vh - 2px);
+  overflow: hidden;
+}
+
+#bingIframe {
+  width: calc(100% + 5px);
+  height:  calc(84vh - 5px);
+}
+
+
+.hidden {
+  display: none !important;
+}
+
+
+
+@media screen and (min-width: 768px) { 
+    /*  “Only apply the styles inside this block if the screen width is 768 pixels or wider.” */                   
+    smart-dialog::part(dialog) {
+        max-width: 700px;
+        width:50vw;
+        min-width: 500px;
+    }
+}
+
+@media screen and (max-width: 767px) {
+    /* Mobile-specific styles go here */
+    smart-dialog::part(dialog) {
+        max-width: 600px;
+        width:99vw;
+    }
+}

@@ -17,6 +17,24 @@ smart-dialog {
   position: relative;
 }
 
+.canvasContainer {
+  border-radius: 30px;
+  position: absolute;
+  margin: 20px;
+  height: 60px;
+  width: calc(100% - 40px);
+  left: 0;
+  top: calc(50vh - 150px);
+  display:none;
+  background-color: #ccc;
+  overflow: hidden;
+}
+
+#waveCanvas {
+  height: 100%;
+  width: 100%;
+}
+
 .container_row sl-input,
 .container_row sl-button {
   min-width: 0; /* allow shrinking inside grid */
@@ -44,7 +62,7 @@ smart-dialog {
 
 .container_row.row2 {  
   display:grid;
-  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 2fr) auto;
   gap: 2px;
   margin: 1px 0;
 }
@@ -129,4 +147,21 @@ sl-button-group sl-button::part(base) {
   transform: translate(-50%, -50%); /* centers the element */
   z-index: 10; /* put it above content if needed */
   display:none;
+}
+
+
+@media screen and (min-width: 768px) {    
+    smart-dialog::part(dialog) {
+        max-width: 500px;
+        width:50vw;
+        min-width: 400px;
+    }
+}
+
+@media screen and (max-width: 767px) {
+    /* Mobile-specific styles go here */
+    smart-dialog::part(dialog) {
+        max-width: 450px;
+        width:99vw;
+    }
 }

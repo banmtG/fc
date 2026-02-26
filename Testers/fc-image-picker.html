@@ -193,7 +193,7 @@
    document.addEventListener('fc-image-picker-fetch-requested', async (e) => {
       console.log(e);
       const { items, origin } = e.detail;
-
+    
       const result = await AuthManager.callApi(CONFIG.API_SEARCH_IMG, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

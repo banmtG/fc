@@ -4,8 +4,8 @@ import Sortable from '../lib/sortableJS/sortable.complete.esm.js';
 import { NotificationManagerInstance } from './../../core/notification-manager.js';
 import { confirmDialog } from './../../core/confirmDialog.js';
 import { copyTextToClipboard } from './../../js/utils/clipboard.js';
-import { mapTableSoundData, downloadAndSaveSound, playSoundFromURLorBlob, removeSoundBlobEntry , normalizeSoundUrlsDataFromServer, calculateNewOrder  } from './../../js/data_services/soundUrls.js';
-
+import { mapTableSoundData, downloadAndSaveSound, playSoundFromURLorBlob, removeSoundBlobEntry , normalizeSoundUrlsDataFromServer, calculateNewOrder, getUrlFromSoundItem  } from './../../js/data_services/soundUrls.js';
+import {checkDefiExist} from './../../js/data_services/phrases.js';
 
 const cssUrl = new URL("./fc-sound-picker.css", import.meta.url);
 
@@ -29,7 +29,7 @@ template.innerHTML = `
               </div>
                 <div class="container_row row2 icon_button">
                   <sl-input id="originInput" class="focusable"  size="medium" placeholder="Origin"></sl-input>
-                  <sl-input id="accentInput" class="focusable"  size="medium" placeholder="Accent"></sl-input>
+                  <sl-input id="accentInput" class="focusable"  size="medium" placeholder="Accent: US, UK"></sl-input>
                   <sl-button-group>    
                     <sl-button id="localFileBtn" class="focusable" size="medium">📂</sl-button>
                     <sl-button id="recordBtn" class="focusable" size="medium">🔴</sl-button>
@@ -39,7 +39,7 @@ template.innerHTML = `
               <extended-smart-table id="smart-table" search="false" pagination="false">
               </extended-smart-table>    
                <sl-button-group label="Alignment" class="smartDragdrop_buttons icon_button">
-                <sl-tooltip content="Download to use offline"><sl-button class="focusable" size="medium" id="downloadBtn">🌍➜💾</sl-button></sl-tooltip>
+                <sl-tooltip content="Open Link in Browser"><sl-button class="focusable" size="medium" style="display: none" id="openLinkBtn">↗️</sl-button></sl-tooltip>
                 <sl-tooltip content="Delete"><sl-button class="focusable" size="medium" id="deleteBtn">🗑</sl-button></sl-tooltip>
                 <sl-tooltip content="Extract links"><sl-button class="focusable" size="medium" id="extractLinksBtn">⛏️</sl-button></sl-tooltip>
                 <sl-tooltip content="Pick to use in card view"><sl-button class="focusable" size="medium" id="useBtn">📌</sl-button></sl-tooltip>
@@ -49,7 +49,15 @@ template.innerHTML = `
                   <sl-button id="fetchBtn" class="focusable" size="medium">🚀</sl-button>
               </div>    
               <input type="file" id="localFileInput" style="display:none" multiple accept="sound/*"> 
-              <div class="spinner"><sl-spinner style="font-size: 50px; --track-width: 10px;"></sl-spinner></div>           
+              <div class="spinner"><sl-spinner style="font-size: 50px; --track-width: 10px;"></sl-spinner></div>     
+              <div class="canvasContainer">
+                <canvas id="waveCanvas"></canvas>
+                <div id="recordTimer" 
+                    style="position: absolute; top: 5px; left: 50%; transform: translateX(-50%);
+                            font-family: monospace; font-size: 16px; color: black;">
+                  00:00
+                </div>
+              </div>
             </div>
         </div>
         <div slot="footer" class="footer">
@@ -91,10 +99,12 @@ class FCSoundPicker extends HTMLElement {
   
   async _hydrateTable() {
     const { signal } = this._abort;
+    this._smartTable.data = [];
+    this._smartTable._runPipeline();
     this.showWorkingSpinner();
+    this._smartTable.data = await mapTableSoundData(this._entry.phraseID,this._entry.sound?.data);
     this.hideWorkingSpinner();   
-    this._smartTable.data = await mapTableSoundData(this._entry.phraseID,this._entry.sound.data);
-    // console.log(this._data.length);
+    // console.log(this._smartTable.data);
     // Pass down columns
     this._smartTable.setColumns([ 
     {
@@ -144,7 +154,7 @@ class FCSoundPicker extends HTMLElement {
     label: "SoundID",
     sortable: false,
     width_set: {
-      value: "120px",      // fit content width
+      value: "140px",      // fit content width
     },
     render: (val, obj) => {
       const div = document.createElement("div");      
@@ -239,22 +249,32 @@ class FCSoundPicker extends HTMLElement {
     this._recordBtn = this.shadowRoot.querySelector('#recordBtn');
 
     this._deleteBtn = this.shadowRoot.querySelector('#deleteBtn');
-    this._downloadBtn= this.shadowRoot.querySelector('#downloadBtn');
+    this._openLinkBtn= this.shadowRoot.querySelector('#openLinkBtn');
     this._extractLinksBtn= this.shadowRoot.querySelector('#extractLinksBtn');
     this._useBtn= this.shadowRoot.querySelector('#useBtn');
-
+    this._canvasContainer = this.shadowRoot.querySelector('.canvasContainer');
 
     this._addBtn.addEventListener('click', ()=>this._handleAdd(), { signal });
   
-
     this._deleteBtn.addEventListener('click', ()=>this._handleDelete(), { signal });
 
-    this._smartTable.addEventListener('rows-deleted',(e)=>this.notifySuccess(`${e.detail.ids.length} item(s) has been deleted!`), { signal });
+    this._smartTable.addEventListener('rows-deleted', async (e)=> { 
+      await removeSoundBlobEntry(this._entry.phraseID,e.detail.ids);      
+      this.notifySuccess(`${e.detail.ids.length} item(s) has been deleted!`) }
+    , { signal });
 
-    this._downloadBtn.addEventListener('click', ()=>this._handleDownload(), { signal });
+
+    // this._downloadBtn.addEventListener('click', ()=>this._handleDownload(), { signal });
     this._extractLinksBtn.addEventListener('click', ()=> this._handleExtractLinks(), { signal });
+
+
     this._useBtn.addEventListener('click', ()=>this._handleToggleUse(), { signal });    
     
+    this._textToSpeechInput = this.shadowRoot.querySelector('#textToSpeechInput');
+
+    this._fetchBtn = this.shadowRoot.querySelector('#fetchBtn');
+    this._fetchBtn.addEventListener('click', ()=>this._handleFetch(), { signal });
+
     this.addEventListener('playSound-requested',(e)=> this._playSoundFromUrl(e), { signal });    
 
     this._localFileBtn.addEventListener("click", () => this._localFileInput.click(), { signal });
@@ -270,6 +290,9 @@ class FCSoundPicker extends HTMLElement {
     this._smartTable.addEventListener('highlight-changed', (e) => {
       console.log("highlight-changed", e.detail.id);      
     } , { signal });
+
+    this.addEventListener('fc-sound-picker-fetched',(e)=> this._onSoundFetched(e), { signal });    
+
    
     this._sortable = new Sortable(this._tableBody, {
       animation: 150,      
@@ -285,60 +308,151 @@ class FCSoundPicker extends HTMLElement {
         this.shiftItemAfterDrag(this._smartTable._raw,evt.oldIndex,evt.newIndex);
         this._childSmartTable._data = this.reSetOrderArray(this._childSmartTable._data);
         this._smartTable._raw = this.reSetOrderArray(this._smartTable._raw);
-
-        console.log(this._childSmartTable._data);
-        console.log(this._smartTable._raw);
-
       },
     });
   }
+  
+  async _onSoundFetched(e) {   
+    const theTargetOject = e.detail.theTargetOject;
+    let audioUrl;
+    if (theTargetOject.blob instanceof Blob) {
+      // Case: actual Blob
+      audioUrl = URL.createObjectURL(theTargetOject.blob);
+    } else if (typeof theTargetOject.blob === "string") {
+      // Case: base64 string
+      audioUrl = "data:audio/mp3;base64," + theTargetOject.blob;
+    } else {
+      this.notifyWarning("Invalid audio data received");
+      return;
+    }
 
- async _handleRecord() {
-  // If we already have a recorder and it's active, stop it
-  if (this._mediaRecorder && this._mediaRecorder.state === "recording") {
-    this._mediaRecorder.stop();
-    this._recordBtn.innerText = "🔴"; // back to "ready to record"
-    return;
+    const { success, failed } = await this.saveFromBlobUrls([audioUrl]);
+    this.notifySuccess(`${success.length} sound file(s) have been newly added!`);
+    if (failed.length > 0) this.notifyWarning(`${failed.length} sound file(s) have not been added!`);
   }
 
-  // Otherwise, start recording
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    this._mediaRecorder = new MediaRecorder(stream);
-    this._audioChunks = [];
+  
 
-    this._mediaRecorder.ondataavailable = event => {
-      if (event.data.size > 0) {
-        this._audioChunks.push(event.data);
-      }
-    };
-
-    this._mediaRecorder.onstop = async () => {
-      const audioBlob = new Blob(this._audioChunks, { type: "audio/webm" });
-      const audioUrl = URL.createObjectURL(audioBlob);
-
-      // Example: playback element
-      console.log(audioUrl);
-      const { success, failed } = await this.saveFromBlobUrls([audioUrl]);    
-      this.notifySuccess(`${success.length} record(s) has been newly saved!`);
-      if (failed.length>0) this.notifyWarning(`${failed.length} record has failed!`);
-      // You can also feed audioBlob into your _handleAddSounds
-      // this._handleAddSounds([audioBlob]);
-    };
-
-    this._mediaRecorder.start();
-    this._recordBtn.innerText = "🟥"; // recording in progress
-  } catch (err) {
-    console.error("Microphone access failed:", err);
-    this.notifyError("Unable to access microphone");
+  async _handleFetch() {
+    const textToSpeech = this._textToSpeechInput.value;
+    console.log(this._entry.defi?.length>0);
+    const items = [{
+      phrase: this._entry.phrase.trim(),
+      textToSpeech: textToSpeech.trim(),
+      // metadata: { defi: (checkDefiExist(this._entry)? true : false ) }
+      metadata: { defi: true }
+    }];
+    console.log(items);
+    this.dispatchEvent(
+      new CustomEvent('fc-sound-picker-fetch-requested', { 
+        detail: { items, origin: this },
+        bubbles: true,
+        composed: true,
+      }));  
   }
-}
+
+  async _handleRecord() {
+    // Toggle stop if already recording
+    if (this._mediaRecorder && this._mediaRecorder.state === "recording") {
+      this._mediaRecorder.stop();
+      this._recordBtn.innerText = "🔴";
+      cancelAnimationFrame(this._rafId);
+      clearInterval(this._timerInterval); // stop timer
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      this.notifySuccess(`Start recording!`, undefined, undefined, 3000);
+
+      this._canvasContainer.style.display = "block";
+
+      // MediaRecorder for saving audio
+      this._mediaRecorder = new MediaRecorder(stream);
+      this._audioChunks = [];
+
+      this._mediaRecorder.ondataavailable = e => {
+        if (e.data.size > 0) this._audioChunks.push(e.data);
+      };
+
+      this._mediaRecorder.onstop = async () => {
+        this._canvasContainer.style.display = "none";
+        const audioBlob = new Blob(this._audioChunks, { type: "audio/webm" });
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const { success, failed } = await this.saveFromBlobUrls([audioUrl]);
+        this.notifySuccess(`${success.length} record(s) saved!`);
+        if (failed.length > 0) this.notifyWarning(`${failed.length} record failed!`);
+      };
+
+      this._mediaRecorder.start();
+      this._recordBtn.innerText = "🟥";
+
+      // Start timer 
+      let seconds = 0; 
+      this._updateTimerDisplay(seconds); 
+      this._timerInterval = setInterval(() => { 
+        seconds++; 
+        this._updateTimerDisplay(seconds); 
+      }, 1000);
+
+      // Web Audio API for visualization
+      const audioCtx = new AudioContext();
+      const source = audioCtx.createMediaStreamSource(stream);
+      const analyser = audioCtx.createAnalyser();
+      source.connect(analyser);
+
+      const canvas = this.shadowRoot.getElementById("waveCanvas");
+      const ctx = canvas.getContext("2d");
+      analyser.fftSize = 256;
+      const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+      const draw = () => {
+        this._rafId = requestAnimationFrame(draw);
+        analyser.getByteTimeDomainData(dataArray);
+
+        // Compute average loudness
+        let sum = 0;
+        for (let i = 0; i < dataArray.length; i++) {
+          sum += Math.abs(dataArray[i] - 128);
+        }
+        const avg = sum / dataArray.length;
+
+        // Scroll canvas left
+        const imageData = ctx.getImageData(1, 0, canvas.width - 1, canvas.height);
+        ctx.putImageData(imageData, 0, 0);
+        ctx.clearRect(canvas.width - 1, 0, 1, canvas.height);
+
+        // Draw new bar at right edge
+        const barHeight = (avg / 32) * canvas.height;
+        ctx.fillStyle = "#6B6B6B";
+        ctx.fillRect(canvas.width - 1, canvas.height - barHeight, 1, barHeight);
+      };
+
+      draw();
+    } catch (err) {
+      console.error("Microphone access failed:", err);
+      this.notifyWarning("Unable to access microphone");
+    }
+  }
+
+  // Helper to format and update timer 
+  _updateTimerDisplay(seconds) { 
+    const timerEl = this.shadowRoot.getElementById("recordTimer"); 
+    if (!timerEl) return; 
+    const mins = String(Math.floor(seconds / 60)).padStart(2, "0"); 
+    const secs = String(seconds % 60).padStart(2, "0"); 
+    timerEl.textContent = `${mins}:${secs}`; 
+  }
+
 
   async _handleAdd() { 
     const newUrls = this._urlInput.value.split(',').map(s => s.trim()).filter(Boolean);
     this._urlInput.value = "";
 
-    if (newUrls.length === 0) return;
+    if (newUrls.length === 0) {
+      this.notifyWarning("Please add a sound url first!")
+      return;
+    }
 
     this.showWorkingSpinner();
     // Normalize and add to drag‑drop
@@ -408,33 +522,33 @@ class FCSoundPicker extends HTMLElement {
     playSoundFromURLorBlob(this, this._entry.phraseID,targetID);
   }
   
-  async _handleDownload() {
-    const selectedIDs = this._smartTable.getSelected();  
-    if (!selectedIDs) return; // nothing to work on 
+  // async _handleDownload() {
+  //   const selectedIDs = this._smartTable.getSelected();  
+  //   if (!selectedIDs) return; // nothing to work on 
 
-    const theTargetObjects = this._smartTable._raw.filter(obj => selectedIDs.includes(obj.id));
-    // show loading Spinner for await
-    this.showWorkingSpinner();
-    const { success, failed } = await downloadAndSaveSound(this,this._entry.phraseID,this._entry.phrase, theTargetObjects);
-    // prepare patchedItems with blob-ready URL
-    let totalSize = 0;
+  //   const theTargetObjects = this._smartTable._raw.filter(obj => selectedIDs.includes(obj.id));
+  //   // show loading Spinner for await
+  //   this.showWorkingSpinner();
+  //   const { success, failed } = await downloadAndSaveSound(this,this._entry.phraseID,this._entry.phrase, theTargetObjects);
+  //   // prepare patchedItems with blob-ready URL
+  //   let totalSize = 0;
 
-    // get Image Blob Url ready before passing to img
-    const patchedItems = await Promise.all(success.map(async item=> { 
-        totalSize = totalSize + item.meta.processed.size;
-        return { ...item, t:"blob", url_blob: await getImageUrl(this._entry.phraseID,item.id)} 
-      })
-    );
+  //   // get Image Blob Url ready before passing to img
+  //   const patchedItems = await Promise.all(success.map(async item=> { 
+  //       totalSize = totalSize + item.meta.processed.size;
+  //       return { ...item, t:"blob", url_blob: await getImageUrl(this._entry.phraseID,item.id)} 
+  //     })
+  //   );
 
-    //u 
-    this.hideWorkingSpinner();
+  //   //u 
+  //   this.hideWorkingSpinner();
     
-    if (success.length>0) 
-      this.notifySuccess(`${success.length} item(s) (${(totalSize/1024/1024).toFixed(2)}MB) has been downloaded!`);
+  //   if (success.length>0) 
+  //     this.notifySuccess(`${success.length} item(s) (${(totalSize/1024/1024).toFixed(2)}MB) has been downloaded!`);
 
-    if (failed.length>0) 
-      this.notifyWarning(`${failed.length} items cannot be downloaded!`);
-  }
+  //   if (failed.length>0) 
+  //     this.notifyWarning(`${failed.length} items cannot be downloaded!`);
+  // }
   
 
   async _handleDelete() {
@@ -446,9 +560,10 @@ class FCSoundPicker extends HTMLElement {
     const confirmed = await confirmDialog.show("⛔ Confirmation",msg);
     if (!confirmed) return;
     this._smartTable._handleRowDelete(selectedIDs);
-
+    console.log(`before SoundBlobREmove`);
     const result = await removeSoundBlobEntry(this._entry.phraseID,selectedIDs);
- 
+    console.log(`after SoundBlobREmove`);
+    console.log(result);
   }
 
   _handleToggleUse() {
@@ -463,12 +578,14 @@ class FCSoundPicker extends HTMLElement {
     this.notifySuccess(`${selectedIDs.length} item(s) has been updated!`);
   }
 
-  _handleExtractLinks() {
+  async _handleExtractLinks() {
     const selectedIDs = this._smartTable.getSelected();    
     if (!selectedIDs || selectedIDs.length===0) return; // nothing to work on    
 
-    const theTargets = this._smartTable._raw.filter(obj => selectedIDs.includes(obj.id));
-    const results = theTargets.map(obj=> obj.url);
+    const results = await Promise.all(selectedIDs.map(async (id) => { 
+      return await getUrlFromSoundItem(this,this._entry.phraseID,id) 
+    }));
+    
     // console.log(results);
     this.notifySuccess(`${results.length} link(s) has been copied to clipboard`);
     copyTextToClipboard(results.join(',\n'));  
@@ -504,6 +621,7 @@ class FCSoundPicker extends HTMLElement {
     //this._entry.connecting_phrases = this._result;
     this.dispatchEvent(
       new CustomEvent('fc-sound-picker-updated', { 
+        detail: { value : this._smartTable.data },
         bubbles: false,
         composed: true,
       }));   
@@ -527,12 +645,12 @@ class FCSoundPicker extends HTMLElement {
     this._spinner.style.display = "none";
   }
 
-  notifySuccess(message) {
+  notifySuccess(message, icon = "stars", color = "--sl-color-success-500", timer= 1500 ) {
     NotificationManagerInstance.show({
       label: message,
-      icon: "stars",
-      color: "--sl-color-success-500",
-      timer: 1500
+      icon: icon,
+      color: color,
+      timer: timer
     });
   }
 

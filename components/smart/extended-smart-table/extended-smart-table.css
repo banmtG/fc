@@ -2,7 +2,7 @@
   display: block;
   box-sizing: border-box;
   padding: 0px;
-  font-family: system-ui, sans-serif;
+  font-family: var(--sl-input-font-family);
   color: #484848;
 }
 

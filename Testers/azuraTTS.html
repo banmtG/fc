@@ -18,9 +18,9 @@
   <script>
     document.getElementById("ttsBtn").addEventListener("click", async () => {
       const phrases = document.getElementById("phrasesInput").value.split(",").map(p => ({
-        phrase: p.trim(),
+        phrase: "semen",
         textToSpeech: p.trim(),
-        metadata: { defi: true }
+        metadata: { defi: false }
       }));
 
       try {
@@ -28,7 +28,7 @@
           method: "POST",
           credentials: "include",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(phrases)
+          body: JSON.stringify( { items: phrases })
         });
 
         const data = (await res.json()).data;

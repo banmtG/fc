@@ -207,7 +207,7 @@ export class ExtendedSmartTable extends HTMLElement {
     //set new HighLight after delete
     const newHighLightObject = this._raw.find(item => 
       (item.id!==this.$tbl._highlightId && !Array.from(this.$tbl._selected).includes(item.id)));
-    this.$tbl._highlightId = newHighLightObject.id; 
+    this.$tbl._highlightId = newHighLightObject?.id; 
 
 
     // Remove from raw dataset

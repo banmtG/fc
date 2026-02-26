@@ -4,6 +4,8 @@ export const CONFIG = {
   API_PROTECTED:    "https://php.adapps.download/apps/fc/api/data/protectedAPI.php",
   API_SEARCH_DICT:  "https://php.adapps.download/apps/fc/api/data/searchDict.php",
   API_SEARCH_IMG: "https://php.adapps.download/apps/fc/api/data/searchImage.php",
+  API_SEARCH_SOUNDBLOB: "https://php.adapps.download/apps/fc/api/data/searchSoundBlob.php",
+  API_GET_GOOGLE_AT: "https://php.adapps.download/apps/fc/api/data/gService.php",
   API_LOGOUT: "https://php.adapps.download/apps/fc/api/auth/logout.php",
   API_LOGIN: "https://php.adapps.download/apps/fc/api/auth/login.php",
   QUOTA_GUEST: 100,

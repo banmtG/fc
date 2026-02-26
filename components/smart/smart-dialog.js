@@ -127,7 +127,8 @@ class SmartDialog extends HTMLElement {
         /*  “Only apply the styles inside this block if the screen width is 768 pixels or wider.” */     
         .dialog {
             max-width:100vw;
-            width:72vw;
+            width:50vw; 
+            min-width:450px;         
         }
     }
 

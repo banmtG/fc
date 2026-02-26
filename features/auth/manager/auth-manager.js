@@ -3,6 +3,8 @@ import LocalStorage from "../../../core/local-storage.js"; // lightweight persis
 import Connectivity from './../../../js/utils/connectivity.js';
 import Database from './../../../core/database.js';
 import { Spinner } from './../../../components/smart/spinner.js';
+import { NotificationManagerInstance } from './../../../core/notification-manager.js';
+
 /**
  * AuthManager
  * ===========================================
@@ -43,7 +45,6 @@ export class AuthManager {
 
 static async callApi(url, options = {}) {
   const opts = { ...options, credentials: "include" };
-  // const activeUser = LocalStorage.get("activeUser");
 
   try {
     Spinner.show(); // show loading icon
@@ -56,11 +57,34 @@ static async callApi(url, options = {}) {
       res = await fetch(url, opts);
     }
 
-    if (!res.ok) {
-      throw new Error(`API error: ${res.status}`);
+    // Parse JSON first
+    const finalData = await res.json();
+    console.log(finalData);
+
+    // Handle quota error returned in JSON body
+    if (finalData.error) {
+      NotificationManagerInstance.show({
+        label: `❌ ${finalData.error} (used ${finalData.used}/${finalData.limit})`,
+        icon : 'exclamation-diamond-fill', 
+        color : '--sl-color-danger-600',
+        timer: 4000
+      });
+      throw new Error(`API error: ${finalData.error}`);
     }
 
-    return await res.json();
+    // Handle quota info if present
+    if (finalData?.quota?.quota_applied?.[1]) {      
+      const metrics = finalData.quota.quota_applied[1].metrics.daily_calls;
+      console.log(metrics);  
+      NotificationManagerInstance.show({
+        label: `Quota left ${metrics.used} / ${metrics.limit}`,
+        icon : 'info-circle-fill', 
+        color : '--sl-color-primary-600',
+        timer: 4000
+      });
+    }
+
+    return finalData;
   } catch (err) {
     console.error("❌ API call failed:", err);
     throw err;
@@ -68,6 +92,7 @@ static async callApi(url, options = {}) {
     Spinner.hide(); // always hide spinner
   }
 }
+
 
 
   // Logout flow

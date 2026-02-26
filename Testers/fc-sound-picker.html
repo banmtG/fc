@@ -15,7 +15,9 @@
 
 <!-- <audio id="myAudioUK" src="https://dictionary.cambridge.org/media/english/uk_pron/u/uka/ukabd/ukabdic012.mp3"></audio> -->
 <!-- <button id="playBtn">Play</button> -->
-<script> 
+<script type="module">
+  import { AuthManager } from './../features/auth/manager/auth-manager.js';
+  import { CONFIG } from './../config/config.js';
   // const audio = document.getElementById("myAudioUK");
   // const playBtn = document.getElementById("playBtn");
   // playBtn.addEventListener('click', ()=> {audio.play();});
@@ -137,7 +139,29 @@
     fsp.open(entry);
   }
 
+  document.addEventListener('fc-sound-picker-fetch-requested', async (e) => {
+      console.log(e);
+      const { items, origin } = e.detail;
 
+      const result = await AuthManager.callApi(CONFIG.API_SEARCH_SOUNDBLOB, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items })
+      });
+
+      console.log(result);
+      
+      // console.log(result.detail.data.results);
+      const theTargetOject = result.data[0];
+      console.log(theTargetOject);
+      // ✅ Emit result back to the originating component
+      origin.dispatchEvent(new CustomEvent('fc-sound-picker-fetched', {
+        detail: { theTargetOject }
+      }));
+
+      console.log('emit images-fetched event to', origin.tagName);
+    });
+ 
 </script> 
 </body> 
 </html>

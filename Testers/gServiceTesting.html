@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css" />
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace.js"></script>
+  <title>Google Drive API Demo</title>
+  <script type="module" src="./../DriveDBSync/reportDialog.js"></script>
+  <style>
+    sl-progress-bar {
+      margin: 10px 0;
+    } 
+
+  </style>
+</head>
+<body>
+  <h1>Google Drive Demo</h1>
+  <sl-button id="runDemo">Run Demo</sl-button>
+
+  <sl-button id="importData">Import</sl-button>
+  
+  <sl-button id="mirrorUpload">Mirror Upload</sl-button>
+  <sl-button id="mirrorDownload">Mirror Download</sl-button>
+
+  <br>
+
+  <!-- <sl-progress-bar id="progress-phrases" value="0"></sl-progress-bar> -->
+  <br>
+  <pre id="output"></pre>
+  <report-dialog></report-dialog>
+
+  <script type="module">
+    import { AuthManager } from './../features/auth/manager/auth-manager.js';
+    import { CONFIG } from './../config/config.js';
+    import Database from "./../core/database.js";
+    import { pushFullSync, pullFullSync  } from "./../DriveDBSync/mirrorSync.js";
+    import { tableData } from "./phraseList.js";
+    await Database.init();
+   // document.getElementById('addPhrase').addEventListener('click',()=> seedPhrases(tableData));
+    document.getElementById('mirrorUpload').addEventListener('click',async ()=>await pushFullSync("user-abcxyz"));
+    document.getElementById('mirrorDownload').addEventListener('click',async ()=>await pullFullSync("user-abcxyz"));
+    
+/**
+ * Bulk insert phrases into IndexedDB.
+ * @param {Array} phraseArray - Array of phrase objects
+ */
+async function seedPhrases(phraseArray) {
+  const db = await Database.init();
+  const tx = db.transaction("phrases", "readwrite");
+  const store = tx.objectStore("phrases");
+
+  for (const phrase of phraseArray) {
+    // Ensure each phrase has a primary key
+    if (!phrase.phraseID) {
+      phrase.phraseID = `phrase_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+    }
+    if (!phrase.updatedAt) {
+      phrase.updatedAt = new Date().toISOString();
+    }
+
+    store.put(phrase);
+  }
+
+  return new Promise((resolve, reject) => {
+    tx.oncomplete = () => resolve(true);
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+// Usage:
+seedPhrases(tableData.slice(0,80))
+  .then(() => console.log(`✅ ${tableData.slice(0,80).length} phrases inserted into IndexedDB`))
+  .catch(err => console.error("❌ Failed to seed phrases", err));
+Database.updateMeta("phrases",new Date().toISOString());
+
+    async function runDemo() {
+      
+      const output = document.getElementById('output');
+      output.textContent = "Fetching access token...\n";
+      try {
+        // Step 1: Get token from your PHP API
+
+        const tokenResp = await AuthManager.callApi(CONFIG.API_GET_GOOGLE_AT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" } 
+        });
+
+        // console.log(result);
+        // const tokenResp = await fetch(CONFIG.API_GET_GOOGLE_AT);
+
+        const accessToken = tokenResp.data.access_token;
+        output.textContent += "Got access token.\n";
+
+        // Step 2: Create a folder in Google Drive
+        const folderMetadata = {
+          name: "DemoFolder",
+          mimeType: "application/vnd.google-apps.folder"
+        };
+        const folderResp = await fetch("https://www.googleapis.com/drive/v3/files", {
+          method: "POST",
+          headers: {
+            "Authorization": "Bearer " + accessToken,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(folderMetadata)
+        });
+        const folderData = await folderResp.json();
+        if (folderData.error) {
+          output.textContent += "Folder error: " + JSON.stringify(folderData.error);
+          return;
+        }
+        output.textContent += "Created folder with ID: " + folderData.id + "\n";
+
+        // Step 3: Upload a JSON file into that folder
+        const fileMetadata = {
+          name: "sample.json",
+          parents: [folderData.id]
+        };
+        const fileContent = JSON.stringify({ hello: "world", timestamp: Date.now() });
+
+        const form = new FormData();
+        form.append("metadata", new Blob([JSON.stringify(fileMetadata)], { type: "application/json" }));
+        form.append("file", new Blob([fileContent], { type: "application/json" }));
+
+        const uploadResp = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart", {
+          method: "POST",
+          headers: { "Authorization": "Bearer " + accessToken },
+          body: form
+        });
+        const uploadData = await uploadResp.json();
+        if (uploadData.error) {
+          output.textContent += "Upload error: " + JSON.stringify(uploadData.error);
+          return;
+        }
+        output.textContent += "Uploaded JSON file with ID: " + uploadData.id + "\n";
+
+      } catch (err) {
+        output.textContent += "Exception: " + err.message;
+      }
+    }
+
+    document.getElementById('runDemo').addEventListener('click', runDemo);
+  </script>
+</body>
+</html>

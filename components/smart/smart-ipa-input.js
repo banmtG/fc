@@ -36,22 +36,22 @@ class SmartIpaInput extends HTMLElement {
       }
 
       /* Custom styling for Shoelace buttons */
-      .char-grid sl-button::part(base) {
-        margin: 0;
-        padding: 0;
-        border-radius: 0;
-        background-color: #f2f2f2;
-        transition: background-color 0.3s ease, box-shadow 0.3s ease;
-        border: none;
-        box-shadow: inset 0 0 0 1px #f2f2f2; /* emulate 1px border */
-      }
+      // .char-grid sl-button::part(base) {
+      //   margin: 0;
+      //   padding: 0;
+      //   border-radius: 0;
+      //   background-color: #f2f2f2;
+      //   transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      //   border: none;
+      //   box-shadow: inset 0 0 0 1px #f2f2f2; /* emulate 1px border */
+      // }
 
       .char-grid sl-button::part(label) {
         font-size: 1.2rem;
       }
 
 
-    @media screen and (min-width: 768px) { 
+    @media screen and (min-width: 868px) { 
         /*  “Only apply the styles inside this block if the screen width is 768 pixels or wider.” */
         .char-grid sl-button[size="small"]::part(base) {
             padding:0;          
@@ -65,15 +65,16 @@ class SmartIpaInput extends HTMLElement {
         }        
                       
         smart-dialog::part(dialog) {
-            max-width:100vw;
-            width:72vw;
+            max-width: 600px;
+            width:50vw;
+            min-width: 400px;
         }
     }
 
-    @media screen and (max-width: 767px) {
+    @media screen and (max-width: 867px) {
         /* Mobile-specific styles go here */
         smart-dialog::part(dialog) {
-            max-width:100vw;
+            max-width: 400px;
             width:99vw;
         }
         .char-grid {         
@@ -135,10 +136,12 @@ class SmartIpaInput extends HTMLElement {
         <div slot="footer_extra">
             <span style="font-size: 0.8rem;"><i>Use lowercase, no number</i></span>
         </div>    
-        <div slot="footer">
-            <sl-button size="small" variant="primary" id="confirm" class="focusable">Confirm</sl-button>
-            <sl-button size="small" variant="default" id="cancel" class="focusable">Cancel</sl-button>
-        </div>        
+        <div slot="footer" class="footer">
+            <sl-button-group> 
+              <sl-button size="medium" variant="primary" id="confirm" class="focusable"><sl-icon name="check-circle-fill" slot="prefix"></sl-icon>Confirm</sl-button>
+              <sl-button size="medium" variant="default" id="cancel" class="focusable"><sl-icon name="x-circle" slot="prefix"></sl-icon>Cancel</sl-button>
+            </sl-button-group> 
+        </div>           
     </smart-dialog>     
     <smart-notification></smart-notification>
     `;
@@ -332,7 +335,6 @@ class SmartIpaInput extends HTMLElement {
   }
 
   open(entry) {
-    console.log(entry);
     const current_ipa = entry.user_ipa;
     const ukipa = entry.ukipa? entry.ukipa : null;
     if (ukipa===null) {

@@ -1,6 +1,6 @@
 import '../smart/smart-dialog.js';
 import './../smart/smart-dragdrop/smart-dragdrop.js';
-import { downloadAndSaveImages, removeImageBlobEntry, normalizeBlobItems, getImageUrl, normalizeUrlsDataFromServer, reverseTransform  } from './../../js/data_services/imgUrls.js';
+import { downloadAndSaveImages, removeImageBlobEntry, normalizeBlobItems, getBlobImageUrl, normalizeUrlsDataFromServer, reverseTransform  } from './../../js/data_services/imgUrls.js';
 import { NotificationManagerInstance } from './../../core/notification-manager.js';
 import { confirmDialog } from './../../core/confirmDialog.js';
 import { copyTextToClipboard } from './../../js/utils/clipboard.js';
@@ -13,7 +13,7 @@ const cssUrl = new URL("./fc-image-picker.css", import.meta.url);
 const template = document.createElement("template");
 template.innerHTML = `
   <link rel="stylesheet" href="${cssUrl}">
-  <smart-dialog esc-close draggable resizable>
+  <smart-dialog id="mainDialog" esc-close draggable resizable>
     <div slot="header">
         <div class="title">
           <span style="font-size: 1.2rem"><b>Image picker</b></span>
@@ -22,10 +22,12 @@ template.innerHTML = `
       <div slot="body" class="body">
           <div class="container">
               <div class="container_row icon_button">
-                <sl-input id="urlTextInput" class="focusable"  size="medium" placeholder="Urls or text to fetch..."></sl-input>
+                <sl-input id="urlTextInput" class="focusable"  size="medium" placeholder="Enter urls (,) or paste image from clipboard"></sl-input>
                 <sl-button-group>
-                  <sl-button id="addBtn" class="focusable" size="medium">➕</sl-button>
-                  <sl-button id="fetchBtn" class="focusable" size="medium">🚀</sl-button>
+                  <sl-tooltip content="Add image urls"><sl-button id="addBtn" class="focusable" size="medium">➕</sl-button></sl-tooltip>
+                  <sl-tooltip content="Bing Image"><sl-button class="focusable" size="medium" id="bingOpenBtn"><sl-icon style="color: var(--sl-color-primary-500)" name="bing"></sl-icon></sl-button></sl-tooltip>
+                  <sl-tooltip content="Bing Image"><sl-button class="focusable" size="medium" id="giphyOpenBtn"><sl-icon style="color: var(--sl-color-primary-500)" name="film"></sl-icon></sl-button></sl-tooltip>
+                  <sl-button id="fetchBtn" style="display: none" class="focusable" size="medium">🚀</sl-button>
                 </sl-button-group>
               </div>
               <smart-dragdrop class="focusable" ></smart-dragdrop>
@@ -33,13 +35,14 @@ template.innerHTML = `
               <sl-button-group label="Alignment" class="smartDragdrop_buttons icon_button">              
                 <sl-tooltip content="Add local photos"><sl-button class="focusable" size="medium" id="localPhotoBtn">📂</sl-button></sl-tooltip>
                 <sl-tooltip content="Download to use offline"><sl-button class="focusable" size="medium" id="downloadBtn">🌍➜💾</sl-button></sl-tooltip>
+
                 <sl-tooltip content="Delete"><sl-button class="focusable" size="medium" id="deleteBtn">🗑</sl-button></sl-tooltip>
                 <sl-tooltip content="Extract links"><sl-button class="focusable" size="medium" id="extractLinksBtn">⛏️</sl-button></sl-tooltip>
                 <sl-tooltip content="Pick to use in card view"><sl-button class="focusable" size="medium" id="useBtn">📌</sl-button></sl-tooltip>
               </sl-button-group>  
               </div>
               <input type="file" id="localPhotoInput" style="display:none" multiple accept="image/*"> 
-              <div class="spinner"><sl-spinner style="font-size: 50px; --track-width: 10px;"></sl-spinner></div>
+              <div class="spinner"><sl-spinner style="font-size: 50px; --track-width: 10px;"></sl-spinner></div>             
           </div>
       </div>
       <div slot="footer" class="footer">
@@ -49,6 +52,21 @@ template.innerHTML = `
           </sl-button-group> 
       </div>   
     </smart-dialog>
+    <smart-dialog esc-close draggable resizable id="bingDiv" class="hidden">             
+      <div slot="header">    
+        <div class="bingDiv_top">
+          <span id="iframeTitle"></span>
+          <sl-button size="small" id="bingCloseBtn">✖️</sl-button>
+        </div>          
+      </div>        
+    <div slot="body" class="body">         
+      <div class="iframeContainer">
+        <iframe id="bingIframe" src=""></iframe>
+      </div>
+    </div>   
+    <div slot="footer" class="footer">   
+    </div>   
+  </smart-dialog>
 `;// capture="environment" to use camera
 
 class FCImagePicker extends HTMLElement {
@@ -77,7 +95,7 @@ class FCImagePicker extends HTMLElement {
        "<400": "30px auto", ">400": "30px auto" 
     },
     // <img data-src="${item.url}" alt="${item.id}" url_blob/>
-        // <img data-src="${item.t==="web"? item.url : getImageUrl(this._entry.phraseID, item.id)}" alt="${item.id}" />
+        // <img data-src="${item.t==="web"? item.url : getBlobImageUrl(this._entry.phraseID, item.id)}" alt="${item.id}" />
      renderItem: (item, zone, viewMode) => {
       switch (viewMode) {                    
         case "icon":
@@ -152,11 +170,44 @@ class FCImagePicker extends HTMLElement {
 
   connectedCallback() {
     const { signal } = this._abort;
-    this._smart_dialog = this.shadowRoot.querySelector('smart-dialog');
+    this._smart_dialog = this.shadowRoot.querySelector('#mainDialog');
     this._container = this.shadowRoot.querySelector('.container');    
     this._smartDragDrop = this.shadowRoot.querySelector('smart-dragdrop');
     this._smartDragDrop.setAttribute('tabindex', '0');// make it focusable
 
+    this._bingDiv = this.shadowRoot.querySelector('#bingDiv');
+    this._bingIframe = this.shadowRoot.querySelector('#bingIframe');
+    this._bingOpenBtn = this.shadowRoot.querySelector("#bingOpenBtn");
+    this._giphyOpenBtn = this.shadowRoot.querySelector("#giphyOpenBtn");
+    this._iframeTitle = this.shadowRoot.querySelector('#iframeTitle');    
+    this._bingCloseBtn = this.shadowRoot.querySelector("#bingCloseBtn");
+    console.log(this._bingCloseBtn);
+    this._bingOpenBtn.addEventListener('click', ()=> {  
+      this._iframeTitle.innerHTML = "Bing Images (Copy Image or Url)";
+      this._bingIframe.src = `https://www.bing.com/images/search?q=${this._entry.phrase}&qs=HS&form=QBILPG&sp=2&lq=0&pq=scuff&sc=10-5&sk=HS1&cvid=34BFAE82B1C84D3AAFC0374FC16B7F52&first=1`;       
+      // this._bingIframe.src = `https://giphy.com/search/${this._entry.phrase}`;    
+      this._bingDiv.classList.remove('hidden');
+    }, { signal });
+
+     this._giphyOpenBtn.addEventListener('click', ()=> { 
+      this._iframeTitle.innerHTML = "Giphy (Copy Image Address for animation)"; 
+      this._bingIframe.src = `https://giphy.com/search/${this._entry.phrase}`;    
+      this._bingDiv.classList.remove('hidden');
+    }, { signal });
+
+    
+
+    this._bingOpenBtn.addEventListener('click', ()=> {  
+      this._bingIframe.src = `https://www.bing.com/images/search?q=${this._entry.phrase}&qs=HS&form=QBILPG&sp=2&lq=0&pq=scuff&sc=10-5&sk=HS1&cvid=34BFAE82B1C84D3AAFC0374FC16B7F52&first=1`;       
+      // this._bingIframe.src = `https://giphy.com/search/${this._entry.phrase}`;    
+      this._bingDiv.classList.remove('hidden');
+    }, { signal });
+
+    this._bingCloseBtn.addEventListener('click', ()=> { 
+      console.log(`close`);  
+      this._bingDiv.classList.add('hidden');
+    }, { signal });
+    
     this._spinner = this.shadowRoot.querySelector('.spinner');
 
     this._urlTextInput =  this.shadowRoot.querySelector('#urlTextInput');
@@ -170,6 +221,9 @@ class FCImagePicker extends HTMLElement {
     this._localPhotoBtn = this.shadowRoot.querySelector('#localPhotoBtn');
 
     this._localPhotoInput = this.shadowRoot.querySelector('#localPhotoInput');
+
+
+
 
     this._addBtn.addEventListener('click', ()=>this._handleAdd(), { signal });
     this._fetchBtn.addEventListener('click', ()=>this._handleFetch(), { signal });
@@ -211,18 +265,26 @@ class FCImagePicker extends HTMLElement {
 
       metaList.push(meta);
       // Create local object URL from processed blob
-      newUrls.push(URL.createObjectURL(blob));
+      const url = URL.createObjectURL(blob);
+      // Schedule cleanup after `timer` seconds 
+      setTimeout(() => { 
+        URL.revokeObjectURL(url);         
+      }, 120 * 1000);
+
+      newUrls.push(url);
     }
 
     // Normalize and add to drag‑drop
     const items = normalizeUrlsDataFromServer(this._entry.phrase, newUrls);
-    items.forEach(item => {
-      this._smartDragDrop.addItem(item, "1", 0);
-    });
 
+    const cookedItems = [];
+    items.forEach(item => {
+        cookedItems.push(this._smartDragDrop.addItem(item, "1", 0));
+      });
     this._smartDragDrop.updateColumnData();
+    this._handleDownload(cookedItems.map(item=>item._id));
         // Show notification
-    this.notifySuccess(`${items.length} item(s) have been newly added!`);
+    this.notifySuccess(`${items.length} item(s) has been added!`);
     // show loading Spinner for await
     this.hideWorkingSpinner();
     // Optional: log compression stats
@@ -249,33 +311,45 @@ class FCImagePicker extends HTMLElement {
   }
 
   async _handlePaste(e) {
-    const items = e.clipboardData.items;
-      for (const item of items) {
-        if (item.type.startsWith("image/")) {
+    const clipboardItems = e.clipboardData.items;
+    let flag = 0;
+    console.log(clipboardItems);
+    const newUrls = [];
+      for (const cbItem of clipboardItems) {
+        if (cbItem.type.startsWith("image/")) {
+          flag = 1;
           // Get the blob from clipboard
-          this.showWorkingSpinner();
-          const newUrls = [];
-          const file = item.getAsFile();
+          const file = cbItem.getAsFile();
           const { blob, meta } = await processImage(file, {
             maxWidth: 1200,
             quality: 85,
             convert: true // or false depending on your needs
           });
              
-          newUrls.push(URL.createObjectURL(blob));
+          const url = URL.createObjectURL(blob);
+          // Schedule cleanup after `timer` seconds 
+          setTimeout(() => { 
+            URL.revokeObjectURL(url);         
+          }, 120 * 1000);
           
-          // Normalize and add to drag‑drop
-          const items = normalizeUrlsDataFromServer(this._entry.phrase, newUrls);
-          items.forEach(item => {
-            this._smartDragDrop.addItem(item, "1", 0);
-          });
-          this._smartDragDrop.updateColumnData();
-          // Show notification
-          this.notifySuccess(`${items.length} item(s) have been newly added!`);         
-          // show loading Spinner for await
-          this.hideWorkingSpinner();
+          newUrls.push(url);
         }
-      }
+      }    
+      if (flag===1) {
+        this.showWorkingSpinner();
+        // Normalize and add to drag‑drop
+        const cookedItems = [];
+        const items = normalizeUrlsDataFromServer(this._entry.phrase, newUrls);
+        items.forEach(item => {
+          cookedItems.push(this._smartDragDrop.addItem(item, "1", 0));
+        });  
+        this._smartDragDrop.updateColumnData();       
+        this._handleDownload(cookedItems.map(item=>item._id));
+        // Show notification
+        this.notifySuccess(`${items.length} item(s) have been newly added!`);         
+        // show loading Spinner for await
+        this.hideWorkingSpinner();
+    }
   }
   
   async _onImageFetched(e) {   
@@ -383,27 +457,36 @@ class FCImagePicker extends HTMLElement {
   }
 
 
-async _handleDownload() {
-    const targetIDs = this.getRealTargetIDs();
-    if (!targetIDs) return; // nothing to work on
+async _handleDownload(targetIDs=undefined) {
+
+    // calculate download selected or highlight targeted 
+    if (targetIDs===undefined) {
+      targetIDs = this.getRealTargetIDs();
+      if (!targetIDs) return; // nothing to work on
+    }
+    // or use the passed in targetIDs - the id of smartDradrop items
     const cookedArray = [];
+    console.log(targetIDs);
     targetIDs.forEach(id => {            
         const idx =  this._smartDragDrop.fullData.findIndex(i => i._id === id);
         if (idx === -1) return;
         const item =  this._smartDragDrop.fullData[idx];
         cookedArray.push(item);
     });
+
+    console.log(cookedArray);
+
     // show loading Spinner for await
     this.showWorkingSpinner();
 
     const { success, failed } = await downloadAndSaveImages(this,this._entry.phraseID,this._entry.phrase, cookedArray);
     // console.log(success);
 
-    // prepare patchedItems with blob-ready URL
+    // prepare patchedItems with blob-ready URL to update the SMART DRADDROP WITH DOWNLOAD ICON
     let totalSize = 0;
     const patchedItems = await Promise.all(success.map(async item=> { 
-        totalSize = totalSize + item.meta.processed.size;
-        return { ...item, t:"blob", url_blob: await getImageUrl(this._entry.phraseID,item.id)} 
+        totalSize = totalSize + (item.meta.processed)? item.meta.processed.size : item.meta?.size;
+        return { ...item, t:"blob", url_blob: await getBlobImageUrl(this._entry.phraseID,item.id)} 
       })
     );
 
@@ -434,6 +517,7 @@ async _handleDownload() {
     if (selectedIDs.length>0) { 
       targetIDs = [...selectedIDs];
     } else targetIDs = [highlightID];
+    console.log(targetIDs);
     return targetIDs;
   }
 

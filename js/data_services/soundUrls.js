@@ -38,6 +38,8 @@ export function getUniqueLinks(soundArray) {
 
 
 export async function mapTableSoundData(phraseID, soundArray) {
+  
+  if (soundArray===undefined || soundArray.length===0) return;
   await Database.init();
   // Step 1: load blobs for this phraseID
   const blobRecords = await Database.getSoundsByPhrase(phraseID);
@@ -64,8 +66,7 @@ export async function mapTableSoundData(phraseID, soundArray) {
     unique.map(async (item, index) => {
       const { origin, accent } = await getSoundOriginAndAccent(item);
       let alive;
-      if (item.t==="web") alive = await checkMedia(item.url,"audio",500);
-
+      if (item.t==="web") alive = await checkMedia(item.url,"audio",200);  
       return { ...item, origin, accent, order: index, ...(alive? { alive: alive} : {}) };
     })
   );
@@ -74,10 +75,8 @@ export async function mapTableSoundData(phraseID, soundArray) {
 }
 
 export async function getSoundOriginAndAccent(item) {
-  if (item.t!=="web") return { origin: item.origin, accent: item.accent};  
-  // console.log(item);
+  if (item.t!=="web") return { origin: item.origin, accent: item.accent}; 
   if (item.origin && item.accent) return { origin: item.origin, accent: item.accent};  
-  console.log(`getSoundOriginAndAccent`);
   const url = item.url;
   if (!url) return { origin:"-", accent:"-",alive: "-"};
   let origin = "-";
@@ -115,7 +114,7 @@ export async function getSoundOriginAndAccent(item) {
   }
 
   // 4. Check if URL is alive 
-  alive = await checkMedia(url,"audio",500);
+  // alive = await checkMedia(url,"audio",500);
   return { origin, accent };
 }
 
@@ -170,7 +169,7 @@ for (const item of items) {
     if (existing) {
       existing.blob = processedBlob;
     } else {
-      record.blob.push({ id: item.id, blob: processedBlob });
+      record.blob.push({ id: item.id, blob: processedBlob, updatedAt: Date.now() });
     }
 
     console.log(`record`,record);
@@ -322,41 +321,54 @@ export function playSoundFromUrl(url) {
 
   return audio; // return the element if you want to attach controls
 }
-
-export async function playSoundFromURLorBlob(component, phraseID, targetID) {
+export async function getUrlFromSoundItem(component, phraseID, targetID, timer = 120) {
   const targetObject = component._smartTable._raw.find(obj => obj.id === targetID);
   if (!targetObject) {
     console.warn("No object found for id:", targetID);
-    return;
+    return null;
   }
-  // console.log(targetObject);
+
   if (targetObject.t === "web") {
-    // Play directly from URL
-    // console.log("Playing web sound:", targetObject.url);
-    playSoundFromUrl(targetObject.url);
-  } else if (targetObject.t !== "web") {
-    // Load blob from database
-    try {
-      const records = await Database.getSoundsByPhrase(phraseID);
-      if (!records || !records.length) return false;
-      const record = records[0];
-      const soundBlobs = record.blob.find(b => b.id === targetID);
-      if (soundBlobs) {
-        const blob = soundBlobs.blob;
-        const blobUrl = URL.createObjectURL(blob);
-        // console.log("Playing blob sound:", blobUrl);
-        playSoundFromUrl(blobUrl);
-      } else {
-        console.warn("No blob found for id:", targetObject.id);
-      }
-    } catch (err) {
-      console.error("Error loading blob:", err);
+    // Direct URL
+    return targetObject.url;
+  }
+
+  // Otherwise, load blob from database
+  try {
+    const records = await Database.getSoundsByPhrase(phraseID);
+    if (!records || !records.length) return null;
+
+    const record = records[0];
+    const soundBlobs = record.blob.find(b => b.id === targetID);
+    if (soundBlobs) {
+      const blob = soundBlobs.blob;
+      const blobUrl = URL.createObjectURL(blob);
+
+      // Schedule cleanup after `timer` seconds
+      setTimeout(() => {
+        URL.revokeObjectURL(blobUrl);
+        console.log("Revoked blob URL:", blobUrl);
+      }, timer * 1000);
+
+      return blobUrl;
+    } else {
+      console.warn("No blob found for id:", targetObject.id);
+      return null;
     }
-  } else {
-    console.warn("Unknown sound type:", targetObject.t);
+  } catch (err) {
+    console.error("Error loading blob:", err);
+    return null;
   }
 }
 
+export async function playSoundFromURLorBlob(component, phraseID, targetID) {
+  const url = await getUrlFromSoundItem(component, phraseID, targetID);
+  if (!url) {
+    console.warn("No URL or blob available for id:", targetID);
+    return;
+  }
+  playSoundFromUrl(url);
+}
 
 
 export function normalizeSoundUrlsDataFromServer(phrase, arr) {
@@ -425,3 +437,42 @@ export function calculateNewOrder(arr, position) {
   const nextOrder = arr[position].order;
   return (prevOrder + nextOrder) / 2;
 }
+
+
+// /**
+//  * Check a single blob entry and normalize it.
+//  * @param {any} blobEntry - Could be a Blob, a base64 string, or an object { url: "...", blob: "..." }
+//  * @returns {{ isBlob: boolean, url?: string, blob: Blob|string }}
+//  */
+// function inspectBlob(blobEntry) {
+//   // Case 1: actual Blob object
+//   if (blobEntry instanceof Blob) {
+//     return {
+//       isBlob: true,
+//       blob: blobEntry
+//     };
+//   }
+
+//   // Case 2: object with url + base64
+//   if (blobEntry && typeof blobEntry === "object" && "url" in blobEntry && "blob" in blobEntry) {
+//     return {
+//       isBlob: false,
+//       url: blobEntry.url,
+//       blob: blobEntry.blob
+//     };
+//   }
+
+//   // Case 3: plain base64 string
+//   if (typeof blobEntry === "string") {
+//     return {
+//       isBlob: false,
+//       blob: blobEntry
+//     };
+//   }
+
+//   // Fallback: unknown type
+//   return {
+//     isBlob: false,
+//     blob: blobEntry
+//   };
+// }

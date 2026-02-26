@@ -9,7 +9,7 @@ import { getUUID } from './../js/utils/id.js';
  */
 
 class DatabaseClass {
-  constructor ( dbName = "ADFC_DB", version = 1 ) {
+  constructor ( dbName = "ADPL_DB", version = 1 ) {
     this.dbName = dbName;
     this.version = version;
     this.db = null;
@@ -22,6 +22,12 @@ class DatabaseClass {
 
       request.onupgradeneeded = (event) => {
         const db = event.target.result;
+
+        if (!db.objectStoreNames.contains("syncQueue")) {
+          const queueStore = db.createObjectStore("syncQueue", { keyPath: "queueID", autoIncrement: true });
+          queueStore.createIndex("userID", "userID", { unique: false });
+          queueStore.createIndex("status", "status", { unique: false }); // pending, synced
+        }
 
         // --- USERS ---
         if (!db.objectStoreNames.contains("users")) {
@@ -69,17 +75,9 @@ class DatabaseClass {
         }
 
         // REMINDER TEXT
-        if (!db.objectStoreNames.contains("reminders")) {
-          const reminderStore = db.createObjectStore("reminders", { keyPath: "reminderID", autoIncrement: true });
-          reminderStore.createIndex("userID", "userID", { unique: false });
-          reminderStore.createIndex("text", "text", { unique: true });
-        }
-        // MetaTable store 
-        if (!db.objectStoreNames.contains("metaTable")) { 
-          // Use tableName as the key 
-          db.createObjectStore("metaTable", { keyPath: "table" }); 
-        }
-
+        const reminderStore = db.createObjectStore("reminders", { keyPath: "reminderID", autoIncrement: true });
+        reminderStore.createIndex("userID", "userID", { unique: false });
+        reminderStore.createIndex("text", "text", { unique: true });
       };
 
       request.onsuccess = (event) => {
@@ -95,32 +93,65 @@ class DatabaseClass {
   // Generic Helpers
   // ============================
 
-/**
- * Put a single record and update meta.
- */
-  _put(storeName, value, key = null) {
-    return new Promise((resolve, reject) => {
-      try {
-        const tx = this.db.transaction(storeName, "readwrite");
-        const store = tx.objectStore(storeName);
+  async _put(storeName, value) {
+  return new Promise((resolve, reject) => {
+    const tx = this.db.transaction(storeName, "readwrite");
+    const store = tx.objectStore(storeName);
+    const req = store.put(value);
+    req.onsuccess = async () => {
+      // Log to queue
+      await this._logChange(value.userID, storeName, value[store.keyPath], "insert", value);
+      resolve(value);
+    };
+    req.onerror = (e) => reject(e.target.error);
+  });
+}
 
-        // If a key is provided, use it explicitly
-        const req = key ? store.put(value, key) : store.put(value);
+async _delete(storeName, key) {
+  return new Promise((resolve, reject) => {
+    const tx = this.db.transaction(storeName, "readwrite");
+    const store = tx.objectStore(storeName);
+    const req = store.delete(key);
+    req.onsuccess = async () => {
+      await this._logChange(null, storeName, key, "delete", null);
+      resolve(true);
+    };
+    req.onerror = (e) => reject(e.target.error);
+  });
+}
 
-        req.onsuccess = () => resolve(value);
-        req.onerror = (e) => {
-          console.error(`Failed to put record in ${storeName}:`, e.target.error);
-          // Instead of rejecting, resolve with null so caller can continue
-          resolve(null);
-        };
-      } catch (err) {
-        console.error(`Exception in _put for ${storeName}:`, err);
-        // Resolve with null so loop continues
-        resolve(null);
+async _updateFields(storeName, key, updates) {
+  return new Promise((resolve, reject) => {
+    const tx = this.db.transaction(storeName, "readwrite");
+    const store = tx.objectStore(storeName);
+    const getReq = store.get(key);
+    getReq.onsuccess = () => {
+      let record = getReq.result;
+      if (!record) {
+        reject(new Error("Record not found"));
+        return;
       }
-    });
-  }
+      Object.assign(record, updates);
+      const putReq = store.put(record);
+      putReq.onsuccess = async () => {
+        await this._logChange(record.userID, storeName, key, "update", updates);
+        resolve(record);
+      };
+      putReq.onerror = (e) => reject(e.target.error);
+    };
+    getReq.onerror = (e) => reject(e.target.error);
+  });
+}
 
+  // _put(storeName, value) {
+  //   return new Promise((resolve, reject) => {
+  //     const tx = this.db.transaction(storeName, "readwrite");
+  //     const store = tx.objectStore(storeName);
+  //     const req = store.put(value);
+  //     req.onsuccess = () => resolve(value);
+  //     req.onerror = (e) => reject(e.target.error);
+  //   });
+  // }
 
   _get(storeName, key) {
     return new Promise((resolve, reject) => {
@@ -142,54 +173,37 @@ class DatabaseClass {
     });
   }
 
+  // _delete(storeName, key) {
+  //   return new Promise((resolve, reject) => {
+  //     const tx = this.db.transaction(storeName, "readwrite");
+  //     const store = tx.objectStore(storeName);
+  //     const req = store.delete(key);
+  //     req.onsuccess = () => resolve(true);
+  //     req.onerror = (e) => reject(e.target.error);
+  //   });
+  // }
 
-  _delete(storeName, key) {
-    return new Promise((resolve, reject) => {
-      const tx = this.db.transaction(storeName, "readwrite");
-      const store = tx.objectStore(storeName);
-      const req = store.delete(key);
+  // _updateFields(storeName, key, updates) {
+  //   return new Promise((resolve, reject) => {
+  //     const tx = this.db.transaction(storeName, "readwrite");
+  //     const store = tx.objectStore(storeName);
+  //     const getReq = store.get(key);
+  //     console.log(updates);
+  //     getReq.onsuccess = () => {
+  //       let record = getReq.result;
+  //       if (!record) {
+  //         reject(new Error("Record not found"));
+  //         return;
+  //       }
+  //       Object.assign(record, updates);
+  //       const putReq = store.put(record);
+  //       putReq.onsuccess = () => resolve(record);
+  //       putReq.onerror = (e) => reject(e.target.error);
+  //     };
 
-      req.onsuccess = () => resolve(true); // no meta update here
-      req.onerror = (e) => reject(e.target.error);
-    });
-  }
-
-
-  _updateFields(storeName, key, updates) {
-    return new Promise((resolve, reject) => {
-      const tx = this.db.transaction(storeName, "readwrite");
-      const store = tx.objectStore(storeName);
-      const getReq = store.get(key);
-
-      getReq.onsuccess = () => {
-        let record = getReq.result;
-        if (!record) {
-          reject(new Error("Record not found"));
-          return;
-        }
-        Object.assign(record, updates);
-        const putReq = store.put(record);
-
-        putReq.onsuccess = () => resolve(record); // no meta update here
-        putReq.onerror = (e) => reject(e.target.error);
-      };
-      getReq.onerror = (e) => reject(e.target.error);
-    });
-  }
-
-
-
-  _clear(storeName) {
-    return new Promise((resolve, reject) => {
-      const tx = this.db.transaction(storeName, "readwrite");
-      const store = tx.objectStore(storeName);
-      const req = store.clear(); // IndexedDB has a native clear() method
-
-      req.onsuccess = () => resolve(true);
-      req.onerror = (e) => reject(e.target.error);
-    });
-  }
-
+  //     getReq.onerror = (e) => reject(e.target.error);
+  //   });
+  // }
 
   // ============================
   // Domain-Specific Helpers
@@ -425,62 +439,65 @@ findByField(storeName, field, operator, value) {
   });
 }
 
-async getAllMeta() {
-  const phrases = await this._getAll("phrases");
-  return {
-    phrases: phrases.map(p => ({ id: p.phraseID, updatedAt: p.updatedAt })),
-  };
-}
+// Add a change to the sync queue
+// addToQueue(userID, table, recordId, operation, payload) {
+//   const entry = {
+//     userID,
+//     table,
+//     recordId,
+//     operation, // "insert" | "update" | "delete"
+//     payload,
+//     status: "pending",
+//     updatedAt: new Date().toISOString()
+//   };
+//   return this._put("syncQueue", entry);
+// }
 
-getKeyPath(table) {
-  const keyPaths = {
-    phrases: "phraseID",
-    playlists: "playlistID",
-    soundBlobs: "soundID"
-  };
-  return keyPaths[table] || "id";
-}
-
-updateMeta(storeName, updatedAt) {
+// Get all pending queue entries
+getPendingQueue(userID) {
   return new Promise((resolve, reject) => {
-    const tx = this.db.transaction(storeName, "readonly");
-    const store = tx.objectStore(storeName);
-    const countReq = store.count();
-
-    countReq.onsuccess = () => {
-      const rowCount = countReq.result;
-      const metaTx = this.db.transaction("metaTable", "readwrite");
-      const metaStore = metaTx.objectStore("metaTable");
-      metaStore.put({ table: storeName, rowCount, lastUpdatedAt: updatedAt });
-
-      metaTx.oncomplete = () => resolve(true);
-      metaTx.onerror = (e) => reject(e.target.error);
+    const tx = this.db.transaction("syncQueue", "readonly");
+    const store = tx.objectStore("syncQueue");
+    const index = store.index("userID");
+    const req = index.getAll(userID);
+    req.onsuccess = () => {
+      const pending = req.result.filter(e => e.status === "pending");
+      resolve(pending);
     };
-    countReq.onerror = (e) => reject(e.target.error);
+    req.onerror = (e) => reject(e.target.error);
   });
 }
 
-  /**
-   * Get metaTable entry for a store.
-   */
-  getMeta(storeName) {
-    return new Promise((resolve, reject) => {
-      const tx = this.db.transaction("metaTable", "readonly");
-      const store = tx.objectStore("metaTable");
-      const req = store.get(storeName);
+// Mark a queue entry as synced
+markQueueSynced(queueID) {
+  return this._updateFields("syncQueue", queueID, { status: "synced" });
+}
 
-      req.onsuccess = () => {
-        const meta = req.result;
-        if (!meta) {
-          reject(new Error(`No meta found for table ${storeName}`));
-        } else {
-          resolve(meta);
-        }
-      };
-      req.onerror = (e) => reject(e.target.error);
-    });
-  }
+async getAllMeta() {
+  const phrases = await this._getAll("phrases");
+  // const playlists = await this._getAll("playlists");
+  // const soundBlobs = await this._getAll("soundBlobs");
 
+  return {
+    phrases: phrases.map(p => ({ id: p.phraseID, updatedAt: p.updatedAt })),
+    // playlists: playlists.map(pl => ({ id: pl.playlistID, updatedAt: pl.updatedAt })),
+    // soundBlobs: soundBlobs.map(sb => ({ id: sb.soundID, updatedAt: sb.updatedAt }))
+  };
+}
+
+async _logChange(userID, table, recordId, operation, payload) {
+  const entry = {
+    userID,
+    table,
+    recordId,
+    operation, // "insert" | "update" | "delete"
+    payload,
+    status: "pending",
+    updatedAt: new Date().toISOString()
+  };
+  const tx = this.db.transaction("syncQueue", "readwrite");
+  tx.objectStore("syncQueue").put(entry);
+}
 
 }
 

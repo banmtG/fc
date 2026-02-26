@@ -183,27 +183,14 @@ export function reverseTransform(shortCode) {
 
 }
 
-
-
-/**
- * Download an image from a URL, reduce it (resize/convert/compress),
- * and save into IndexedDB.
- *
- * @param {IDBDatabaseHelper} dbHelper - your helper instance with saveImageBlob()
- * @param {string} phraseID
- * @param {string} phrase
- * @param {Array} items - array of { id, phraseID, phrase, url, title }
- * @returns {Promise<{success: Array, failed: Array}>}
- */
 export async function downloadAndSaveImages(component, phraseID, phrase, items) {
   const success = [];
   const failed = [];
 
   await Database.init();
 
-  // Step 1: check if we already have a record for this phrase
   const existingRecords = await Database.getImagesByPhrase(phraseID);
-  let record = existingRecords[0]; // assume one per phraseID
+  let record = existingRecords[0];
 
   if (!record) {
     record = {
@@ -214,30 +201,41 @@ export async function downloadAndSaveImages(component, phraseID, phrase, items) 
     };
   }
 
-  // Step 2: loop items
   for (const item of items) {
     try {
       const res = await fetch(item.url, { mode: "cors" });
       if (!res.ok) throw new Error("Network error");
       const rawBlob = await res.blob();
 
-      // 🔑 Run through pipeline BEFORE saving
-      const { blob: reducedBlob, meta } = await processImage(rawBlob, {
-        maxWidth: 1200,
-        quality: 85,
-        convert: true // or false depending on your needs
-      });
+      let finalBlob = rawBlob;
+      let meta = { skippedProcessing: false };
 
-      // check if this id already exists in blob array
+      // Detect GIF or animated WebP
+      if (rawBlob.type === "image/gif" || rawBlob.type === "image/webp") {
+        // Skip compression/resizing to preserve animation
+        console.log(`animated photo`);
+        meta.skippedProcessing = true;
+        meta.size = rawBlob.size;
+      } else {
+        const processed = await processImage(rawBlob, {
+          maxWidth: 1200,
+          quality: 85,
+          convert: true
+        });
+        finalBlob = processed.blob;
+        meta = processed.meta;
+      }
+
       const existing = record.blob.find(b => b.id === item.id);
       if (existing) {
-        existing.blob = reducedBlob; // update existing blob with reduced version
+        existing.blob = finalBlob;
       } else {
-        record.blob.push({ id: item.id, blob: reducedBlob });
+        record.blob.push({ id: item.id, blob: finalBlob });
       }
 
       await Database.saveImageBlob(record);
       success.push({ ...item, meta });
+      console.log(success);
     } catch (err) {
       failed.push(item);
     }
@@ -245,6 +243,7 @@ export async function downloadAndSaveImages(component, phraseID, phrase, items) 
 
   return { success, failed };
 }
+
 
 
 export async function removeImageBlobEntry(phraseID, blobIDs) {
@@ -267,7 +266,7 @@ export async function removeImageBlobEntry(phraseID, blobIDs) {
   
 }
 
-export async function getImageUrl(phraseID, blobID) {
+export async function getBlobImageUrl(phraseID, blobID, timer = 120) {
   await Database.init();
   const records = await Database.getImagesByPhrase(phraseID);
   const record = records[0];
@@ -275,18 +274,28 @@ export async function getImageUrl(phraseID, blobID) {
 
   const blobObj = record.blob.find(b => b.id === blobID);
   if (!blobObj) return null;
+
   const url = URL.createObjectURL(blobObj.blob);
+
+  // Schedule cleanup after `timer` seconds
+  setTimeout(() => {
+    URL.revokeObjectURL(url);
+    console.log(`Revoked blob URL after ${timer}s:`, url);
+  }, timer * 1000);
+
   return url;
 }
+
 
 export async function normalizeBlobItems(entry) {
   const cooked = await Promise.all(entry.image.data.map(async item => {
     if (item.t === "web") {
       return { ...item, url: item.url };
     } else {
-      const blobUrl = await getImageUrl(entry.phraseID, item.id); // returns blob:... URL
+      const blobUrl = await getBlobImageUrl(entry.phraseID, item.id); // returns blob:... URL
       return { ...item, url_blob: blobUrl };
     }
   }));
   return { ...entry, image: { data: cooked } };
 }
+

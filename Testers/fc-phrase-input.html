@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css" />
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace.js"></script>
+    <title>Smart Text input</title>
+    
+    <script type="module" src="./../components/fc/fc-phrase-input.js"></script>
+
+</head>
+<body>
+    <fc-phrase-input></fc-phrase-input>
+</body>
+<script>
+    const entry = {
+        "phraseID": "phrase-01KG7C2X2Y27FTB7J3JQZFF6BW",
+        "userID": "user-ecb0b126-de76-11f0-9b1e-e43d1a3de858",
+        "phrase": "cast out",
+        "returning_phrase": "cast someone/something out cua chuo nhugn ngay lam loi gio anh chi mong quay lai",
+        "ukipa": "kɑːst",
+        "usipa": "kæst"
+    }
+
+    const fpi = document.querySelector(`fc-phrase-input`);
+    
+    customElements.whenDefined('fc-phrase-input').then(() => {      
+       fpi.open(entry);
+    });
+
+
+    document.addEventListener('fc-phrase-input-confirmed', (e) => {
+        console.log(e.detail);
+        console.log('Confirm! document level');
+        e.target.remove(); // ✅ works if event is dispatched from the dialog
+    });
+
+    // const anotherIPA = document.createElement('smart-ipa-input');
+   
+    // customElements.whenDefined('smart-ipa-input').then(() => {
+    //     document.body.append(anotherIPA);
+    //     anotherIPA.open('Another thing');
+    // });
+    
+
+</script>
+</html>

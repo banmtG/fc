@@ -44,8 +44,7 @@ export function transformFinalResults(finalResults, userID, reminderText = "", t
       connecting_phrases: [],
       reminder_text: reminderText || null,
       tags: tags  || [],    
-      createdAt: now.toISOString(),
-      updatedAt: now.toISOString(),
+      updatedAt: now.now,
       source: entry.source || null,
       status: "draft"
     };
@@ -64,4 +63,18 @@ export function transformFinalResults(finalResults, userID, reminderText = "", t
   });
 
   return { phrases, soundBlobs };
+}
+
+export function checkDefiExist(entry) {
+  if (!entry) return false;
+
+  const hasDefi =
+    Array.isArray(entry.defi) && entry.defi.length > 0;
+
+  const hasCustomizedDefi =
+    entry.user_defi &&
+    Array.isArray(entry.user_defi.customized_defi) &&
+    entry.user_defi.customized_defi.length > 0;
+
+  return hasDefi || hasCustomizedDefi;
 }
