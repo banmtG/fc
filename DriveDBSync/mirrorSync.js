@@ -1,14 +1,16 @@
-// mirrorUpload(uuid) pushFullSync
-// mirrorDownload(uuid)
+// mirrorUpload(uuid) pushSyncTable pushFullSync
+// mirrorDownload(uuid) pullSyncTable pullFullSync
 // fillGapUpload(uuid)
 // fillGapDownload(uuid)
 // twoWayGapFill(uuid)
 // deleteUpload(uuid)
 // deleteDownload(uuid)
 
-import { getAccessToken, initUserDriveForTable, ensureFolder, verifyUploadedFiles  } from "./app-drive-helpers.js";
+import { getAccessToken, initUserDriveForTable, ensureFolder, verifyUploadedFiles, getGridHtml  } from "./app-drive-helpers.js";
 import { uploadFile, uploadFilesBatch, deleteItem, createFolder, deleteItemsBatch, downloadFilesBatch, listFilesInFolder, downloadFile } from "./drive-helpers.js";
 import Database from "../core/database.js";
+import { confirmDialog } from './../core/confirmDialog.js';
+import {formatLocalTime} from './../js/utils/time.js';
 /**
  * Sync a single table to Drive.
  *
@@ -19,7 +21,7 @@ import Database from "../core/database.js";
  * @param {HTMLElement} dialog - ReportDialog element
  * @returns {Promise<{table:string,total:number,success:number,failed:number}>}
  */
-export async function pushSyncTable(uuid, tableName, prefix, accessToken, dialog) {
+export async function pushSyncTable(uuid, tableName, prefix, accessToken, dialog,cfmDialog) {
   // Step 1: Init user drive
   let stepText = `Init user drive for ${tableName}`;
   dialog.addStep(stepText);
@@ -55,7 +57,7 @@ export async function pushSyncTable(uuid, tableName, prefix, accessToken, dialog
   const children = listFilesResult.data.map(f => ({ itemId: f.id }));
 
   // Delete children in batch with concurrency + retry
-  const deleteResults = await deleteItemsBatch(children, accessToken, 20, ({ completed, total }) => {
+  const deleteResults = await deleteItemsBatch(children, accessToken, 40, ({ completed, total }) => {
     dialog.updateProgress(stepText, completed, total);
   });
 
@@ -90,10 +92,15 @@ export async function pushSyncTable(uuid, tableName, prefix, accessToken, dialog
   const files = records.map(r => ({
     folderId: subFolderId,
     fileName: `${prefix}${r[Database.getKeyPath(tableName)]}.json`,
-    content: r
-  }));
+    content: r, // full phrase record
+    properties: {
+      updatedAt: r.updatedAt,
+      phrase: r.phrase
+    }
+  }));e
 
-  const results = await uploadFilesBatch(files, accessToken, Math.floor(Math.random() * (6)) + 5, ({ completed, total }) => {
+ 
+  const results = await uploadFilesBatch(files, accessToken, Math.floor(Math.random() * (6)) + 15, ({ completed, total }) => {
     dialog.updateProgress(stepText, completed, total);
   });
 
@@ -117,8 +124,9 @@ export async function pushSyncTable(uuid, tableName, prefix, accessToken, dialog
       console.error(`❌ Failed to upload record ${files[i].fileName}`, errorMsg);
     }
   });
-  dialog.finishStep(stepText, successCount > 0, `Uploaded ${successCount}, failed ${failCount}.`);
-  if (failCount.length>0) {
+
+  dialog.finishStep(stepText, failCount === 0, `Uploaded ${successCount}, failed ${failCount}.`);
+  if (failItems.length>0) {
     dialog.addDetail(`❌ Failed to upload ${failCount} records`);
     dialog.addLog(failItems.join('\n'));
   }
@@ -153,15 +161,18 @@ export async function pushSyncTable(uuid, tableName, prefix, accessToken, dialog
   dialog.addStep(stepText);
   dialog.startStep(stepText);
   const verifyResult = await verifyUploadedFiles(subFolderId, metaFileId, `${prefix}`, accessToken);
-  if (!verifyResult.success) {
+  console.log(verifyResult);
+  if (!verifyResult.success && verifyResult.error) {
     dialog.finishStep(stepText, false, verifyResult.error);
+    dialog.addDetail(`❌ ${verifyResult.error}`);
   } else {
     const { missing, extra, driveFiles } = verifyResult.data;
     if (missing.length === 0 && extra.length === 0) {
       dialog.finishStep(stepText, true, `No. of uploaded files: ${driveFiles.length}.`);
     } else {
       console.error("Verification mismatch", { missing, extra });
-      dialog.finishStep(stepText, false, `Missing: ${missing.length}, Extra: ${extra.length}`);
+      dialog.finishStep(stepText, false);
+      dialog.addDetail(`Verification mismatch: Missing: ${missing.length}, Extra: ${extra.length}`);
     }
   }
 
@@ -169,14 +180,14 @@ export async function pushSyncTable(uuid, tableName, prefix, accessToken, dialog
 }
 
 
-/**
+/** , "playlists", "soundBlobs"
  * Push all tables to Drive in full sync mode.
  *
  * @param {string} uuid - User ID
  * @param {Array<string>} tables - List of table names to sync
  * @returns {Promise<{mode:string,tables:Array}>}
  */
-export async function pushFullSync(uuid, tables = ["phrases", "playlists", "soundBlobs"]) {
+export async function pushFullSync(uuid, tables = ["phrases"]) {
   // Step 0: Get access token
   const tokenResult = await getAccessToken();
   const dialog = document.querySelector("report-dialog");
@@ -302,6 +313,7 @@ export async function pullSyncTable(uuid, tableName, prefix, accessToken, dialog
     dialog.addDetail(`Mismatch: Meta ${meta.content?.rowsCount} vs. Folder ${driveFiles.length} records. Use folder contents!`)
   }
 
+
   // Step 4: batch download into staging
   stepText = `Download files from Drive Folder ${tableName}`;
   dialog.addStep(stepText, true);
@@ -359,14 +371,25 @@ export async function pullSyncTable(uuid, tableName, prefix, accessToken, dialog
   const localRowCount = localMeta?.rowCount || "N/A";
   const lastUpdatedAt = localMeta?.lastUpdatedAt || "N/A";
 
-  console.log("=== Metadata Comparison ===");
-  console.log("Drive meta.json:", { rowCount: driveMetaRowCount, lastUpdatedAt: driveMetaUpdatedAt });
-  console.log("Drive folder:", { fileCount: driveFolderCount, lastModifiedAt: driveFolderUpdatedAt });
-  console.log("IndexedDB meta:", { rowCount: localRowCount, lastUpdatedAt: lastUpdatedAt });
+  const gridInput = {
+      tableName: `Table ${tableName}`,
+      gridTemplateColumns: `auto auto auto`,
+      columnAlignments: { source: "left", rowCount: "center", updatedAt: "left" },
+      data: [
+      { source: `Drive: Meta`, rowCount: driveMetaRowCount, updatedAt: formatLocalTime(driveMetaUpdatedAt,'en-UK') , 
+        // _styles: { //   Status: { bg: "red", color: "white" } // Only 'High' is red        // }   
+      },
+      { source: `Drive: Folder`, rowCount: driveFolderCount, updatedAt: formatLocalTime(driveFolderUpdatedAt,'en-UK') },
+      { source: `Local`, rowCount: localRowCount, updatedAt: formatLocalTime(lastUpdatedAt,'en-UK') }
+    ]
+  };
 
-  dialog.finishStep(stepText, true, "Metadata comparison logged to console");
+  const confirmed = await confirmDialog.show("Mirrow Download Confirmation",getGridHtml(gridInput));
+  if (!confirmed) {
+    dialog.addDetail("Sync has been terminated...")
 
-
+    return { success: false, error:"Sync has been terminated..." };
+  }
 
   // Step 5: clear and commit to IndexedDB
   stepText = `Commit mirror into IndexedDB table ${tableName}`;
@@ -406,6 +429,7 @@ export async function pullFullSync(uuid, tables = ["phrases"]) {
   
   const tokenResult = await getAccessToken();
   const dialog = document.querySelector("report-dialog");
+  const cfmDialog = document.querySelector("confirmation-dialog");
   dialog.clear();
   dialog.open("Mirror Download Process");
 
@@ -434,8 +458,8 @@ export async function pullFullSync(uuid, tables = ["phrases"]) {
       dialog.addLog(`Downloaded ${res.success} records.`);
     } else if (res.success > 0 && res.failed > 0) {
       dialog.addLog(`Downloaded ${res.success}, failed ${res.failed}.`);
-    } else {
-      dialog.addLog("No records downloaded.");
+    } else if (res.success === false) {      
+      dialog.addLog("Sync has been terminated... No records downloaded.");
     }
   }
 

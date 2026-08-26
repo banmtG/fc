@@ -1,5 +1,7 @@
 import {getULID} from './../utils/id.js';
 import {normalizeUrlsDataFromServer} from './imgUrls.js';
+import { getCommitTimestampUTC } from './../utils/time.js';
+
 /**
  * Transform raw searchDict results into phrases + soundBlob structures
  * @param {Array} finalResults - raw array from searchDict.php
@@ -14,7 +16,7 @@ export function transformFinalResults(finalResults, userID, reminderText = "", t
 
   finalResults.forEach(entry => {
     const phraseID = `phrase-${getULID()}`;
-    const now = new Date();
+    const now = getCommitTimestampUTC();
 
     const phraseObj = {
       phraseID,
@@ -44,7 +46,7 @@ export function transformFinalResults(finalResults, userID, reminderText = "", t
       connecting_phrases: [],
       reminder_text: reminderText || null,
       tags: tags  || [],    
-      updatedAt: now.now,
+      updatedAt: now,
       source: entry.source || null,
       status: "draft"
     };

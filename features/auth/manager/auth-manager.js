@@ -73,16 +73,16 @@ static async callApi(url, options = {}) {
     }
 
     // Handle quota info if present
-    if (finalData?.quota?.quota_applied?.[1]) {      
-      const metrics = finalData.quota.quota_applied[1].metrics.daily_calls;
-      console.log(metrics);  
-      NotificationManagerInstance.show({
-        label: `Quota left ${metrics.used} / ${metrics.limit}`,
-        icon : 'info-circle-fill', 
-        color : '--sl-color-primary-600',
-        timer: 4000
-      });
-    }
+    // if (finalData?.quota?.quota_applied?.[1]) {      
+    //   const metrics = finalData.quota.quota_applied[1].metrics.daily_calls;
+    //   console.log(metrics);  
+    //   NotificationManagerInstance.show({
+    //     label: `Quota left ${metrics.used} / ${metrics.limit}`,
+    //     icon : 'info-circle-fill', 
+    //     color : '--sl-color-primary-600',
+    //     timer: 4000
+    //   });
+    // }
 
     return finalData;
   } catch (err) {

@@ -2,10 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">  
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css" />
     <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace.js"></script>
   <title>Google Drive API Demo</title>
   <script type="module" src="./../DriveDBSync/reportDialog.js"></script>
+
   <style>
     sl-progress-bar {
       margin: 10px 0;
@@ -35,6 +38,10 @@
     import Database from "./../core/database.js";
     import { pushFullSync, pullFullSync  } from "./../DriveDBSync/mirrorSync.js";
     import { tableData } from "./phraseList.js";
+    import { getCommitTimestampUTC } from "./../js/utils/time.js";
+    import "./../core/confirmDialog.js";
+    // import './../components/simple/simple-table.js';
+
     await Database.init();
    // document.getElementById('addPhrase').addEventListener('click',()=> seedPhrases(tableData));
     document.getElementById('mirrorUpload').addEventListener('click',async ()=>await pushFullSync("user-abcxyz"));
@@ -55,7 +62,7 @@ async function seedPhrases(phraseArray) {
       phrase.phraseID = `phrase_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
     }
     if (!phrase.updatedAt) {
-      phrase.updatedAt = new Date().toISOString();
+      phrase.updatedAt = getCommitTimestampUTC();
     }
 
     store.put(phrase);
@@ -68,10 +75,10 @@ async function seedPhrases(phraseArray) {
 }
 
 // Usage:
-seedPhrases(tableData.slice(0,80))
-  .then(() => console.log(`✅ ${tableData.slice(0,80).length} phrases inserted into IndexedDB`))
+seedPhrases(tableData.slice(0,2))
+  .then(() => console.log(`✅ ${tableData.slice(0,2).length} phrases inserted into IndexedDB`))
   .catch(err => console.error("❌ Failed to seed phrases", err));
-Database.updateMeta("phrases",new Date().toISOString());
+Database.updateMeta("phrases",getCommitTimestampUTC());
 
     async function runDemo() {
       

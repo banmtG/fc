@@ -187,6 +187,7 @@ class ReportDialog extends HTMLElement {
       timeEl.textContent = `${durationSec}s`;
 
       // store log
+      if (log!=="")
       this._logs.push(`${this.stepCounter}. ${name} - ${success ? "SUCCESS" : "!!!! FAIL !!!!"} (${durationSec}s)\n${log}`);
     }
   }
@@ -256,6 +257,7 @@ class ReportDialog extends HTMLElement {
     this.logDownload.classList.add("hidden");
     this._logs = [];
     this.stepCounter = 0;
+    this.totalStartTime = null;
   }
 }
 
